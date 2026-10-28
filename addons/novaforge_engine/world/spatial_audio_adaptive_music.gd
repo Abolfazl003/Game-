@@ -17,7 +17,7 @@ var surface_footstep_pitch: Dictionary = {
 
 
 func transition_music(target_state: MusicState, crossfade_sec: float = 1.4) -> Dictionary:
-	var prev := MusicState.keys()[current_music_state]
+	var prev: String = str(MusicState.keys()[current_music_state])
 	current_music_state = target_state
 	return {
 		"from": prev,

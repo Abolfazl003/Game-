@@ -39,16 +39,12 @@ func _ready() -> void:
 	_model_tree.set_column_title(0, "Local AI Specialist Model")
 	_model_tree.set_column_title(1, "Council Role / Modality")
 	_model_tree.set_column_title(2, "Resident RAM")
-	_model_tree(3, "NVMe Disk Stream")
+	_model_tree.set_column_title(3, "NVMe Disk Stream")
 	_model_tree.set_column_title(4, "Status")
 	_model_tree.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(_model_tree)
 
 	_populate_models()
-
-
-func _model_tree(col: int, title: String) -> void:
-	_model_tree.set_column_title(col, title)
 
 
 func _populate_models() -> void:

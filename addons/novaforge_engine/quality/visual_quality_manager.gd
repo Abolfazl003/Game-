@@ -124,9 +124,10 @@ func apply_quality_tier(tier_id: String, target_root: Node = null) -> Dictionary
 	current_tier = key
 	var p: Dictionary = TIER_PROFILES[key]
 
+	var is_fp := RenderingServer.get_current_rendering_method() == "forward_plus"
 	if get_viewport():
 		get_viewport().msaa_3d = p["msaa_3d"]
-		if p["fsr_upscale"]:
+		if p["fsr_upscale"] and is_fp:
 			get_viewport().scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR2
 			get_viewport().scaling_3d_scale = 0.77
 		else:
@@ -160,11 +161,12 @@ func _configure_world_environment(root: Node, p: Dictionary) -> void:
 	if world_env.environment == null:
 		world_env.environment = Environment.new()
 
+	var is_fp := RenderingServer.get_current_rendering_method() == "forward_plus"
 	var env := world_env.environment
 	env.tonemap_mode = p["tonemap"]
-	env.sdfgi_enabled = p["sdfgi"]
-	env.ssr_enabled = p["ssr"]
-	env.ssao_enabled = p["ssao"]
-	env.ssil_enabled = p["ssil"]
-	env.volumetric_fog_enabled = p["volumetric_fog"]
+	env.sdfgi_enabled = bool(p["sdfgi"]) and is_fp
+	env.ssr_enabled = bool(p["ssr"]) and is_fp
+	env.ssao_enabled = bool(p["ssao"]) and is_fp
+	env.ssil_enabled = bool(p["ssil"]) and is_fp
+	env.volumetric_fog_enabled = bool(p["volumetric_fog"]) and is_fp
 	env.glow_enabled = p["glow_bloom"]

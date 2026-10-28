@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://novaforge_sandbox_001"]
+[gd_scene load_steps=17 format=3 uid="uid://novaforge_sandbox_001"]
 
 [ext_resource type="Script" path="res://addons/novaforge_engine/genres/perspective_camera_rig_3d.gd" id="1_cam"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/smart_objects/smart_object_behavior_3d.gd" id="2_obj"]
@@ -8,19 +8,31 @@
 
 [sub_resource type="Environment" id="Environment_nova"]
 background_mode = 1
-background_color = Color(0.11, 0.14, 0.2, 1)
+background_color = Color(0.11, 0.15, 0.23, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.62, 0.78, 1)
+ambient_light_energy = 0.65
 tonemap_mode = 3
-sdfgi_enabled = true
-ssao_enabled = true
 glow_enabled = true
 
+[sub_resource type="StandardMaterial3D" id="Mat_ground"]
+albedo_color = Color(0.22, 0.25, 0.31, 1)
+roughness = 0.85
+
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
+material = SubResource("Mat_ground")
 size = Vector3(60, 1, 60)
 
 [sub_resource type="BoxShape3D" id="BoxShape_ground"]
 size = Vector3(60, 1, 60)
 
+[sub_resource type="StandardMaterial3D" id="Mat_hero"]
+albedo_color = Color(0.82, 0.2, 0.24, 1)
+metallic = 0.45
+roughness = 0.35
+
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_hero"]
+material = SubResource("Mat_hero")
 radius = 0.42
 height = 1.8
 
@@ -28,11 +40,26 @@ height = 1.8
 radius = 0.42
 height = 1.8
 
+[sub_resource type="StandardMaterial3D" id="Mat_crate"]
+albedo_color = Color(0.76, 0.52, 0.24, 1)
+roughness = 0.72
+
 [sub_resource type="BoxMesh" id="BoxMesh_crate"]
+material = SubResource("Mat_crate")
 size = Vector3(1.2, 1.2, 1.2)
 
 [sub_resource type="BoxShape3D" id="BoxShape_crate"]
 size = Vector3(1.2, 1.2, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="Mat_npc"]
+albedo_color = Color(0.18, 0.62, 0.54, 1)
+metallic = 0.25
+roughness = 0.5
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_npc"]
+material = SubResource("Mat_npc")
+radius = 0.42
+height = 1.8
 
 [node name="NovaForgeSandbox" type="Node3D"]
 
@@ -90,7 +117,7 @@ fracture_shard_count = 16
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 1.0, -2.0)
 
 [node name="NPCMesh" type="MeshInstance3D" parent="KavehBlacksmithNPC"]
-mesh = SubResource("CapsuleMesh_hero")
+mesh = SubResource("CapsuleMesh_npc")
 
 [node name="NPCCollision" type="CollisionShape3D" parent="KavehBlacksmithNPC"]
 shape = SubResource("CapsuleShape_hero")

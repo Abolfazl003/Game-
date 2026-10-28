@@ -10,7 +10,7 @@
 #   bash tests/autopilot/run.sh
 # or from an agent, as a RunVerification probe (see tests/autopilot/README.md).
 
-extends "res://tests/autopilot/probe_base.gd"
+extends "res://addons/novaforge_engine/agent/kernels/probe_base.gd"
 
 # ── CONFIG — edit this ────────────────────────────────────────────────────────────
 

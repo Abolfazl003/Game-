@@ -43,11 +43,12 @@ func _ready() -> void:
 	# Prompt Input (Persian & English)
 	_prompt_input = TextEdit.new()
 	_prompt_input.placeholder_text = "پرامپت بازی، سیستم فایت، کات‌سین، تبدیل عکس/ویدیو به کاراکتر و انیمیشن را اینجا بنویسید..."
+	_prompt_input.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 	_prompt_input.custom_minimum_size = Vector2(0, 110)
 	add_child(_prompt_input)
 
 	var btn_run := Button.new()
-	btn_run.text = "⚡ اجرای همفکری شورای هوش مصنوعی لوکال (Run Multi-Brain Council)"
+	btn_run.text = "⚡ اجرای همفکری شورا (Run AI Council)"
 	btn_run.pressed.connect(_on_run_council_pressed)
 	add_child(btn_run)
 
