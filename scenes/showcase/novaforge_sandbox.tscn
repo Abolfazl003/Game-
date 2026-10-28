@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://novaforge_sandbox_001"]
+[gd_scene load_steps=13 format=3 uid="uid://novaforge_sandbox_001"]
 
 [ext_resource type="Script" path="res://addons/novaforge_engine/genres/perspective_camera_rig_3d.gd" id="1_cam"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/smart_objects/smart_object_behavior_3d.gd" id="2_obj"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/living_npcs/living_npc_brain_3d.gd" id="3_npc"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/world/elemental_weather_system.gd" id="4_weather"]
+[ext_resource type="Script" path="res://addons/novaforge_engine/genres/playable_samurai_controller_3d.gd" id="5_hero"]
 
 [sub_resource type="Environment" id="Environment_nova"]
 background_mode = 1
@@ -16,7 +17,21 @@ glow_enabled = true
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
 size = Vector3(60, 1, 60)
 
+[sub_resource type="BoxShape3D" id="BoxShape_ground"]
+size = Vector3(60, 1, 60)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_hero"]
+radius = 0.42
+height = 1.8
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape_hero"]
+radius = 0.42
+height = 1.8
+
 [sub_resource type="BoxMesh" id="BoxMesh_crate"]
+size = Vector3(1.2, 1.2, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape_crate"]
 size = Vector3(1.2, 1.2, 1.2)
 
 [node name="NovaForgeSandbox" type="Node3D"]
@@ -31,26 +46,54 @@ shadow_enabled = true
 [node name="ElementalWeather" type="Node3D" parent="."]
 script = ExtResource("4_weather")
 
-[node name="ArenaGround" type="MeshInstance3D" parent="."]
+[node name="ArenaGround" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="GroundMesh" type="MeshInstance3D" parent="ArenaGround"]
 mesh = SubResource("BoxMesh_ground")
 
-[node name="PerspectiveCameraRig3D" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 4)
-script = ExtResource("1_cam")
+[node name="GroundCollision" type="CollisionShape3D" parent="ArenaGround"]
+shape = SubResource("BoxShape_ground")
 
-[node name="DestructibleAncientCrate" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.6, -2.0)
+[node name="SamuraiHero" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+script = ExtResource("5_hero")
+
+[node name="HeroMesh" type="MeshInstance3D" parent="SamuraiHero"]
+mesh = SubResource("CapsuleMesh_hero")
+
+[node name="HeroCollision" type="CollisionShape3D" parent="SamuraiHero"]
+shape = SubResource("CapsuleShape_hero")
+
+[node name="PerspectiveCameraRig3D" type="Node3D" parent="." node_paths=PackedStringArray("follow_target")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+script = ExtResource("1_cam")
+follow_target = NodePath("../SamuraiHero")
+
+[node name="DestructibleAncientCrate" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0, 0.6, -1.8)
+
+[node name="CrateMesh" type="MeshInstance3D" parent="DestructibleAncientCrate"]
 mesh = SubResource("BoxMesh_crate")
+
+[node name="CrateCollision" type="CollisionShape3D" parent="DestructibleAncientCrate"]
+shape = SubResource("BoxShape_crate")
 
 [node name="SmartObjectBehavior3D" type="Node3D" parent="DestructibleAncientCrate"]
 script = ExtResource("2_obj")
 is_interactable = true
 is_destructible = true
+max_health = 30.0
 fracture_shard_count = 16
 
-[node name="KavehBlacksmithNPC" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.0, 0, -2.5)
+[node name="KavehBlacksmithNPC" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 1.0, -2.0)
+
+[node name="NPCMesh" type="MeshInstance3D" parent="KavehBlacksmithNPC"]
+mesh = SubResource("CapsuleMesh_hero")
+
+[node name="NPCCollision" type="CollisionShape3D" parent="KavehBlacksmithNPC"]
+shape = SubResource("CapsuleShape_hero")
 
 [node name="LivingNPCBrain3D" type="Node3D" parent="KavehBlacksmithNPC"]
 script = ExtResource("3_npc")

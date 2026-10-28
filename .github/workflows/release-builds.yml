@@ -1,0 +1,65 @@
+name: Build Runnable Engine Bundles (Windows & Linux)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  package-linux-x64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile Native C11/C++20 Core (`libnova_core.so`)
+        run: make -C native all test
+
+      - name: Bundle Portable Godot 4.6 + NovaForge Linux x64
+        run: |
+          mkdir -p dist_bundle/NovaForge-Linux-x64/engine_bin
+          curl -L -o /tmp/godot_linux.zip "https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_linux.x86_64.zip"
+          unzip -q /tmp/godot_linux.zip -d dist_bundle/NovaForge-Linux-x64/engine_bin
+          chmod +x dist_bundle/NovaForge-Linux-x64/engine_bin/Godot_v4.6-stable_linux.x86_64
+          rsync -a --exclude='.git' --exclude='dist_bundle' --exclude='native/build' ./ dist_bundle/NovaForge-Linux-x64/
+          cat << 'EOF' > dist_bundle/NovaForge-Linux-x64/START_EDITOR.sh
+          #!/usr/bin/env bash
+          cd "$(dirname "$0")"
+          ./engine_bin/Godot_v4.6-stable_linux.x86_64 --editor --path .
+          EOF
+          chmod +x dist_bundle/NovaForge-Linux-x64/START_EDITOR.sh
+
+      - name: Upload Runnable Linux Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NovaForge-Godot4-Linux-x64
+          path: dist_bundle/NovaForge-Linux-x64/
+
+  package-windows-x64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile Native C11/C++20 Core (`nova_core.dll`)
+        shell: bash
+        run: |
+          mkdir -p native/bin
+          gcc -std=c11 -O3 -Inative/include -c native/src/colibri_tiered_runtime.c -o native/bin/colibri.o
+          g++ -std=c++20 -O3 -shared -Inative/include native/bin/colibri.o native/src/nova_blueprint.cpp native/src/nova_fracture.cpp native/src/gdextension_bridge.cpp -o native/bin/nova_core.dll
+          rm -f native/bin/colibri.o
+
+      - name: Bundle Portable Godot 4.6 + NovaForge Windows x64 (.exe)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "dist_win/NovaForge-Windows-x64/engine_bin" | Out-Null
+          Invoke-WebRequest -Uri "https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_win64.exe.zip" -OutFile "$env:TEMP/godot_win.zip"
+          Expand-Archive -Path "$env:TEMP/godot_win.zip" -DestinationPath "dist_win/NovaForge-Windows-x64/engine_bin" -Force
+          Copy-Item -Path "project.godot","novaforge.gdextension","run.bat","README.md","LICENSE","THIRD_PARTY_LICENSES.md" -Destination "dist_win/NovaForge-Windows-x64/"
+          Copy-Item -Recurse -Path "addons","native","pipelines","library","shaders","scenes","launcher","studio_preview" -Destination "dist_win/NovaForge-Windows-x64/"
+          Set-Content -Path "dist_win/NovaForge-Windows-x64/OPEN_GODOT4_EDITOR.bat" -Value '@echo off`r`ncd /d "%~dp0"`r`nstart "" "engine_bin\Godot_v4.6-stable_win64.exe" --editor --path .'
+          Set-Content -Path "dist_win/NovaForge-Windows-x64/PLAY_SANDBOX_GAME.bat" -Value '@echo off`r`ncd /d "%~dp0"`r`nstart "" "engine_bin\Godot_v4.6-stable_win64.exe" --path .'
+
+      - name: Upload Runnable Windows x64 Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NovaForge-Godot4-Windows-x64
+          path: dist_win/NovaForge-Windows-x64/

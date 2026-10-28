@@ -22,6 +22,8 @@ models/weights/
 models/containers/*.colibri
 models/gguf/*.gguf
 .novaforge_snapshots/
+engine_bin/
+generated/runtime_forge/
 
 # OS & IDE files
 .DS_Store
