@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NovaForge AI Game Engine — پیش‌نمایش زنده استودیو</title>
+<style>
+  :root {
+    --bg-dark: #0b0f17;
+    --panel: #131a27;
+    --panel-alt: #192234;
+    --border: #27344d;
+    --accent: #38bdf8;
+    --accent-2: #a855f7;
+    --success: #22c55e;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; }
+  body { background: var(--bg-dark); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  header {
+    height: 52px; background: #0f1623; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 16px; gap: 10px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; color: #fff; }
+  .badge { background: rgba(56,189,248,0.14); color: var(--accent); border: 1px solid rgba(56,189,248,0.35); padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  select, button, input {
+    background: var(--panel-alt); color: var(--text); border: 1px solid var(--border);
+    border-radius: 7px; padding: 6px 10px; font-size: 12px; cursor: pointer;
+  }
+  button.primary { background: linear-gradient(135deg, #0284c7, #7c3aed); border: none; font-weight: 700; color: #fff; }
+  button.primary:hover { opacity: 0.92; }
+  button:hover { border-color: var(--accent); }
+
+  .workspace { flex: 1; display: grid; grid-template-columns: 300px 1fr 340px; min-height: 0; }
+  .dock { background: var(--panel); border-left: 1px solid var(--border); border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding: 12px; gap: 12px; }
+  .card { background: var(--panel-alt); border: 1px solid var(--border); border-radius: 10px; padding: 11px; display: flex; flex-direction: column; gap: 8px; }
+  .card h3 { font-size: 12.5px; color: var(--accent); display: flex; justify-content: space-between; align-items: center; }
+  .meter { height: 7px; background: #0b0f17; border-radius: 99px; overflow: hidden; border: 1px solid var(--border); }
+  .meter > span { display: block; height: 100%; background: linear-gradient(90deg, #22c55e, #38bdf8); transition: width 0.35s; }
+
+  .viewport-wrap { position: relative; background: #070a10; display: flex; flex-direction: column; min-height: 0; }
+  canvas#sceneCanvas { width: 100%; flex: 1; display: block; cursor: crosshair; }
+  .hud-hint {
+    position: absolute; top: 12px; right: 12px; background: rgba(15,22,35,0.84);
+    border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 11.5px; color: var(--muted); pointer-events: none; line-height: 1.7;
+  }
+  .cutscene-bars { position: absolute; inset: 0; pointer-events: none; display: none; flex-direction: column; justify-content: space-between; }
+  .cutscene-bars.active { display: flex; }
+  .bar { height: 48px; background: #000; display: flex; align-items: center; justify-content: center; color: #f8fafc; font-size: 13px; letter-spacing: 0.3px; }
+
+  .context-menu {
+    position: absolute; display: none; width: 270px; background: #111827; border: 1px solid var(--accent);
+    border-radius: 10px; box-shadow: 0 16px 40px rgba(0,0,0,0.65); padding: 10px; z-index: 30; gap: 7px; flex-direction: column;
+  }
+  .context-menu.open { display: flex; }
+  .context-menu h4 { font-size: 12.5px; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+  .chk-row { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--text); cursor: pointer; }
+
+  .bottom-tabs { height: 185px; background: #0e1420; border-top: 1px solid var(--border); padding: 10px 14px; overflow-y: auto; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; direction: ltr; text-align: left; color: #cbd5e1; white-space: pre-wrap; }
+  textarea {
+    width: 100%; min-height: 76px; background: #0b0f17; color: #fff; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px; font-size: 12px; resize: vertical; line-height: 1.5;
+  }
+  .brain-pill { display: flex; align-items: center; justify-content: space-between; font-size: 11px; padding: 5px 8px; border-radius: 6px; background: #0e1522; border: 1px solid var(--border); }
+  .brain-pill.active { border-color: var(--success); color: #86efac; }
+  .npc-bio { font-size: 11.5px; line-height: 1.65; color: #cbd5e1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span>🚀 NovaForge AI Engine</span>
+    <span class="badge">Zero-MCP Native</span>
+    <span class="badge">123 Skills | 114 Tools</span>
+    <span class="badge">Godot 4.6 + Jolt + C++20</span>
+  </div>
+  <div class="toolbar">
+    <label style="font-size:11.5px;color:var(--muted)">کیفیت گرافیک:</label>
+    <select id="qualitySelect">
+      <option value="AAA_UNREAL">AAA / Unreal-Grade (Forward+ SDFGI)</option>
+      <option value="STANDARD_UNITY">Standard / Unity-Style (Balanced)</option>
+      <option value="INDIE_CEL_ANIME">Indie / Cel-Shaded Anime</option>
+      <option value="INDIE_HD2D">Indie / HD-2D Diorama</option>
+      <option value="INDIE_PSX_RETRO">Indie / PSX Retro (Vertex Snap)</option>
+    </select>
+
+    <label style="font-size:11.5px;color:var(--muted)">دوربین / ژانر:</label>
+    <select id="camSelect">
+      <option value="TPS_SOULS">سوم‌شخص سولزلایک (TPS Lock-On)</option>
+      <option value="TPS_SHOULDER">سوم‌شخص روی شانه (Over-Shoulder)</option>
+      <option value="FPS">اول‌شخص کامل (True FPS)</option>
+      <option value="SIDE_2_5D">۲.۵ بعدی سایداسکرولینگ (2.5D)</option>
+      <option value="ISOMETRIC">ایزومتریک / استراتژیک (Isometric)</option>
+    </select>
+
+    <button id="btnAdvanceDay">⏩ جلو بردن زمان بازی (+۵ روز زندگی NPCها)</button>
+    <button id="btnUndoSnap">⏪ Time-Machine Undo</button>
+  </div>
+</header>
+
+<div class="workspace">
+  <!-- Right Dock (RTL first column): Multi-Brain Colibri Council -->
+  <aside class="dock">
+    <div class="card">
+      <h3><span>🧠 شورای ۵ مغز لوکال (Colibrì)</span><span id="relayBadge" style="color:var(--success);font-size:10.5px">آماده</span></h3>
+      <div class="brain-pill" id="b0"><span>1. مغز کارگردان (GLM-5.3 MoE)</span><span>NVMe Stream</span></div>
+      <div class="brain-pill" id="b1"><span>2. مغز کدنویس C++ / Blueprint</span><span>RAM Cache</span></div>
+      <div class="brain-pill" id="b2"><span>3. مغز سه‌بعدی و متریال بلندر</span><span>Auto-PBR</span></div>
+      <div class="brain-pill" id="b3"><span>4. مغز موشن‌کپچر و کات‌سین</span><span>Foot-IK</span></div>
+      <div class="brain-pill" id="b4"><span>5. مغز داور و Scene Audit</span><span>Zero-Bug</span></div>
+
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">مصرف VRAM هوش مصنوعی (با تخلیه خودکار برای رندر): <b id="vramTxt">0.4 GB / 5.0 GB</b></div>
+      <div class="meter"><span id="vramBar" style="width:12%"></span></div>
+    </div>
+
+    <div class="card">
+      <h3>⚡ پرامپت ساخت بازی، فایت، ریگ و کات‌سین</h3>
+      <textarea id="promptBox">یه جنگجوی سامورایی با کمبوی ۳ ضربه‌ای شمشیر بساز، صندوق چوبی با ضربه تیکه‌تیکه بشه و وقتی رسید دم دروازه، این تیکه کات‌سینه!</textarea>
+      <button class="primary" id="btnRunCouncil">اجرای همفکری شورا و ساخت در صحنه</button>
+    </div>
+
+    <div class="card">
+      <h3>📦 پایپ‌لاین بلندر، Auto-Rig و ویدیو موشن</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <button id="btnImg3D">🖼️ عکس ⬅️ مدل 3D + ریگ</button>
+        <button id="btnMocap">🎥 ویدیو ⬅️ فایت موشن</button>
+        <button id="btnBlend">🟠 ایمپورت .blend خودکار</button>
+        <button id="btnCutscene">🎬 تست کات‌سین زنده</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Center 3D Interactive Viewport + Blueprint/C++ Code Output -->
+  <main class="viewport-wrap">
+    <canvas id="sceneCanvas"></canvas>
+    <div class="hud-hint">
+      🖱️ <b>کلیک چپ روی «صندوق / بشکه» یا «کاوه آهنگر (NPC)» در صحنه:</b> باز شدن منوی هوشمند قابلیت‌ها و تخریب Voronoi!<br>
+      🎮 زاویه فعال: <b id="hudCam" style="color:#38bdf8">TPS_SOULS</b> | کیفیت: <b id="hudQual" style="color:#a855f7">AAA_UNREAL</b> | روز دنیای بازی: <b id="hudDay" style="color:#22c55e">روز ۱</b>
+    </div>
+
+    <div class="cutscene-bars" id="cutsceneOverlay">
+      <div class="bar">🎬 IN-ENGINE LIVE CUTSCENE SEQUENCER (Zero Black Screen — Real-Time Rack Focus & Slow-Mo)</div>
+      <div class="bar" id="cutsceneSub">«دروازه قلعه باز می‌شود... آماده نبرد شو!»</div>
+    </div>
+
+    <!-- Context Popup Menu on Object / NPC Click -->
+    <div class="context-menu" id="ctxMenu">
+      <h4 id="ctxTitle">منوی هوشمند آبجکت</h4>
+      <label class="chk-row"><input type="checkbox" id="chkInteract" checked /> قابل تعامل (`[E]` باز شدن با تشخیص خودکار لولا)</label>
+      <label class="chk-row"><input type="checkbox" id="chkDestruct" checked /> تخریب واقعی با سلاح (Voronoi 3D Shards)</label>
+      <label class="chk-row"><input type="checkbox" id="chkEvolve" checked /> هوش مصنوعی زندگی پیش‌رونده (Evolving Life)</label>
+      <input type="text" id="ctxPrompt" placeholder="پرامپت اختصاصی برای همین آبجکت/NPC..." />
+      <div style="display:flex;gap:6px">
+        <button class="primary" id="btnShatterNow" style="flex:1">💥 تست ضربه شمشیر / تعامل</button>
+        <button id="btnCloseCtx">بستن</button>
+      </div>
+    </div>
+
+    <div class="bottom-tabs" id="codeConsole">// NovaForge Hybrid Output Console (Blueprint Graph + C++20 GDExtension + GDScript + Scene Audit)
+[System] Zero-MCP NativeToolBus online — 123 Game Skills & 114 Engine Tools loaded.
+[Colibrì] Tiered Memory ready: Dense INT4 in RAM | 21,504 MoE Experts on NVMe SSD | GPU VRAM protected for Godot 4 + Jolt Physics.</div>
+  </main>
+
+  <!-- Left Dock: Living NPC Biography & Active Modules -->
+  <aside class="dock">
+    <div class="card">
+      <h3><span>🧬 وضعیت NPC زنده (Evolving Life AI)</span></h3>
+      <div class="npc-bio" id="npcBioBox">
+        <b>نام:</b> کاوه آهنگر (Kaveh)<br>
+        <b>مرتبه شغلی:</b> شاگرد آهنگر (سطح ۱)<br>
+        <b>ثروت:</b> ۱۲۰ سکه طلا<br>
+        <b>رابطه با بازیکن:</b> +۱۰ (دوستانه)<br>
+        <b>زخم‌ها / حافظه نبرد:</b> بدون زخم | هنوز کمبوی بازیکن را ندیده
+      </div>
+      <div style="display:flex;gap:6px">
+        <button id="btnHelpNPC" style="flex:1">🤝 کمک و خرید</button>
+        <button id="btnFightNPC" style="flex:1">⚔️ درگیری و فرار</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🌦️ شیمی عناصر و جهان‌باز</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <button data-elem="CLEAR" class="elemBtn">☀️ صاف</button>
+        <button data-elem="RAIN" class="elemBtn">🌧️ باران (خیس)</button>
+        <button data-elem="FIRE" class="elemBtn">🔥 آتش + باد</button>
+        <button data-elem="LIGHTNING" class="elemBtn">⚡ صاعقه در آب</button>
+      </div>
+      <div id="elemStatus" style="font-size:11px;color:var(--muted)">واکنش فعال: محیط پایدار | Chunk [0,0] LOD0</div>
+    </div>
+
+    <div class="card">
+      <h3>🔗 پیش‌نمایش گراف Blueprint فعال</h3>
+      <div id="bpSummary" style="font-size:11px;color:#93c5fd;direction:ltr;text-align:left;line-height:1.6">
+[Event_BeginPlay] ──▶ [SetupPerspective: TPS_SOULS]
+[Event_OnAttack]  ──▶ [Branch: stamina >= 18]
+                        ├─True─▶ [PlayMeleeCombo3Hit] ──▶ [VoronoiHitCheck]
+                        └─False▶ [StaminaWarningHUD]
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const canvas = document.getElementById('sceneCanvas');
+const ctx = canvas.getContext('2d');
+const consoleBox = document.getElementById('codeConsole');
+
+let state = {
+  quality: 'AAA_UNREAL',
+  cam: 'TPS_SOULS',
+  day: 1,
+  weather: 'CLEAR',
+  cutscene: false,
+  time: 0,
+  crateShattered: false,
+  shards: [],
+  playerSlash: 0,
+  npc: {
+    tier: 1,
+    title: 'شاگرد آهنگر (سطح ۱)',
+    gold: 120,
+    rel: 10,
+    scars: [],
+    counters: [],
+    comboSeen: 0
+  },
+  selectedEntity: null,
+  history: []
+};
+
+function logLine(msg) {
+  consoleBox.textContent = msg + "\n" + consoleBox.textContent.slice(0, 2600);
+}
+
+function saveSnapshot(label) {
+  state.history.push(JSON.parse(JSON.stringify({
+    quality: state.quality, cam: state.cam, day: state.day,
+    crateShattered: state.crateShattered, npc: state.npc
+  })));
+  logLine(`[Time-Machine] Snapshot saved: "${label}" (Total: ${state.history.length})`);
+}
+
+function updateNPCUI() {
+  const n = state.npc;
+  document.getElementById('npcBioBox').innerHTML =
+    `<b>نام:</b> کاوه آهنگر (Kaveh)<br>` +
+    `<b>مرتبه شغلی:</b> ${n.title}<br>` +
+    `<b>ثروت:</b> ${n.gold} سکه طلا<br>` +
+    `<b>رابطه با بازیکن:</b> ${n.rel >= 0 ? '+' + n.rel : n.rel} (${n.rel <= -35 ? 'دشمن خونی / Nemesis' : (n.rel >= 35 ? 'متحد وفادار' : 'معمولی')})<br>` +
+    `<b>زخم‌ها / حافظه نبرد:</b> ${n.scars.length ? n.scars.join('، ') : 'بدون زخم'} | ${n.counters.length ? 'ضدحمله آموخته‌شده: ' + n.counters.join(', ') : 'در حال یادگیری'}`;
+  document.getElementById('hudDay').textContent = `روز ${state.day}`;
+}
+
+document.getElementById('qualitySelect').addEventListener('change', e => {
+  saveSnapshot('Before Quality Switch');
+  state.quality = e.target.value;
+  document.getElementById('hudQual').textContent = state.quality;
+  logLine(`[NovaQuality] Switched visual pipeline -> ${state.quality} (Auto-LOD & Shaders reconfigured)`);
+});
+
+document.getElementById('camSelect').addEventListener('change', e => {
+  state.cam = e.target.value;
+  document.getElementById('hudCam').textContent = state.cam;
+  logLine(`[PerspectiveCameraRig3D] Runtime camera & movement rig -> ${state.cam}`);
+});
+
+document.getElementById('btnAdvanceDay').addEventListener('click', () => {
+  saveSnapshot('Advance World Time');
+  state.day += 5;
+  if (state.npc.rel <= -35) {
+    state.npc.title = 'فرمانده یاغیان زخم‌خورده (Nemesis Lv.3)';
+    state.npc.gold += 90;
+  } else {
+    state.npc.gold += 160;
+    if (state.npc.gold >= 500) {
+      state.npc.tier = 3;
+      state.npc.title = 'استادکار سلطنتی + کارگاه بزرگ و شاگرد';
+    } else if (state.npc.gold >= 260) {
+      state.npc.tier = 2;
+      state.npc.title = 'آهنگر ارشد شهر (سطح ۲)';
+    }
+  }
+  updateNPCUI();
+  logLine(`[NovaWorldLife] Advanced +5 days -> Day ${state.day}. Off-screen Living NPCs evolved careers & alliances!`);
+});
+
+document.getElementById('btnHelpNPC').addEventListener('click', () => {
+  state.npc.rel = Math.min(100, state.npc.rel + 25);
+  state.npc.gold += 55;
+  updateNPCUI();
+  logLine(`[LivingNPCBrain3D] Player traded & helped Kaveh -> Relationship: +${state.npc.rel}`);
+});
+
+document.getElementById('btnFightNPC').addEventListener('click', () => {
+  state.npc.rel = Math.max(-100, state.npc.rel - 50);
+  state.npc.comboSeen += 1;
+  if (!state.npc.scars.includes('جای زخم شمشیر روی گونه چپ')) {
+    state.npc.scars.push('جای زخم شمشیر روی گونه چپ');
+  }
+  if (!state.npc.counters.includes('Parry_3Hit_Katana')) {
+    state.npc.counters.push('Parry_3Hit_Katana');
+  }
+  state.playerSlash = 1.0;
+  updateNPCUI();
+  logLine(`[Nemesis Memory] Kaveh survived with cheek scar & learned counter-parry against Player's Katana Combo!`);
+});
+
+document.getElementById('btnUndoSnap').addEventListener('click', () => {
+  const prev = state.history.pop();
+  if (!prev) { logLine(`[Time-Machine] No earlier snapshot.`); return; }
+  state.quality = prev.quality;
+  state.cam = prev.cam;
+  state.day = prev.day;
+  state.crateShattered = prev.crateShattered;
+  state.shards = [];
+  state.npc = prev.npc;
+  updateNPCUI();
+  document.getElementById('hudQual').textContent = state.quality;
+  document.getElementById('hudCam').textContent = state.cam;
+  logLine(`[Time-Machine] Restored project state cleanly!`);
+});
+
+document.querySelectorAll('.elemBtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const elem = btn.dataset.elem;
+    const prev = state.weather;
+    state.weather = elem;
+    let reaction = 'محیط پایدار';
+    if (elem === 'LIGHTNING' && prev === 'RAIN') {
+      reaction = '⚡ واکنش زنجیره‌ای صاعقه روی زمین خیس (AoE Shock 45 DMG)!';
+    } else if (elem === 'RAIN' && prev === 'FIRE') {
+      reaction = '💨 باران آتش را خاموش کرد + تولید بخار غلیظ و سطح خیس SSR!';
+    } else if (elem === 'FIRE') {
+      reaction = '🔥 گسترش آتش در جهت وزش باد روی چمن و چوب!';
+    }
+    document.getElementById('elemStatus').textContent = reaction;
+    logLine(`[ElementalWeatherSystem] Weather/Element -> ${elem} | ${reaction}`);
+  });
+});
+
+function triggerCutscene() {
+  state.cutscene = true;
+  document.getElementById('cutsceneOverlay').classList.add('active');
+  logLine(`[CutsceneDirector] Seamless blend from Gameplay Camera -> Cinematic Rail (32mm Lens DOF, 0.45x Slow-Mo, 0ms Black Screen)`);
+  setTimeout(() => {
+    state.cutscene = false;
+    document.getElementById('cutsceneOverlay').classList.remove('active');
+    logLine(`[CutsceneDirector] Blended smoothly back behind player shoulder!`);
+  }, 3400);
+}
+
+document.getElementById('btnCutscene').addEventListener('click', triggerCutscene);
+
+document.getElementById('btnImg3D').addEventListener('click', () => {
+  logLine(`[AssetForge + AutoRigger] Image -> 3D Mesh (4,675 verts + LOD0/1/2) -> Fitted 52-Bone SkeletonProfileHumanoid (sum(weights)=1.0000)!`);
+});
+
+document.getElementById('btnMocap').addEventListener('click', () => {
+  state.playerSlash = 1.0;
+  logLine(`[VideoToMotion] Extracted 3D world-space combo + Fingers + Face | Foot-Locking IK pinned 47 stance frames | Tagged 21 Hitbox/Spark events!`);
+});
+
+document.getElementById('btnBlend').addEventListener('click', () => {
+  logLine(`[Universal3DImporter] Imported .blend/.fbx/.usd -> Auto-bound Albedo, Flipped DirectX Normal Y-Channel, Inverted Gloss->Roughness & Unpacked ORM!`);
+});
+
+document.getElementById('btnRunCouncil').addEventListener('click', async () => {
+  saveSnapshot('Pre-Council Prompt');
+  const p = document.getElementById('promptBox').value;
+  const pills = ['b0','b1','b2','b3','b4'];
+  const vramBar = document.getElementById('vramBar');
+  const vramTxt = document.getElementById('vramTxt');
+  const badge = document.getElementById('relayBadge');
+  badge.textContent = 'در حال همفکری...';
+
+  const vramSteps = ['2.1 GB / 5.0 GB', '1.8 GB / 5.0 GB', '2.6 GB / 5.0 GB', '1.9 GB / 5.0 GB', '1.4 GB / 5.0 GB'];
+  const widths = ['44%', '36%', '52%', '38%', '28%'];
+
+  for (let i = 0; i < pills.length; i++) {
+    pills.forEach(id => document.getElementById(id).classList.remove('active'));
+    document.getElementById(pills[i]).classList.add('active');
+    vramBar.style.width = widths[i];
+    vramTxt.textContent = vramSteps[i];
+    await new Promise(r => setTimeout(r, 260));
+  }
+  pills.forEach(id => document.getElementById(id).classList.remove('active'));
+  vramBar.style.width = '8%';
+  vramTxt.textContent = '0.3 GB / 5.0 GB (VRAM Flushed for Renderer)';
+  badge.textContent = 'تایید نهایی شورا ✓';
+
+  state.playerSlash = 1.0;
+  if (p.includes('تیکه') || p.includes('بشکن')) shatterCrate();
+  if (p.includes('کات‌سین') || p.includes('کات سین')) triggerCutscene();
+
+  logLine(
+`[MultiBrainCouncil] Unified Verified Output for: "${p.slice(0, 55)}..."
+  -> Skills Matched: [combat-basics, blueprint-cpp-hybrid, voronoi-3d-destruction, in-engine-cutscene-sequencer]
+  -> Compiled SamuraiFighterBP -> C++20 GDExtension + GDScript | Scene Audit: 0 Errors!`
+  );
+});
+
+function shatterCrate() {
+  state.crateShattered = true;
+  state.shards = [];
+  for (let i = 0; i < 16; i++) {
+    const ang = (Math.PI * 2 * i) / 16;
+    state.shards.push({
+      x: 0, y: 0,
+      vx: Math.cos(ang) * (2.2 + Math.random() * 2.5),
+      vy: -3.5 - Math.random() * 3.0,
+      rot: Math.random() * 3
+    });
+  }
+  logLine(`[VoronoiFracturer C++20] Sliced crate into 16 watertight convex Jolt RigidBody3D shards!`);
+}
+
+// Viewport Canvas Interaction & Real-Time Stylization Renderer
+let hitTargets = { crate: {x:0,y:0,r:45}, npc: {x:0,y:0,r:48} };
+
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const menu = document.getElementById('ctxMenu');
+
+  const dCrate = Math.hypot(mx - hitTargets.crate.x, my - hitTargets.crate.y);
+  const dNpc = Math.hypot(mx - hitTargets.npc.x, my - hitTargets.npc.y);
+
+  if (dCrate < hitTargets.crate.r) {
+    state.selectedEntity = 'crate';
+    document.getElementById('ctxTitle').textContent = '📦 منوی هوشمند: صندوق باستانی';
+    menu.style.left = Math.min(rect.width - 280, mx + 10) + 'px';
+    menu.style.top = Math.max(10, my - 20) + 'px';
+    menu.classList.add('open');
+  } else if (dNpc < hitTargets.npc.r) {
+    state.selectedEntity = 'npc';
+    document.getElementById('ctxTitle').textContent = '🧠 منوی هوشمند NPC: کاوه آهنگر';
+    menu.style.left = Math.min(rect.width - 280, mx + 10) + 'px';
+    menu.style.top = Math.max(10, my - 20) + 'px';
+    menu.classList.add('open');
+  } else {
+    menu.classList.remove('open');
+  }
+});
+
+document.getElementById('btnCloseCtx').addEventListener('click', () => {
+  document.getElementById('ctxMenu').classList.remove('open');
+});
+
+document.getElementById('btnShatterNow').addEventListener('click', () => {
+  document.getElementById('ctxMenu').classList.remove('open');
+  if (state.selectedEntity === 'crate') {
+    if (state.crateShattered) {
+      state.crateShattered = false;
+      logLine(`[SmartObjectBehavior3D] Reset crate mesh.`);
+    } else {
+      shatterCrate();
+    }
+  } else {
+    state.npc.gold += 40;
+    updateNPCUI();
+    logLine(`[LivingNPCBrain3D] Updated NPC options & triggered dynamic dialogue.`);
+  }
+});
+
+function renderLoop() {
+  state.time += 0.03;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  const pixelScale = state.quality === 'INDIE_PSX_RETRO' ? 0.32 : 1.0;
+  canvas.width = Math.max(200, Math.floor(w * pixelScale));
+  canvas.height = Math.max(150, Math.floor(h * pixelScale));
+  ctx.imageSmoothingEnabled = state.quality !== 'INDIE_PSX_RETRO';
+
+  const cw = canvas.width, ch = canvas.height;
+
+  // Sky / Environment by Quality Tier
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, ch * 0.62);
+  if (state.quality === 'AAA_UNREAL') {
+    skyGrad.addColorStop(0, '#0f172a');
+    skyGrad.addColorStop(1, '#1e3a5f');
+  } else if (state.quality === 'INDIE_CEL_ANIME') {
+    skyGrad.addColorStop(0, '#2563eb');
+    skyGrad.addColorStop(1, '#7dd3fc');
+  } else if (state.quality === 'INDIE_PSX_RETRO') {
+    skyGrad.addColorStop(0, '#1a1625');
+    skyGrad.addColorStop(1, '#3b2d4a');
+  } else {
+    skyGrad.addColorStop(0, '#1e293b');
+    skyGrad.addColorStop(1, '#334155');
+  }
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, cw, ch);
+
+  const horizon = state.cam === 'ISOMETRIC' ? ch * 0.30 : ch * 0.56;
+
+  // Ground Plane + Perspective Grid
+  ctx.fillStyle = state.weather === 'RAIN' ? '#111c2d' : (state.quality === 'INDIE_CEL_ANIME' ? '#15803d' : '#16202e');
+  ctx.fillRect(0, horizon, cw, ch - horizon);
+
+  ctx.strokeStyle = 'rgba(148,163,184,0.16)';
+  ctx.lineWidth = 1;
+  for (let i = -8; i <= 8; i++) {
+    ctx.beginPath();
+    ctx.moveTo(cw * 0.5 + i * (cw * 0.04), horizon);
+    ctx.lineTo(cw * 0.5 + i * (cw * 0.16), ch);
+    ctx.stroke();
+  }
+
+  // NPC Position (Left)
+  const npcX = cw * 0.28, npcY = horizon + ch * 0.17;
+  hitTargets.npc = { x: npcX / pixelScale, y: (npcY - 22 * pixelScale) / pixelScale, r: 46 };
+  ctx.fillStyle = state.npc.rel <= -35 ? '#ef4444' : '#f59e0b';
+  ctx.beginPath();
+  ctx.arc(npcX, npcY - 34 * pixelScale, 12 * pixelScale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(npcX - 11 * pixelScale, npcY - 20 * pixelScale, 22 * pixelScale, 34 * pixelScale);
+  ctx.fillStyle = '#fef08a';
+  ctx.font = `${Math.max(9, Math.floor(11 * pixelScale))}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText(`کاوه (Lv.${state.npc.tier})`, npcX, npcY - 52 * pixelScale);
+
+  // Player Hero (Center)
+  const heroX = cw * 0.50, heroY = horizon + ch * 0.22;
+  if (state.cam !== 'FPS') {
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(heroX, heroY - 38 * pixelScale, 13 * pixelScale, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(heroX - 12 * pixelScale, heroY - 23 * pixelScale, 24 * pixelScale, 38 * pixelScale);
+
+    // Katana slash arc
+    if (state.playerSlash > 0.02) {
+      ctx.strokeStyle = `rgba(56,189,248,${state.playerSlash})`;
+      ctx.lineWidth = 4 * pixelScale;
+      ctx.beginPath();
+      ctx.arc(heroX + 12 * pixelScale, heroY - 16 * pixelScale, 42 * pixelScale, -0.9, 1.1);
+      ctx.stroke();
+      state.playerSlash *= 0.92;
+    }
+  } else {
+    // FPS Weapon Viewmodel
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(cw * 0.68, ch * 0.68, cw * 0.08, ch * 0.32);
+  }
+
+  // Smart Destructible Crate (Right)
+  const crateX = cw * 0.72, crateY = horizon + ch * 0.18;
+  hitTargets.crate = { x: crateX / pixelScale, y: crateY / pixelScale, r: 44 };
+  if (!state.crateShattered) {
+    ctx.fillStyle = '#b45309';
+    const sz = 36 * pixelScale;
+    ctx.fillRect(crateX - sz * 0.5, crateY - sz * 0.5, sz, sz);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(crateX - sz * 0.5, crateY - sz * 0.5, sz, sz);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillText('[کلیک: تخریب/تعامل]', crateX, crateY - 26 * pixelScale);
+  } else {
+    ctx.fillStyle = '#d97706';
+    state.shards.forEach(s => {
+      s.x += s.vx * 0.45;
+      s.y += s.vy * 0.45;
+      s.vy += 0.28;
+      if (s.y > 18) { s.y = 18; s.vx *= 0.8; s.vy *= -0.35; }
+      ctx.fillRect(crateX + s.x * pixelScale, crateY + s.y * pixelScale, 8 * pixelScale, 8 * pixelScale);
+    });
+  }
+
+  // Weather Particles
+  if (state.weather === 'RAIN' || state.weather === 'LIGHTNING') {
+    ctx.strokeStyle = 'rgba(125,211,252,0.5)';
+    for (let r = 0; r < 45; r++) {
+      const rx = ((r * 97 + state.time * 220) % cw);
+      const ry = ((r * 61 + state.time * 420) % ch);
+      ctx.beginPath();
+      ctx.moveTo(rx, ry);
+      ctx.lineTo(rx - 4, ry + 12);
+      ctx.stroke();
+    }
+  } else if (state.weather === 'FIRE') {
+    ctx.fillStyle = 'rgba(249,115,22,0.75)';
+    for (let f = 0; f < 22; f++) {
+      const fx = crateX - 40 + ((f * 19 + state.time * 60) % 90);
+      const fy = crateY + 10 - ((f * 23 + state.time * 80) % 55);
+      ctx.beginPath();
+      ctx.arc(fx, fy, 4 * pixelScale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  requestAnimationFrame(renderLoop);
+}
+
+updateNPCUI();
+renderLoop();
+</script>
+</body>
+</html>

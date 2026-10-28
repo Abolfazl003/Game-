@@ -1,0 +1,19 @@
+name: NovaForge Engine CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Native C11/C++20 Core & Run Full Verification Suite
+        run: |
+          make -C native all test
+          python3 tests/run_all_tests.py
