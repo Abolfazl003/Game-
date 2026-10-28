@@ -8,12 +8,12 @@
 
 بدون نیاز به نصب پایتون، بدون ترمینال/CMD و بدون هیچ تنظیماتی، نسخه آماده سیستم‌عامل خودتان را دانلود، از حالت فشرده خارج (Extract) و اجرا کنید:
 
-- 🪟 **نسخه کامل فارسی و شخصی‌سازی‌شده ویندوز ۶۴ بیتی (`v1.2.0` — شامل لانچر فارسی `NovaForge_Studio.exe` + محیط کامل فارسی Godot 4.7.2 + فونت وزیرمتن + تمام قابلیت‌ها):**  
-  👉 [**دانلود مستقیم `NovaForge-Engine-v1.2.0-Persian-Windows-x64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v1.2.0/NovaForge-Engine-v1.2.0-Persian-Windows-x64-ReadyToRun.zip)  
-  *(فقط فایل ZIP را استخراج کنید و روی **`NovaForge_Studio.exe`** دابل‌کلیک کنید تا مستقیم وارد محیط کاملاً فارسی و شخصی‌سازی‌شده نوافورج همراه با تمام پنل‌ها و میزکار شوید!)*
+- 🪟 **نسخه کامل فارسی و شخصی‌سازی‌شده ویندوز ۶۴ بیتی (`v2.0.0` — مدل‌های سه‌بعدی واقعی `.GLB` + تبدیل عکس واقعی به مش سه‌بعدی + ریگ‌گذاری خودکار ۱۹ استخوانی + لانچر `NovaForge_Studio.exe`):**  
+  👉 [**دانلود مستقیم `NovaForge-Engine-v2.0.0-Persian-Windows-x64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v2.0.0/NovaForge-Engine-v2.0.0-Persian-Windows-x64-ReadyToRun.zip)  
+  *(فقط فایل ZIP را استخراج کنید و روی **`NovaForge_Studio.exe`** دابل‌کلیک کنید! بدون حتی یک شکل ساده/بیضی: شامل ۳۹ مدل سه‌بعدی واقعی و متحرک `.GLB`، انتخاب مستقیم هر عکس `.png/.jpg` از کامپیوتر یا Drag-and-Drop برای ساخت مش سه‌بعدی `.GLB` و ریگ‌گذاری خودکار اسکلت!)*
 
-- 🐧 **نسخه کامل فارسی و شخصی‌سازی‌شده لینوکس ۶۴ بیتی (`v1.2.0` — `x86_64`):**  
-  👉 [**دانلود مستقیم `NovaForge-Engine-v1.2.0-Persian-Linux-x86_64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v1.2.0/NovaForge-Engine-v1.2.0-Persian-Linux-x86_64-ReadyToRun.zip)  
+- 🐧 **نسخه کامل فارسی و شخصی‌سازی‌شده لینوکس ۶۴ بیتی (`v2.0.0` — `x86_64`):**  
+  👉 [**دانلود مستقیم `NovaForge-Engine-v2.0.0-Persian-Linux-x86_64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v2.0.0/NovaForge-Engine-v2.0.0-Persian-Linux-x86_64-ReadyToRun.zip)  
   *(فایل `./run.sh` را اجرا کنید تا پنجره لانچر فارسی باز شود.)*
 
 ---

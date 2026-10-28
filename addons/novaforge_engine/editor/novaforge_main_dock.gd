@@ -135,12 +135,37 @@ func _ready() -> void:
 	grid3.add_theme_constant_override("h_separation", 4)
 	grid3.add_theme_constant_override("v_separation", 4)
 
-	var b_img3d := _small_btn("◆ عکس⬅3D+ریگ")
-	b_img3d.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b_img3d.pressed.connect(func():
+	var dock_img_dlg := FileDialog.new()
+	dock_img_dlg.title = "انتخاب عکس از سیستم برای تبدیل به مش سه‌بعدی و ریگ خودکار"
+	dock_img_dlg.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	dock_img_dlg.access = FileDialog.ACCESS_FILESYSTEM
+	dock_img_dlg.use_native_dialog = false
+	dock_img_dlg.filters = PackedStringArray(["*.png, *.jpg, *.jpeg, *.webp, *.bmp ; تصاویر"])
+	dock_img_dlg.file_selected.connect(func(p: String):
 		var ctrl := _get_ctrl()
-		if ctrl: ctrl.call("spawn_image_to_3d_rigged_character")
+		if ctrl:
+			ctrl.call("spawn_image_to_3d_rigged_character", p)
+			if ctrl.has_method("switch_to_3d_viewport"): ctrl.call("switch_to_3d_viewport")
 	)
+	add_child(dock_img_dlg)
+
+	var dock_mesh_dlg := FileDialog.new()
+	dock_mesh_dlg.title = "انتخاب مدل سه‌بعدی (.glb / .gltf / .obj) برای ایمپورت"
+	dock_mesh_dlg.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	dock_mesh_dlg.access = FileDialog.ACCESS_FILESYSTEM
+	dock_mesh_dlg.use_native_dialog = false
+	dock_mesh_dlg.filters = PackedStringArray(["*.glb, *.gltf, *.obj ; مدل‌های سه‌بعدی"])
+	dock_mesh_dlg.file_selected.connect(func(p: String):
+		var ctrl := _get_ctrl()
+		if ctrl:
+			ctrl.call("import_blender_auto_pbr_gate", p)
+			if ctrl.has_method("switch_to_3d_viewport"): ctrl.call("switch_to_3d_viewport")
+	)
+	add_child(dock_mesh_dlg)
+
+	var b_img3d := _small_btn("◆ انتخاب عکس⬅ریگ")
+	b_img3d.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b_img3d.pressed.connect(func(): dock_img_dlg.popup_centered(Vector2i(760, 500)))
 	grid3.add_child(b_img3d)
 
 	var b_mocap := _small_btn("▶ ویدیو⬅موشن")
@@ -151,12 +176,9 @@ func _ready() -> void:
 	)
 	grid3.add_child(b_mocap)
 
-	var b_blend := _small_btn("✦ ایمپورت .blend")
+	var b_blend := _small_btn("✦ انتخاب مدل 3D")
 	b_blend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b_blend.pressed.connect(func():
-		var ctrl := _get_ctrl()
-		if ctrl: ctrl.call("import_blender_auto_pbr_gate")
-	)
+	b_blend.pressed.connect(func(): dock_mesh_dlg.popup_centered(Vector2i(760, 500)))
 	grid3.add_child(b_blend)
 
 	var b_cut := _small_btn("▶ کات‌سین زنده")
@@ -388,22 +410,7 @@ func _on_run_council_pressed() -> void:
 
 func _execute_council_scene_actions(prompt_txt: String) -> void:
 	var ctrl := _get_ctrl()
-	var matched: Array = []
-	if get_tree() and get_tree().root.has_node("NovaBrainCouncil"):
-		var res: Dictionary = get_tree().root.get_node("NovaBrainCouncil").execute_prompt_with_council(prompt_txt)
-		matched = res.get("matched_skills", [])
-
 	if ctrl:
-		ctrl.call("save_snapshot", "Pre-Council Prompt")
-		ctrl.call("run_video_to_motion_combo")
-		if prompt_txt.contains("دروازه") or prompt_txt.contains("قلعه") or prompt_txt.contains("blend"):
-			ctrl.call("import_blender_auto_pbr_gate")
-		if prompt_txt.contains("عکس") or prompt_txt.contains("ریگ"):
-			ctrl.call("spawn_image_to_3d_rigged_character")
-		if prompt_txt.contains("تیکه") or prompt_txt.contains("بشکن") or prompt_txt.contains("صندوق"):
-			if not bool(ctrl.get("crate_shattered")):
-				ctrl.call("shatter_or_reset_crate", false)
-		if prompt_txt.contains("کات‌سین") or prompt_txt.contains("کات سین") or prompt_txt.to_lower().contains("cutscene"):
-			ctrl.call("trigger_live_cutscene", "«دروازه قلعه باز می‌شود... آماده نبرد شو!»")
-
-		ctrl.call("emit_log", "[b][color=#22c55e][شورای ۵ مغز][/color][/b] خروجی واحد شورا روی صحنه اعمال شد -> مهارت‌ها: %s | بدون باگ!" % JSON.stringify(matched))
+		ctrl.call("run_prompt_council_build", prompt_txt)
+		if ctrl.has_method("switch_to_3d_viewport"):
+			ctrl.call("switch_to_3d_viewport")

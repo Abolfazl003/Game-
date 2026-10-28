@@ -1,18 +1,21 @@
 extends CharacterBody3D
 class_name PlayableSamuraiController3D
-## Out-of-the-box Playable Character Controller (`WASD` Move, `Space` Jump, `Shift` Dodge,
-## `Left Click` 3-Hit Katana Combo w/ Voronoi Fracture Hit Detection, `E` Smart Interact,
-## and `1..5` Live Camera Perspective & Quality Tier Switching — Cold-Boot Safe).
+## Playable 3D Character Controller driving REAL skeletal `.glb` / Auto-Rigged `AnimationPlayer`
+## (`Idle`, `Walk`, `Run`, `Jump`, `Roll`, `SwordSlash`) + Voronoi Hit Detection + Smart Interact.
+
+const LoaderScript := preload("res://addons/novaforge_engine/forge/glb_asset_loader.gd")
 
 @export var move_speed: float = 6.2
 @export var dodge_impulse: float = 13.5
 @export var jump_velocity: float = 5.4
-@export var melee_range: float = 2.8
+@export var melee_range: float = 2.9
 @export var melee_damage: float = 35.0
 
 var combo_step: int = 0
 var _combo_reset_timer: float = 0.0
 var _dodge_timer: float = 0.0
+var _attack_anim_lock: float = 0.0
+var _current_anim_state: String = ""
 var stamina: float = 100.0
 
 
@@ -26,6 +29,9 @@ func _physics_process(delta: float) -> void:
 		if _combo_reset_timer <= 0.0:
 			combo_step = 0
 
+	if _attack_anim_lock > 0.0:
+		_attack_anim_lock -= delta
+
 	if _dodge_timer > 0.0:
 		_dodge_timer -= delta
 	else:
@@ -33,23 +39,32 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
+		_set_hero_anim("Jump", false)
 
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-	var direction := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
+	var direction := Vector3(input_dir.x, 0.0, input_dir.y).normalized()
 
 	if Input.is_action_just_pressed("dodge") and stamina >= 20.0 and _dodge_timer <= 0.0:
 		stamina -= 20.0
-		_dodge_timer = 0.28
-		var dodge_dir := direction if direction.length() > 0.1 else -global_transform.basis.z
+		_dodge_timer = 0.34
+		var dodge_dir := direction if direction.length() > 0.1 else Vector3.FORWARD
 		velocity.x = dodge_dir.x * dodge_impulse
 		velocity.z = dodge_dir.z * dodge_impulse
+		_set_hero_anim("Roll", false)
 	elif _dodge_timer <= 0.0:
 		if direction.length() > 0.05:
 			velocity.x = direction.x * move_speed
 			velocity.z = direction.z * move_speed
+			var model_node := _get_visual_model()
+			if model_node:
+				model_node.rotation.y = lerp_angle(model_node.rotation.y, atan2(direction.x, direction.z), 12.0 * delta)
+			if is_on_floor() and _attack_anim_lock <= 0.0:
+				_set_hero_anim("Run", true)
 		else:
 			velocity.x = move_toward(velocity.x, 0.0, move_speed * 8.0 * delta)
 			velocity.z = move_toward(velocity.z, 0.0, move_speed * 8.0 * delta)
+			if is_on_floor() and _attack_anim_lock <= 0.0:
+				_set_hero_anim("Idle", true)
 
 	move_and_slide()
 
@@ -58,6 +73,22 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("interact"):
 		_perform_smart_interact()
+
+
+func _get_visual_model() -> Node3D:
+	for child in get_children():
+		if child is Node3D and not (child is CollisionShape3D) and not (child is Label3D):
+			return child as Node3D
+	return null
+
+
+func _set_hero_anim(anim_key: String, loop_flag: bool) -> void:
+	if _current_anim_state == anim_key and loop_flag:
+		return
+	var m := _get_visual_model()
+	if m:
+		LoaderScript.play_character_anim(m, [anim_key], loop_flag)
+		_current_anim_state = anim_key
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -87,8 +118,11 @@ func _perform_melee_combo() -> void:
 	stamina -= 12.0
 	combo_step = (combo_step % 3) + 1
 	_combo_reset_timer = 1.15
-	var dmg := melee_damage * (1.45 if combo_step == 3 else 1.0)
+	_attack_anim_lock = 0.55
+	_current_anim_state = ""
+	_set_hero_anim("SwordSlash", false)
 
+	var dmg := melee_damage * (1.45 if combo_step == 3 else 1.0)
 	var root := get_tree().current_scene
 	if root == null:
 		return

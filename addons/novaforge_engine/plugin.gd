@@ -16,6 +16,7 @@ var _living_world_dock: Control
 var _ai_council_dock: Control
 var _spatial_toolbar: Control
 var _console_panel: Control
+var _image_rig_panel: Control
 var _blueprint_panel: Control
 var _cutscene_panel: Control
 var _colibri_panel: Control
@@ -89,6 +90,11 @@ func _enter_tree() -> void:
 		add_inspector_plugin(_inspector_plugin)
 
 	# 6. Native Bottom Panel Modules (100% Persian)
+	var ir_script = load("res://addons/novaforge_engine/editor/image_to_mesh_rig_panel.gd")
+	if ir_script:
+		_image_rig_panel = ir_script.new()
+		add_control_to_bottom_panel(_image_rig_panel, "◆ عکس به مش 3D و ریگ خودکار")
+
 	var con_script = load("res://addons/novaforge_engine/editor/novaforge_console_panel.gd")
 	if con_script:
 		_console_panel = con_script.new()
@@ -160,6 +166,9 @@ func _exit_tree() -> void:
 		_spatial_toolbar.queue_free()
 	if _inspector_plugin:
 		remove_inspector_plugin(_inspector_plugin)
+	if _image_rig_panel:
+		remove_control_from_bottom_panel(_image_rig_panel)
+		_image_rig_panel.queue_free()
 	if _console_panel:
 		remove_control_from_bottom_panel(_console_panel)
 		_console_panel.queue_free()

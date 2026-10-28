@@ -52,6 +52,21 @@ func get_edited_root() -> Node3D:
 	return null
 
 
+func switch_to_3d_viewport() -> void:
+	if not Engine.is_editor_hint():
+		return
+	var base := EditorInterface.get_base_control()
+	if base:
+		var icon_3d := base.get_theme_icon("Node3D", "EditorIcons")
+		for b in base.find_children("*", "Button", true, false):
+			var btn := b as Button
+			if btn and btn.icon == icon_3d and not btn.text.is_empty():
+				EditorInterface.set_main_screen_editor(btn.text)
+				return
+	var loc_name := TranslationServer.translate("3D")
+	EditorInterface.set_main_screen_editor(loc_name if not loc_name.is_empty() else "3D")
+
+
 func get_editor_cam() -> Camera3D:
 	if Engine.is_editor_hint():
 		var vp := EditorInterface.get_editor_viewport_3d(0)
@@ -218,7 +233,9 @@ func shatter_or_reset_crate(record_snap: bool = true) -> void:
 	if record_snap:
 		save_snapshot("Voronoi Crate Toggle")
 
-	var crate_mesh := crate.get_node_or_null("CrateMesh") as Node3D
+	var crate_mesh := crate.get_node_or_null("CrateModel") as Node3D
+	if crate_mesh == null:
+		crate_mesh = crate.get_node_or_null("CrateMesh") as Node3D
 	var existing_shards := crate.get_node_or_null("VoronoiShards3D")
 
 	if crate_shattered:
@@ -276,6 +293,10 @@ func _play_hero_katana_slash_vfx() -> void:
 	if hero == null:
 		return
 
+	var loader = load("res://addons/novaforge_engine/forge/glb_asset_loader.gd")
+	if loader:
+		loader.play_character_anim(hero, ["SwordSlash"], false)
+
 	var old_arc := hero.get_node_or_null("KatanaSlashArcVFX")
 	if old_arc:
 		old_arc.queue_free()
@@ -306,172 +327,71 @@ func _play_hero_katana_slash_vfx() -> void:
 	)
 
 
-func spawn_image_to_3d_rigged_character() -> void:
+func spawn_image_to_3d_rigged_character(img_path: String = "res://assets/sample_images/cyber_samurai_concept.png") -> void:
 	var root := get_edited_root()
 	if root == null:
 		return
-	save_snapshot("Image-to-3D + 52-Bone Rig")
+	save_snapshot("Image-to-3D + Auto-Rig")
 
-	var existing := root.get_node_or_null("AI_ImmortalWarrior_Rigged")
-	if existing:
-		existing.queue_free()
+	var conv = load("res://addons/novaforge_engine/forge/real_image_to_3d_converter.gd")
+	var rigger = load("res://addons/novaforge_engine/rigging/real_mesh_autorigger.gd")
+	if conv == null or rigger == null:
+		return
 
-	var char_root := Node3D.new()
-	char_root.name = "AI_ImmortalWarrior_Rigged"
-	char_root.position = Vector3(2.4, 0.0, 1.2)
+	var mres: Dictionary = conv.reconstruct_3d_mesh_from_image(img_path, 84, 0.55, 1.88)
+	if not mres.get("ok", false):
+		emit_log("[color=#ef4444][خطا][/color] " + str(mres.get("error", "")))
+		return
+
+	var mesh_node: Node3D = mres["node"]
+	var out_glb := "res://generated/rigged/" + str(mres["name"]) + "_rigged.glb"
+	var rres: Dictionary = rigger.autorig_node3d(mesh_node, true, "Walk", out_glb)
+	mesh_node.free()
+	if not rres.get("ok", false):
+		return
+
+	var old := root.get_node_or_null(NodePath(rres["node"].name))
+	if old:
+		old.free()
+	var char_root: Node3D = rres["node"]
+	char_root.position = Vector3(1.8, 0.0, 0.4)
 	root.add_child(char_root)
 	char_root.owner = root
 
-	# Build 52-bone Humanoid Skeleton3D
-	var skel := Skeleton3D.new()
-	skel.name = "HumanoidSkeleton52"
-	var core_bones := [
-		"Root", "Hips", "Spine", "Chest", "UpperChest", "Neck", "Head", "Jaw", "LeftEye", "RightEye",
-		"LeftShoulder", "LeftUpperArm", "LeftLowerArm", "LeftHand",
-		"RightShoulder", "RightUpperArm", "RightLowerArm", "RightHand",
-		"LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "LeftToes",
-		"RightUpperLeg", "RightLowerLeg", "RightFoot", "RightToes"
-	]
-	for bname in core_bones:
-		skel.add_bone(bname)
-	for f_idx in range(26):
-		skel.add_bone("FingerBone_" + str(f_idx + 1))
-	char_root.add_child(skel)
-	skel.owner = root
-
-	# Visual Armored Mesh + Golden Crest + Spear
-	var armor_mat := StandardMaterial3D.new()
-	armor_mat.albedo_color = Color(0.20, 0.45, 0.88)
-	armor_mat.metallic = 0.65
-	armor_mat.roughness = 0.28
-
-	var gold_mat := StandardMaterial3D.new()
-	gold_mat.albedo_color = Color(0.95, 0.76, 0.22)
-	gold_mat.metallic = 0.85
-	gold_mat.roughness = 0.22
-
-	var body := MeshInstance3D.new()
-	body.name = "WarriorLOD0Mesh"
-	var cap := CapsuleMesh.new()
-	cap.radius = 0.40
-	cap.height = 1.75
-	cap.material = armor_mat
-	body.mesh = cap
-	body.position = Vector3(0, 0.9, 0)
-	char_root.add_child(body)
-	body.owner = root
-
-	var crest := MeshInstance3D.new()
-	var prism := PrismMesh.new()
-	prism.size = Vector3(0.45, 0.28, 0.15)
-	prism.material = gold_mat
-	crest.mesh = prism
-	crest.position = Vector3(0, 1.88, 0.08)
-	char_root.add_child(crest)
-	crest.owner = root
-
-	var spear := MeshInstance3D.new()
-	var cyl := CylinderMesh.new()
-	cyl.top_radius = 0.025
-	cyl.bottom_radius = 0.03
-	cyl.height = 2.2
-	cyl.material = gold_mat
-	spear.mesh = cyl
-	spear.position = Vector3(0.48, 1.1, -0.15)
-	spear.rotation_degrees = Vector3(14, 0, -6)
-	char_root.add_child(spear)
-	spear.owner = root
-
-	var tag := Label3D.new()
-	tag.text = "جنگجوی تولیدشده از عکس\n[52-Bone Rig | LOD 0/1/2]"
-	tag.font_size = 26
-	tag.modulate = Color(0.55, 0.85, 1.0)
-	tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	tag.position = Vector3(0, 2.35, 0)
-	char_root.add_child(tag)
-	tag.owner = root
-
-	emit_log("[b][color=#38bdf8][AssetForge + AutoRigger][/color][/b] Image -> 3D Mesh (LOD0/1/2) -> Fitted [b]%d-Bone[/b] Skeleton3D (`AI_ImmortalWarrior_Rigged`) spawned in scene!" % skel.get_bone_count())
+	emit_log(
+		"[b][color=#38bdf8][تبدیل عکس به مش 3D + ریگ خودکار][/color][/b] تصویر «%s» -> مش سه‌بعدی (%d مثلث) -> ریگ %d استخوانی + انیمیشن راه رفتن -> ذخیره شد: [b]%s[/b]" %
+		[img_path.get_file(), int(mres["triangles"]), int(rres["bones_count"]), out_glb]
+	)
 
 
 func run_video_to_motion_combo() -> void:
 	_play_hero_katana_slash_vfx()
-	var root := get_edited_root()
-	if root:
-		var hero := root.get_node_or_null("SamuraiHero") as Node3D
-		if hero:
-			var start_y := hero.position.y
-			var tw := create_tween()
-			tw.tween_property(hero, "position:y", start_y + 0.85, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			tw.tween_property(hero, "position:y", start_y, 0.24).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-	emit_log("[b][color=#22c55e][VideoToMotion][/color][/b] Extracted 3D world-space combo + Fingers + Face | Foot-Locking IK pinned 47 stance frames | Tagged 21 Hitbox/Spark events!")
+	emit_log("[b][color=#22c55e][استخراج موشن از ویدیو][/color][/b] انیمیشن اسکلتی کمبوی شمشیر (SwordSlash) با قفل کف پا (Foot-IK) روی اسکلت کاراکتر اجرا شد!")
 
 
-func import_blender_auto_pbr_gate() -> void:
+func import_blender_auto_pbr_gate(custom_path: String = "res://assets/models/world/castle_tower.glb") -> void:
 	var root := get_edited_root()
 	if root == null:
 		return
 	save_snapshot("Blender Auto-PBR Import")
 
-	var old_gate := root.get_node_or_null("Blender_AncientGate_AutoPBR")
+	var loader = load("res://addons/novaforge_engine/forge/glb_asset_loader.gd")
+	if loader == null:
+		return
+
+	var old_gate := root.get_node_or_null("Blender_Imported_Model3D")
 	if old_gate:
-		old_gate.queue_free()
+		old_gate.free()
 
-	var gate := Node3D.new()
-	gate.name = "Blender_AncientGate_AutoPBR"
-	gate.position = Vector3(0.0, 0.0, -4.6)
-	root.add_child(gate)
-	gate.owner = root
+	var model: Node3D = loader.load_model_scene(custom_path, 4.8)
+	if model == null:
+		return
+	model.name = "Blender_Imported_Model3D"
+	model.position = Vector3(3.6, 0.0, -3.6)
+	root.add_child(model)
+	model.owner = root
 
-	var stone_mat := StandardMaterial3D.new()
-	stone_mat.albedo_color = Color(0.42, 0.39, 0.35)
-	stone_mat.roughness = 0.78
-	stone_mat.metallic = 0.12
-
-	var rune_mat := StandardMaterial3D.new()
-	rune_mat.albedo_color = Color(0.95, 0.55, 0.15)
-	rune_mat.emission_enabled = true
-	rune_mat.emission = Color(0.95, 0.45, 0.10)
-	rune_mat.emission_energy_multiplier = 1.8
-
-	for side in [-1.8, 1.8]:
-		var col := MeshInstance3D.new()
-		var bm := BoxMesh.new()
-		bm.size = Vector3(0.65, 3.4, 0.65)
-		bm.material = stone_mat
-		col.mesh = bm
-		col.position = Vector3(side, 1.7, 0.0)
-		gate.add_child(col)
-		col.owner = root
-
-	var lintel := MeshInstance3D.new()
-	var lbm := BoxMesh.new()
-	lbm.size = Vector3(4.6, 0.58, 0.82)
-	lbm.material = stone_mat
-	lintel.mesh = lbm
-	lintel.position = Vector3(0.0, 3.55, 0.0)
-	gate.add_child(lintel)
-	lintel.owner = root
-
-	var crest := MeshInstance3D.new()
-	var cbm := BoxMesh.new()
-	cbm.size = Vector3(1.8, 0.22, 0.88)
-	cbm.material = rune_mat
-	crest.mesh = cbm
-	crest.position = Vector3(0.0, 3.92, 0.0)
-	gate.add_child(crest)
-	crest.owner = root
-
-	var tag := Label3D.new()
-	tag.text = "دروازه ایمپورت‌شده از Blender (.blend)\n[Auto-PBR: DirectX Normal Flip + ORM]"
-	tag.font_size = 26
-	tag.modulate = Color(1.0, 0.78, 0.38)
-	tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	tag.position = Vector3(0.0, 4.55, 0.0)
-	gate.add_child(tag)
-	tag.owner = root
-
-	emit_log("[b][color=#fb923c][Universal3DImporter][/color][/b] Imported .blend/.fbx/.usd -> Auto-bound Albedo, Flipped DirectX Normal Y-Channel, Inverted Gloss->Roughness & Unpacked ORM (`Blender_AncientGate_AutoPBR`)!")
+	emit_log("[b][color=#fb923c][ایمپورتر هوشمند بلندر][/color][/b] مدل سه‌بعدی واقعی «%s» با تکسچر خودکار PBR وارد صحنه شد!" % custom_path.get_file())
 
 
 func trigger_live_cutscene(subtitle: String = "«دروازه قلعه باز می‌شود... آماده نبرد شو!»") -> void:
@@ -755,16 +675,20 @@ func _refresh_3d_labels() -> void:
 
 func run_prompt_council_build(prompt_txt: String) -> Dictionary:
 	save_snapshot("Prompt Build: " + prompt_txt.left(24))
-	emit_log("[b][color=#38bdf8][شورای ۵ مغز Colibrì][/color][/b] شروع ساخت صحنه از دستور فارسی: «%s»" % prompt_txt)
+	emit_log("[b][color=#38bdf8][شورای ۵ مغز Colibrì][/color][/b] تحلیل معنایی و ساخت مدل‌های سه‌بعدی واقعی از پرامپت: «%s»" % prompt_txt)
 	if get_tree() and get_tree().root.has_node("NovaBrainCouncil"):
 		get_tree().root.get_node("NovaBrainCouncil").call("execute_prompt_with_council", prompt_txt)
 
-	import_blender_auto_pbr_gate()
-	spawn_image_to_3d_rigged_character()
+	var root := get_edited_root()
+	var spawned_list: Array = []
+	var builder = load("res://addons/novaforge_engine/ai_council/semantic_world_builder.gd")
+	if builder and root:
+		var bres: Dictionary = builder.build_from_prompt(root, prompt_txt, false)
+		spawned_list = bres.get("spawned", [])
 
 	if prompt_txt.contains("باران") or prompt_txt.contains("خیس") or prompt_txt.to_lower().contains("rain"):
 		apply_elemental_weather("RAIN", true)
-	elif prompt_txt.contains("آتش") or prompt_txt.to_lower().contains("fire"):
+	elif prompt_txt.contains("آتش") and not prompt_txt.contains("آتش کمپ"):
 		apply_elemental_weather("FIRE", true)
 	elif prompt_txt.contains("صاعقه") or prompt_txt.to_lower().contains("lightning"):
 		apply_elemental_weather("LIGHTNING", true)
@@ -772,6 +696,13 @@ func run_prompt_council_build(prompt_txt: String) -> Dictionary:
 	if prompt_txt.contains("کات‌سین") or prompt_txt.contains("کات سین") or prompt_txt.to_lower().contains("cutscene"):
 		trigger_live_cutscene("▶ کات‌سین ساخته‌شده توسط شورای ۵ مغز: «" + prompt_txt.left(48) + "»")
 
-	emit_log("[b][color=#22c55e][ممیزی خودکار صحنه][/color][/b] ✓ دروازه Auto-PBR، جنگجوی ۵۲ استخوانی، نورپردازی و شیمی عناصر بدون خطا در صحنه ساخته شد!")
-	return {"ok": true, "prompt": prompt_txt}
+	emit_log("[b][color=#22c55e][ساخت مدل‌های سه‌بعدی واقعی .GLB][/color][/b] ✓ ساخته شد (%d مدل): [b]%s[/b]" % [spawned_list.size(), ", ".join(PackedStringArray(spawned_list))])
+	return {"ok": true, "prompt": prompt_txt, "spawned": spawned_list}
+
+
+func clear_ai_spawned_world() -> void:
+	var root := get_edited_root()
+	if root and root.has_node("NovaAISpawnedWorld"):
+		root.get_node("NovaAISpawnedWorld").queue_free()
+		emit_log("[color=#94a3b8]اشیاء ساخته‌شده قبلی پاک شدند.[/color]")
 

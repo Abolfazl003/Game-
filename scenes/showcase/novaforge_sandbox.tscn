@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://novaforge_sandbox_001"]
+[gd_scene load_steps=13 format=3 uid="uid://novaforge_sandbox_001"]
 
 [ext_resource type="Script" path="res://addons/novaforge_engine/genres/perspective_camera_rig_3d.gd" id="1_cam"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/smart_objects/smart_object_behavior_3d.gd" id="2_obj"]
@@ -6,192 +6,113 @@
 [ext_resource type="Script" path="res://addons/novaforge_engine/world/elemental_weather_system.gd" id="4_weather"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/genres/playable_samurai_controller_3d.gd" id="5_hero"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/ui/in_game_studio_hud.gd" id="6_hud"]
+[ext_resource type="Script" path="res://addons/novaforge_engine/world/sandbox_real_models_initializer.gd" id="7_init"]
 
-[sub_resource type="Environment" id="Environment_nova"]
-background_mode = 1
-background_color = Color(0.10, 0.15, 0.24, 1)
-ambient_light_source = 2
-ambient_light_color = Color(0.58, 0.65, 0.82, 1)
-ambient_light_energy = 0.72
-tonemap_mode = 3
-glow_enabled = true
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
+sky_top_color = Color(0.11, 0.22, 0.42, 1)
+sky_horizon_color = Color(0.38, 0.54, 0.72, 1)
+ground_bottom_color = Color(0.08, 0.11, 0.16, 1)
+ground_horizon_color = Color(0.28, 0.36, 0.46, 1)
 
-[sub_resource type="StandardMaterial3D" id="Mat_ground"]
-albedo_color = Color(0.20, 0.24, 0.30, 1)
-roughness = 0.82
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("ProceduralSkyMaterial_1")
 
-[sub_resource type="BoxMesh" id="BoxMesh_ground"]
-material = SubResource("Mat_ground")
-size = Vector3(60, 1, 60)
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+ambient_light_source = 3
+ambient_light_color = Color(0.68, 0.76, 0.88, 1)
+ambient_light_energy = 0.85
+tonemap_mode = 2
 
-[sub_resource type="BoxShape3D" id="BoxShape_ground"]
-size = Vector3(60, 1, 60)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ground"]
+albedo_color = Color(0.21, 0.27, 0.24, 1)
+roughness = 0.86
 
-[sub_resource type="StandardMaterial3D" id="Mat_hero"]
-albedo_color = Color(0.84, 0.18, 0.22, 1)
-metallic = 0.52
-roughness = 0.32
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+material = SubResource("StandardMaterial3D_ground")
+size = Vector2(64, 64)
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_hero"]
-material = SubResource("Mat_hero")
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_ground"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hero"]
 radius = 0.42
-height = 1.8
-
-[sub_resource type="StandardMaterial3D" id="Mat_katana"]
-albedo_color = Color(0.72, 0.92, 1.0, 1)
-metallic = 0.92
-roughness = 0.14
-emission_enabled = true
-emission = Color(0.18, 0.62, 0.95, 1)
-emission_energy_multiplier = 0.65
-
-[sub_resource type="BoxMesh" id="BoxMesh_katana"]
-material = SubResource("Mat_katana")
-size = Vector3(0.05, 0.08, 1.35)
-
-[sub_resource type="StandardMaterial3D" id="Mat_gold"]
-albedo_color = Color(0.95, 0.76, 0.24, 1)
-metallic = 0.8
-roughness = 0.25
-
-[sub_resource type="PrismMesh" id="PrismMesh_kabuto"]
-material = SubResource("Mat_gold")
-size = Vector3(0.52, 0.24, 0.14)
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape_hero"]
-radius = 0.42
-height = 1.8
-
-[sub_resource type="StandardMaterial3D" id="Mat_crate"]
-albedo_color = Color(0.76, 0.52, 0.24, 1)
-roughness = 0.70
-
-[sub_resource type="BoxMesh" id="BoxMesh_crate"]
-material = SubResource("Mat_crate")
-size = Vector3(1.25, 1.25, 1.25)
-
-[sub_resource type="BoxShape3D" id="BoxShape_crate"]
-size = Vector3(1.25, 1.25, 1.25)
-
-[sub_resource type="StandardMaterial3D" id="Mat_npc"]
-albedo_color = Color(0.18, 0.62, 0.54, 1)
-metallic = 0.25
-roughness = 0.48
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_npc"]
-material = SubResource("Mat_npc")
-radius = 0.42
-height = 1.8
-
-[sub_resource type="StandardMaterial3D" id="Mat_anvil"]
-albedo_color = Color(0.28, 0.31, 0.36, 1)
-metallic = 0.85
-roughness = 0.35
-
-[sub_resource type="BoxMesh" id="BoxMesh_anvil"]
-material = SubResource("Mat_anvil")
-size = Vector3(0.75, 0.62, 0.45)
+height = 1.82
 
 [node name="NovaForgeSandbox" type="Node3D"]
+script = ExtResource("7_init")
 
 [node name="NovaWorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_nova")
+environment = SubResource("Environment_1")
 
 [node name="SunLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 18, 0)
-light_energy = 1.25
+transform = Transform3D(0.819152, -0.40558, 0.40558, 0, 0.707107, 0.707107, -0.573576, -0.579228, 0.579228, 0, 12, 0)
+light_color = Color(1, 0.96, 0.9, 1)
+light_energy = 1.35
 shadow_enabled = true
 
 [node name="ElementalWeather" type="Node3D" parent="."]
 script = ExtResource("4_weather")
 
 [node name="ArenaGround" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="GroundMesh" type="MeshInstance3D" parent="ArenaGround"]
-mesh = SubResource("BoxMesh_ground")
+mesh = SubResource("PlaneMesh_ground")
 
 [node name="GroundCollision" type="CollisionShape3D" parent="ArenaGround"]
-shape = SubResource("BoxShape_ground")
+shape = SubResource("WorldBoundaryShape3D_ground")
 
 [node name="SamuraiHero" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.92, 0.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 1.2)
 script = ExtResource("5_hero")
 
-[node name="HeroMesh" type="MeshInstance3D" parent="SamuraiHero"]
-mesh = SubResource("CapsuleMesh_hero")
-
-[node name="KabutoCrest" type="MeshInstance3D" parent="SamuraiHero"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, -0.18)
-mesh = SubResource("PrismMesh_kabuto")
-
-[node name="KatanaBlade" type="MeshInstance3D" parent="SamuraiHero"]
-transform = Transform3D(0.965926, 0.183013, -0.183013, -0.183013, 0.965926, 0.183013, 0.183013, -0.183013, 0.965926, 0.52, 0.15, -0.48)
-mesh = SubResource("BoxMesh_katana")
+[node name="HeroCollision" type="CollisionShape3D" parent="SamuraiHero"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.91, 0)
+shape = SubResource("CapsuleShape3D_hero")
 
 [node name="HeroLabel3D" type="Label3D" parent="SamuraiHero"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
 billboard = 1
-modulate = Color(0.45, 0.85, 1, 1)
-text = "⚔ سامورایی (Player)"
-font_size = 26
-
-[node name="HeroCollision" type="CollisionShape3D" parent="SamuraiHero"]
-shape = SubResource("CapsuleShape_hero")
-
-[node name="PerspectiveCameraRig3D" type="Node3D" parent="." node_paths=PackedStringArray("follow_target")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
-script = ExtResource("1_cam")
-follow_target = NodePath("../SamuraiHero")
-
-[node name="DestructibleAncientCrate" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0, 0.625, -1.7)
-
-[node name="CrateMesh" type="MeshInstance3D" parent="DestructibleAncientCrate"]
-mesh = SubResource("BoxMesh_crate")
-
-[node name="CrateLabel3D" type="Label3D" parent="DestructibleAncientCrate"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0)
-billboard = 1
-modulate = Color(1, 0.82, 0.45, 1)
-text = "■ صندوق باستانی [قابل تخریب Voronoi]"
+text = "⚔ سامورایی قابل‌بازی (WASD)"
 font_size = 24
 
-[node name="CrateCollision" type="CollisionShape3D" parent="DestructibleAncientCrate"]
-shape = SubResource("BoxShape_crate")
+[node name="PerspectiveCameraRig3D" type="Node3D" parent="." node_paths=PackedStringArray("target_actor")]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 2.9, 5.4)
+script = ExtResource("1_cam")
+target_actor = NodePath("../SamuraiHero")
+
+[node name="Camera3D" type="Camera3D" parent="PerspectiveCameraRig3D"]
+current = true
+fov = 62.0
+
+[node name="DestructibleAncientCrate" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3, 0, -0.8)
 
 [node name="SmartObjectBehavior3D" type="Node3D" parent="DestructibleAncientCrate"]
 script = ExtResource("2_obj")
 is_interactable = true
 is_destructible = true
-max_health = 30.0
-fracture_shard_count = 16
 
-[node name="KavehBlacksmithNPC" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3, 0.92, -1.8)
-
-[node name="NPCMesh" type="MeshInstance3D" parent="KavehBlacksmithNPC"]
-mesh = SubResource("CapsuleMesh_npc")
-
-[node name="BlacksmithAnvil" type="MeshInstance3D" parent="KavehBlacksmithNPC"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.85, -0.60, 0.35)
-mesh = SubResource("BoxMesh_anvil")
-
-[node name="NPCLabel3D" type="Label3D" parent="KavehBlacksmithNPC"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.48, 0)
+[node name="CrateLabel3D" type="Label3D" parent="DestructibleAncientCrate"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0)
 billboard = 1
-modulate = Color(0.98, 0.92, 0.48, 1)
-text = "کاوه آهنگر — شاگرد آهنگر (سطح ۱)
-طلا: ۱۲۰ | رابطه: +۱۰ | روز ۱"
-font_size = 24
+modulate = Color(1, 0.88, 0.45, 1)
+text = "■ صندوق چوبی [قابل تخریب Voronoi]"
+font_size = 22
 
-[node name="NPCCollision" type="CollisionShape3D" parent="KavehBlacksmithNPC"]
-shape = SubResource("CapsuleShape_hero")
+[node name="KavehBlacksmithNPC" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, -1.6)
 
 [node name="LivingNPCBrain3D" type="Node3D" parent="KavehBlacksmithNPC"]
 script = ExtResource("3_npc")
 enable_evolving_life = true
 
+[node name="NPCLabel3D" type="Label3D" parent="KavehBlacksmithNPC"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
+billboard = 1
+modulate = Color(0.98, 0.92, 0.48, 1)
+text = "کاوه آهنگر — شاگرد آهنگر (سطح ۱)"
+font_size = 22
+
 [node name="NovaStudioHUD" type="CanvasLayer" parent="."]
 script = ExtResource("6_hud")
-

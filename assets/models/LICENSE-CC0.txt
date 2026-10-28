@@ -1,0 +1,5 @@
+All 3D .glb assets in this folder are licensed under Creative Commons Zero (CC0 1.0 Universal - Public Domain).
+Upstream creators:
+- Quaternius (https://quaternius.com) — Ultimate Animated Character Pack (CC0)
+- Kenney (https://kenney.nl) — Car Kit, Nature Kit, Pirate Kit, City Kit, Weapon Kit (CC0)
+- NoLimitNexus (https://github.com/NoLimitNexus/game-models) — CC0 Melee Tools

@@ -1,191 +1,165 @@
 @tool
-extends PanelContainer
-## Full-Screen Customized Persian Main Workspace (`⚡ میزکار هوشمند نوافورج`) mounted in Godot 4's
-## top-center workspace bar alongside 2D / 3D / Script (`_has_main_screen() -> true`).
-## Gives 1-click visual access to ALL 9 NovaForge Engine capabilities in Persian, and can switch
-## immediately to the 3D Viewport to display live scene results.
+extends ScrollContainer
+## Central Full-Screen Customized Persian Main Workspace (`⚡ میزکار نوافورج`).
+## Features:
+## 1. Real Semantic Persian/English Prompt-to-3D `.GLB` World Builder (39 rigged/textured CC0 3D models — ZERO capsules!)
+## 2. Embedded Full Interactive Image-to-3D Mesh Reconstruction & Real Vertex-Skinning Auto-Rigger Studio (`FileDialog` + Drag & Drop)
+## 3. Blender/3D File Picker Auto-PBR Importer, Voronoi 3D Destruction, Live Cutscene Sequencer, Elemental Chemistry & Evolving NPC AI.
 
 var _prompt_box: TextEdit
 var _status_banner: RichTextLabel
-var _vram_bar: ProgressBar
 var _npc_summary: RichTextLabel
+var _blender_file_dialog: FileDialog
 
 
 func _ready() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
-	visible = false
+	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 
-	var bg_style := StyleBoxFlat.new()
-	bg_style.bg_color = Color(0.07, 0.09, 0.14, 1.0)
-	bg_style.content_margin_left = 18
-	bg_style.content_margin_right = 18
-	bg_style.content_margin_top = 14
-	bg_style.content_margin_bottom = 14
-	add_theme_stylebox_override("panel", bg_style)
-
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	add_child(scroll)
+	var outer_margin := MarginContainer.new()
+	outer_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	outer_margin.add_theme_constant_override("margin_left", 14)
+	outer_margin.add_theme_constant_override("margin_right", 14)
+	outer_margin.add_theme_constant_override("margin_top", 10)
+	outer_margin.add_theme_constant_override("margin_bottom", 14)
+	add_child(outer_margin)
 
 	var root_vb := VBoxContainer.new()
 	root_vb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root_vb.add_theme_constant_override("separation", 12)
-	scroll.add_child(root_vb)
+	root_vb.add_theme_constant_override("separation", 10)
+	outer_margin.add_child(root_vb)
 
-	# ── HERO BANNER ──
-	var hero_card := _styled_card(Color(0.11, 0.15, 0.25), Color(0.24, 0.76, 0.98))
-	var hero_hb := HBoxContainer.new()
-	hero_hb.add_theme_constant_override("separation", 12)
+	# ── 1. TOP HERO HEADER ──
+	var header_card := _styled_card(Color(0.08, 0.12, 0.21), Color(0.24, 0.78, 0.98))
+	var header_hb := HBoxContainer.new()
+	header_hb.add_theme_constant_override("separation", 10)
 
-	var btn_go_3d := _action_btn("▶ مشاهده زنده صحنه سه‌بعدی (رفتن به نمای 3D)", Color(0.14, 0.52, 0.30))
-	btn_go_3d.pressed.connect(func():
-		if Engine.is_editor_hint():
-			EditorInterface.set_main_screen_editor("3D")
-	)
-	hero_hb.add_child(btn_go_3d)
+	var title_lbl := Label.new()
+	title_lbl.text = "⚡ میزکار مرکزی نوافورج — ساخت مدل‌های سه‌بعدی واقعی (.GLB)، تبدیل عکس به مش 3D و ریگ‌گذاری خودکار اسکلت"
+	title_lbl.add_theme_font_size_override("font_size", 16)
+	title_lbl.add_theme_color_override("font_color", Color(0.92, 0.97, 1.0))
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_lbl.clip_text = true
+	header_hb.add_child(title_lbl)
 
-	var hero_title := Label.new()
-	hero_title.text = "⚡ میزکار مرکزی موتور بازی‌سازی هوش مصنوعی نوافورج (Zero-MCP | ۱۲۳ مهارت | ۱۱۴ ابزار بومی | هسته C++20 و Jolt)"
-	hero_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	hero_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hero_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hero_title.add_theme_font_size_override("font_size", 15)
-	hero_title.add_theme_color_override("font_color", Color(0.92, 0.96, 1.0))
-	hero_hb.add_child(hero_title)
+	var btn_goto_3d := _action_btn("▶ رفتن به نمای زنده صحنه سه‌بعدی (3D)", Color(0.10, 0.50, 0.80))
+	btn_goto_3d.pressed.connect(_goto_3d_screen)
+	header_hb.add_child(btn_goto_3d)
+	header_card.add_child(header_hb)
+	root_vb.add_child(header_card.get_parent())
 
-	hero_card.add_child(hero_hb)
-	root_vb.add_child(hero_card.get_parent())
+	# ── 2. REAL IMAGE-TO-3D MESH & AUTO-RIGGER STUDIO (EMBEDDED FRONT-AND-CENTER!) ──
+	var forge_scr = load("res://addons/novaforge_engine/editor/image_to_mesh_rig_panel.gd")
+	if forge_scr:
+		var forge_panel: Control = forge_scr.new()
+		root_vb.add_child(forge_panel)
 
-	# ── PROMPT + 5-BRAIN COUNCIL ROW ──
-	var top_grid := GridContainer.new()
-	top_grid.columns = 2
-	top_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_grid.add_theme_constant_override("h_separation", 12)
-	top_grid.add_theme_constant_override("v_separation", 12)
-	root_vb.add_child(top_grid)
+	# ── 3. SEMANTIC PROMPT-TO-REAL-3D WORLD BUILDER + 5-BRAIN COLIBRÌ COUNCIL ──
+	var prompt_row := HBoxContainer.new()
+	prompt_row.add_theme_constant_override("separation", 10)
+	prompt_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	# Prompt Card
-	var p_card := _styled_card(Color(0.10, 0.13, 0.21), Color(0.32, 0.52, 0.85))
+	var p_card := _styled_card(Color(0.09, 0.13, 0.22), Color(0.22, 0.78, 0.98))
 	p_card.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	p_card.add_child(_sec_title("⚡ ساخت بازی با پرامپت فارسی و انگلیسی (بدون نیاز به MCP)"))
+	p_card.add_child(_sec_title("⚡ ساخت صحنه و مدل‌های سه‌بعدی واقعی با پرامپت فارسی و انگلیسی (۳۹ مدل متحرک و تکسچردار .GLB)"))
 
 	_prompt_box = TextEdit.new()
-	_prompt_box.text = "یه جنگجوی سامورایی با کمبوی ۳ ضربه‌ای شمشیر بساز، صندوق چوبی با ضربه تیکه‌تیکه بشه و وقتی رسید دم دروازه، این تیکه کات‌سینه!"
+	_prompt_box.custom_minimum_size = Vector2(0, 68)
 	_prompt_box.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
-	_prompt_box.custom_minimum_size = Vector2(0, 88)
+	_prompt_box.text = "یه ماشین اسپرت قرمز، دو تا شوالیه طلایی با شمشیر، سه تا زامبی، قلعه سنگی و درخت کاج بساز!"
 	p_card.add_child(_prompt_box)
 
-	var btn_exec_prompt := _action_btn("⚡ اجرای همفکری شورای ۵ مغز و اعمال مستقیم روی صحنه 3D", Color(0.18, 0.42, 0.86))
-	btn_exec_prompt.pressed.connect(_on_run_prompt_and_show_3d)
-	p_card.add_child(btn_exec_prompt)
-	top_grid.add_child(p_card.get_parent())
-
-	# 5-Brain Colibri Card
-	var b_card := _styled_card(Color(0.10, 0.13, 0.21), Color(0.58, 0.36, 0.92))
-	b_card.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b_card.add_child(_sec_title("◈ شورای ۵ مغز لوکال (معماری کم‌مصرف Colibrì: VRAM ⇄ RAM ⇄ SSD)"))
-	for line_txt in [
-		"• مغز ۱ — کارگردان بازی و طراحی مرحله (GLM-5.3 MoE — استریم از SSD)",
-		"• مغز ۲ — برنامه‌نویس C++20 و گراف Blueprint (کش فشرده INT4 در RAM)",
-		"• مغز ۳ — آرتیست سه‌بعدی و اتصال خودکار تکسچرهای بلندر (Auto-PBR)",
-		"• مغز ۴ — کارگردان موشن‌کپچر ویدیو، قفل کف پا (Foot-IK) و کات‌سین زنده",
-		"• مغز ۵ — داور کنترل کیفیت، تست خودکار گیم‌پلی و Scene Audit بدون باگ"
+	var preset_hb := HBoxContainer.new()
+	preset_hb.add_theme_constant_override("separation", 6)
+	for pr in [
+		["ماشین اسپرت + شهر", "یه ماشین اسپرت قرمز، ماشین پلیس، ساختمان شهری و خانه ویلایی بساز"],
+		["شوالیه + زامبی + قلعه", "یه شوالیه طلایی، وایکینگ جنگجو، سه تا زامبی، دروازه قلعه و صندوقچه گنج بساز"],
+		["جنگل + پل + گرگ + آتش", "یه جنگل با درخت کاج، صخره، پل سنگی، چادر کمپ، آتش کمپ و گرگ همراه بساز"],
+		["سرباز + تفنگ + کامیون", "دو تا سرباز کماندو، تفنگ تهاجمی، اسنایپر، کامیون سنگین و بشکه بساز"],
 	]:
-		var l := Label.new()
-		l.text = line_txt
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		b_card.add_child(l)
+		var p_txt: String = pr[1]
+		var pb := Button.new()
+		pb.text = "✦ " + str(pr[0])
+		pb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		pb.pressed.connect(func():
+			_prompt_box.text = p_txt
+			_on_run_prompt()
+		)
+		preset_hb.add_child(pb)
+	p_card.add_child(preset_hb)
 
-	_vram_bar = ProgressBar.new()
-	_vram_bar.value = 12.0
-	_vram_bar.custom_minimum_size = Vector2(0, 14)
-	b_card.add_child(_vram_bar)
-	top_grid.add_child(b_card.get_parent())
+	var act_hb := HBoxContainer.new()
+	act_hb.add_theme_constant_override("separation", 8)
+	var btn_build := _action_btn("⚡ ساخت مدل‌های سه‌بعدی واقعی از این پرامپت در صحنه 3D", Color(0.10, 0.48, 0.84))
+	btn_build.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_build.pressed.connect(_on_run_prompt)
+	act_hb.add_child(btn_build)
 
-	# ── 3-COLUMN CAPABILITY MATRIX (ALL ENGINE MODULES) ──
+	var btn_clear := _action_btn("↺ پاک کردن اشیاء پرامپت", Color(0.32, 0.36, 0.46))
+	btn_clear.pressed.connect(func():
+		var c := _get_ctrl()
+		if c: c.call("clear_ai_spawned_world")
+	)
+	act_hb.add_child(btn_clear)
+	p_card.add_child(act_hb)
+	prompt_row.add_child(p_card.get_parent())
+	root_vb.add_child(prompt_row)
+
+	# ── 4. CAPABILITIES GRID (BLENDER FILE PICKER, VORONOI, CUTSCENE, WEATHER, NPC) ──
 	var cap_grid := GridContainer.new()
 	cap_grid.columns = 3
+	cap_grid.add_theme_constant_override("h_separation", 10)
+	cap_grid.add_theme_constant_override("v_separation", 10)
 	cap_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	cap_grid.add_theme_constant_override("h_separation", 12)
-	cap_grid.add_theme_constant_override("v_separation", 12)
 	root_vb.add_child(cap_grid)
 
-	# Module 1: 3D Forge & 52-Bone Auto-Rig
-	var m1 := _styled_card(Color(0.10, 0.14, 0.22), Color(0.22, 0.72, 0.95))
-	m1.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	m1.add_child(_sec_title("◆ تبدیل عکس/متن به مدل 3D + ریگ خودکار"))
-	m1.add_child(_desc_lbl("ساخت کاراکتر سه‌بعدی با ۳ سطح جزئیات (Auto-LOD) و اسکلت‌بندی ۵۲ استخوانی استاندارد Humanoid."))
-	var b_m1 := _action_btn("اسپان کاراکتر 3D ریگ‌شده در صحنه", Color(0.14, 0.45, 0.72))
-	b_m1.pressed.connect(func(): _call_ctrl_and_view3d("spawn_image_to_3d_rigged_character"))
-	m1.add_child(b_m1)
-	cap_grid.add_child(m1.get_parent())
+	# Blender / 3D File Picker Auto-PBR
+	var m_bl := _styled_card(Color(0.10, 0.14, 0.22), Color(0.95, 0.56, 0.22))
+	m_bl.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	m_bl.add_child(_sec_title("✦ ایمپورتر فایل سه‌بعدی بلندر و تکسچر خودکار"))
+	m_bl.add_child(_desc_lbl("انتخاب هر فایل .glb / .gltf / .obj از سیستم و اتصال خودکار متریال PBR + اصلاح Normal Map."))
+	var b_bl := _action_btn("■ انتخاب فایل مدل از سیستم و ایمپورت در صحنه", Color(0.68, 0.36, 0.12))
+	b_bl.pressed.connect(func(): _blender_file_dialog.popup_centered(Vector2i(760, 500)))
+	m_bl.add_child(b_bl)
+	cap_grid.add_child(m_bl.get_parent())
 
-	# Module 2: Video-to-Motion Mocap
-	var m2 := _styled_card(Color(0.10, 0.14, 0.22), Color(0.20, 0.78, 0.52))
-	m2.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	m2.add_child(_sec_title("▶ استخراج موشن‌کپچر از ویدیو (Foot-IK)"))
-	m2.add_child(_desc_lbl("استخراج حرکت سه‌بعدی بدن، انگشتان و چهره از ویدیو با قفل کف پا روی زمین و تشخیص خودکار فریم ضربه شمشیر."))
-	var b_m2 := _action_btn("اجرای موشن کمبوی شمشیر روی سامورایی", Color(0.14, 0.55, 0.36))
-	b_m2.pressed.connect(func(): _call_ctrl_and_view3d("run_video_to_motion_combo"))
-	m2.add_child(b_m2)
-	cap_grid.add_child(m2.get_parent())
+	# Voronoi 3D Destruction
+	var m_vor := _styled_card(Color(0.10, 0.14, 0.22), Color(0.92, 0.35, 0.35))
+	m_vor.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	m_vor.add_child(_sec_title("★ تخریب فیزیکی واقعی (Voronoi 3D + Jolt)"))
+	m_vor.add_child(_desc_lbl("خرد شدن هم‌زمان مش سه‌بعدی صندوق چوبی به ۱۶ قطعه فیزیکی با انیمیشن ضربه شمشیر سامورایی."))
+	var b_vor := _action_btn("★ تست ضربه شمشیر و متلاشی کردن صندوق", Color(0.68, 0.22, 0.24))
+	b_vor.pressed.connect(func(): _call_ctrl_and_view3d("shatter_or_reset_crate"))
+	m_vor.add_child(b_vor)
+	cap_grid.add_child(m_vor.get_parent())
 
-	# Module 3: Blender 13-Format Auto-PBR Importer
-	var m3 := _styled_card(Color(0.10, 0.14, 0.22), Color(0.95, 0.55, 0.18))
-	m3.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	m3.add_child(_sec_title("✦ ایمپورتر هوشمند بلندر و تکسچر خودکار"))
-	m3.add_child(_desc_lbl("پشتیبانی از .blend, .fbx, .glb, .obj, .usd, .abc با اصلاح خودکار Normal Map دایرکت‌ایکس، تبدیل Gloss و ORM."))
-	var b_m3 := _action_btn("ایمپورت دروازه بلندر با تکسچر خودکار", Color(0.72, 0.38, 0.12))
-	b_m3.pressed.connect(func(): _call_ctrl_and_view3d("import_blender_auto_pbr_gate"))
-	m3.add_child(b_m3)
-	cap_grid.add_child(m3.get_parent())
-
-	# Module 4: Voronoi 3D Destruction
-	var m4 := _styled_card(Color(0.10, 0.14, 0.22), Color(0.92, 0.35, 0.35))
-	m4.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	m4.add_child(_sec_title("★ تخریب فیزیکی واقعی (Voronoi 3D + Jolt)"))
-	m4.add_child(_desc_lbl("برش هم‌زمان مش سه‌بعدی در هسته C++20 به ۱۶ قطعه محدب فیزیکی براساس جنس جسم و شدت ضربه سلاح."))
-	var b_m4 := _action_btn("تست خرد کردن صندوق باستانی در صحنه", Color(0.68, 0.22, 0.24))
-	b_m4.pressed.connect(func(): _call_ctrl_and_view3d("shatter_or_reset_crate"))
-	m4.add_child(b_m4)
-	cap_grid.add_child(m4.get_parent())
-
-	# Module 5: Live In-Engine Cutscene Sequencer
-	var m5 := _styled_card(Color(0.10, 0.14, 0.22), Color(0.72, 0.38, 0.95))
-	m5.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	m5.add_child(_sec_title("▶ کارگردان کات‌سین زنده («این تیکه کات‌سینه»)"))
-	m5.add_child(_desc_lbl("حرکت سینمایی دوربین، فوکوس لنز، اسلوموشن و زیرنویس فارسی بدون حتی ۱ فریم صفحه سیاه بین گیم‌پلی و کات‌سین."))
-	var b_m5 := _action_btn("اجرای کات‌سین زنده روی صحنه 3D", Color(0.48, 0.24, 0.72))
-	b_m5.pressed.connect(func(): _call_ctrl_and_view3d("trigger_live_cutscene"))
-	m5.add_child(b_m5)
-	cap_grid.add_child(m5.get_parent())
-
-	# Module 6: Elemental Chemistry & Quality Tiers
-	var m6 := _styled_card(Color(0.10, 0.14, 0.22), Color(0.25, 0.82, 0.88))
-	m6.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	m6.add_child(_sec_title("✦ شیمی عناصر و سطح گرافیک (AAA تا PS1)"))
-	m6.add_child(_desc_lbl("واکنش زنده باران، سطح خیس، گسترش آتش با باد و برق زنجیره‌ای صاعقه روی آب + سوییچر گرافیک Unreal / Anime / PS1."))
-	var hb_w := HBoxContainer.new()
+	# Cutscene + Elemental Chemistry
+	var m_cut := _styled_card(Color(0.10, 0.14, 0.22), Color(0.72, 0.38, 0.95))
+	m_cut.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	m_cut.add_child(_sec_title("▶ کات‌سین زنده و شیمی عناصر محیط"))
+	var hb_cw := HBoxContainer.new()
+	hb_cw.add_theme_constant_override("separation", 5)
+	var b_cut := _action_btn("▶ کات‌سین زنده", Color(0.48, 0.24, 0.72))
+	b_cut.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b_cut.pressed.connect(func(): _call_ctrl_and_view3d("trigger_live_cutscene"))
+	hb_cw.add_child(b_cut)
 	for pair in [["RAIN", "◈ باران"], ["FIRE", "▲ آتش"], ["LIGHTNING", "⚡ صاعقه"]]:
 		var code: String = pair[0]
 		var wb := _action_btn(pair[1], Color(0.16, 0.38, 0.54))
-		wb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		wb.pressed.connect(func():
 			var c := _get_ctrl()
 			if c: c.call("apply_elemental_weather", code)
 			if Engine.is_editor_hint(): EditorInterface.set_main_screen_editor("3D")
 		)
-		hb_w.add_child(wb)
-	m6.add_child(hb_w)
-	cap_grid.add_child(m6.get_parent())
+		hb_cw.add_child(wb)
+	m_cut.add_child(_desc_lbl("اجرای حرکت سینمایی دوربین بدون صفحه سیاه و شبیه‌سازی باران، آتش و صاعقه."))
+	m_cut.add_child(hb_cw)
+	cap_grid.add_child(m_cut.get_parent())
 
-	# ── LIVING NPC & STATUS FOOTER ──
+	# ── 5. LIVING NPC & STATUS FOOTER ──
 	var bot_card := _styled_card(Color(0.10, 0.13, 0.20), Color(0.95, 0.76, 0.25))
-	bot_card.add_child(_sec_title("✦ هوش مصنوعی زندگی تکاملی و حافظه دشمن (Evolving Life & Nemesis AI — کاوه آهنگر)"))
+	bot_card.add_child(_sec_title("✦ زندگی تکاملی و حافظه دشمن (Evolving Life & Nemesis AI — کاوه آهنگر)"))
 	_npc_summary = RichTextLabel.new()
 	_npc_summary.bbcode_enabled = true
 	_npc_summary.fit_content = true
@@ -222,9 +196,22 @@ func _ready() -> void:
 	_status_banner.bbcode_enabled = true
 	_status_banner.fit_content = true
 	_status_banner.scroll_active = false
-	_status_banner.text = "[color=#38bdf8]✓ تمام ماژول‌ها فعال هستند — با کلیک روی هر قابلیت، عملیات مستقیماً روی صحنه سه‌بعدی اعمال و نمایش داده می‌شود.[/color]"
+	_status_banner.text = "[color=#38bdf8]✓ استودیو آماده است — عکس دلخواه را انتخاب کنید تا به مش سه‌بعدی واقعی (.GLB) تبدیل و ریگ شود، یا در کادر بالا پرامپت بنویسید.[/color]"
 	bot_card.add_child(_status_banner)
 	root_vb.add_child(bot_card.get_parent())
+
+	_blender_file_dialog = FileDialog.new()
+	_blender_file_dialog.title = "انتخاب مدل سه‌بعدی برای ایمپورت خودکار در صحنه"
+	_blender_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	_blender_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_blender_file_dialog.use_native_dialog = false
+	_blender_file_dialog.filters = PackedStringArray(["*.glb, *.gltf, *.obj ; مدل‌های سه‌بعدی"])
+	_blender_file_dialog.file_selected.connect(func(p: String):
+		var c := _get_ctrl()
+		if c: c.call("import_blender_auto_pbr_gate", p)
+		_goto_3d_screen()
+	)
+	add_child(_blender_file_dialog)
 
 	call_deferred("_bind_ctrl")
 
@@ -238,8 +225,8 @@ func _styled_card(bg: Color, border: Color) -> VBoxContainer:
 	sb.set_corner_radius_all(8)
 	sb.content_margin_left = 12
 	sb.content_margin_right = 12
-	sb.content_margin_top = 10
-	sb.content_margin_bottom = 10
+	sb.content_margin_top = 9
+	sb.content_margin_bottom = 9
 	pc.add_theme_stylebox_override("panel", sb)
 	var vb := VBoxContainer.new()
 	vb.add_theme_constant_override("separation", 6)
@@ -250,33 +237,36 @@ func _styled_card(bg: Color, border: Color) -> VBoxContainer:
 func _sec_title(txt: String) -> Label:
 	var l := Label.new()
 	l.text = txt
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	l.add_theme_font_size_override("font_size", 14)
-	l.add_theme_color_override("font_color", Color(0.42, 0.84, 1.0))
+	l.add_theme_color_override("font_color", Color(0.45, 0.86, 1.0))
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	return l
 
 
 func _desc_lbl(txt: String) -> Label:
 	var l := Label.new()
 	l.text = txt
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	l.add_theme_font_size_override("font_size", 12)
+	l.add_theme_color_override("font_color", Color(0.80, 0.86, 0.94))
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	l.add_theme_color_override("font_color", Color(0.78, 0.83, 0.92))
 	return l
 
 
 func _action_btn(txt: String, bg: Color) -> Button:
 	var b := Button.new()
 	b.text = txt
-	b.custom_minimum_size = Vector2(0, 34)
+	b.custom_minimum_size = Vector2(0, 33)
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = bg
-	sb.border_color = bg.lightened(0.28)
+	sb.border_color = bg.lightened(0.32)
 	sb.set_border_width_all(1)
 	sb.set_corner_radius_all(6)
 	sb.content_margin_left = 10
 	sb.content_margin_right = 10
 	b.add_theme_stylebox_override("normal", sb)
+	var sbh := sb.duplicate() as StyleBoxFlat
+	sbh.bg_color = bg.lightened(0.15)
+	b.add_theme_stylebox_override("hover", sbh)
 	return b
 
 
@@ -287,45 +277,52 @@ func _get_ctrl() -> Node:
 
 
 func _bind_ctrl() -> void:
-	var c := _get_ctrl()
-	if c and c.has_signal("state_updated") and not c.is_connected("state_updated", _on_state_updated):
-		c.connect("state_updated", _on_state_updated)
+	var ctrl := _get_ctrl()
+	if ctrl:
+		if ctrl.has_signal("state_updated") and not ctrl.is_connected("state_updated", _on_state_updated):
+			ctrl.connect("state_updated", _on_state_updated)
+		if ctrl.has_signal("log_emitted") and not ctrl.is_connected("log_emitted", _on_log_emitted):
+			ctrl.connect("log_emitted", _on_log_emitted)
 
 
 func _on_state_updated(st: Dictionary) -> void:
 	if _npc_summary == null:
 		return
 	var n: Dictionary = st.get("npc", {})
-	_npc_summary.text = "[b]کاوه آهنگر:[/b] %s | [b]طلا:[/b] %d سکه | [b]رابطه:[/b] %d | [b]روز دنیا:[/b] روز %d" % [
-		str(n.get("title", "شاگرد آهنگر")),
-		int(n.get("gold", 120)),
-		int(n.get("rel", 10)),
-		int(st.get("day", 1))
+	var rel: int = int(n.get("rel", 10))
+	var tag := "دشمن خونی Nemesis" if rel <= -35 else ("متحد وفادار" if rel >= 35 else "معمولی")
+	_npc_summary.text = "[b]کاوه آهنگر (روز %d):[/b] %s | طلا: %d سکه | رابطه: %d (%s)" % [
+		int(st.get("day", 1)), str(n.get("title", "شاگرد آهنگر")), int(n.get("gold", 120)), rel, tag
 	]
 
 
+func _on_log_emitted(bbcode_line: String) -> void:
+	if _status_banner:
+		_status_banner.text = bbcode_line
+
+
+func _goto_3d_screen() -> void:
+	var ctrl := _get_ctrl()
+	if ctrl and ctrl.has_method("switch_to_3d_viewport"):
+		ctrl.call("switch_to_3d_viewport")
+		return
+	if Engine.is_editor_hint():
+		var loc := TranslationServer.translate("3D")
+		EditorInterface.set_main_screen_editor(loc if not loc.is_empty() else "3D")
+
+
 func _call_ctrl_and_view3d(method_name: String) -> void:
-	var c := _get_ctrl()
-	if c and c.has_method(method_name):
-		c.call(method_name)
-	if Engine.is_editor_hint():
-		EditorInterface.set_main_screen_editor("3D")
+	var ctrl := _get_ctrl()
+	if ctrl and ctrl.has_method(method_name):
+		ctrl.call(method_name)
+	_goto_3d_screen()
 
 
-func _on_run_prompt_and_show_3d() -> void:
-	var txt := _prompt_box.text.strip_edges()
-	var c := _get_ctrl()
-	if Engine.is_editor_hint():
-		EditorInterface.set_main_screen_editor("3D")
-	if c:
-		c.call("save_snapshot", "Prompt Execution")
-		c.call("run_video_to_motion_combo")
-		if txt.contains("دروازه") or txt.contains("قلعه") or txt.contains("blend"):
-			c.call("import_blender_auto_pbr_gate")
-		if txt.contains("عکس") or txt.contains("ریگ"):
-			c.call("spawn_image_to_3d_rigged_character")
-		if txt.contains("تیکه") or txt.contains("بشکن") or txt.contains("صندوق"):
-			if not bool(c.get("crate_shattered")):
-				c.call("shatter_or_reset_crate", false)
-		if txt.contains("کات‌سین") or txt.contains("کات سین"):
-			c.call("trigger_live_cutscene", "«دروازه قلعه باز می‌شود... آماده نبرد شو!»")
+func _on_run_prompt() -> void:
+	var p := _prompt_box.text.strip_edges()
+	if p.is_empty():
+		return
+	var ctrl := _get_ctrl()
+	if ctrl and ctrl.has_method("run_prompt_council_build"):
+		ctrl.call("run_prompt_council_build", p)
+	_goto_3d_screen()

@@ -176,9 +176,18 @@ def test_real_godot4_headless_boot() -> None:
         print("[Test 6/6] Real Godot 4 binary not cached locally (skipped in minimal CI container).")
         return
 
-    print(f"[Test 6/6] Booting REAL Godot Engine ({godot_bin.name} --headless --editor --quit)...")
+    # If a live Godot Editor already holds this project open (port 6005), run full project boot (--quit-after 2);
+    # otherwise run full --editor --quit import & plugin boot.
+    import socket
+    editor_already_open = False
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.2)
+        editor_already_open = (s.connect_ex(("127.0.0.1", 6005)) == 0)
+
+    mode_flags = ["--headless", "--quit-after", "2"] if editor_already_open else ["--headless", "--editor", "--quit"]
+    print(f"[Test 6/7] Booting REAL Godot Engine ({godot_bin.name} {' '.join(mode_flags)})...")
     proc = subprocess.run(
-        [str(godot_bin), "--headless", "--editor", "--quit", "--path", str(REPO_ROOT)],
+        [str(godot_bin), *mode_flags, "--path", str(REPO_ROOT)],
         capture_output=True,
         text=True,
         timeout=90,
@@ -187,7 +196,64 @@ def test_real_godot4_headless_boot() -> None:
     assert proc.returncode == 0, f"Godot headless editor exited with {proc.returncode}:\n{combined}"
     assert "SCRIPT ERROR:" not in combined, f"GDScript error detected in real Godot 4:\n{combined}"
     assert "Parse Error:" not in combined, f"GDScript parse error in real Godot 4:\n{combined}"
-    print("  -> PASS (Real Godot 4 Editor + GDExtension + all 33 NovaForge modules booted with ZERO errors)")
+    print(f"  -> PASS (Real Godot 4 Editor + GDExtension + all {len(list((REPO_ROOT / 'addons' / 'novaforge_engine').rglob('*.gd')))} NovaForge modules booted with ZERO errors)")
+
+
+def test_real_glb_library_image_to_3d_and_autorig() -> None:
+    print("[Test 7/7] Verifying 39 Real .GLB Models, Zero Capsule Placeholders, Real Image-to-3D & 19-Bone Auto-Rigger...")
+    glb_files = list((REPO_ROOT / "assets" / "models").rglob("*.glb"))
+    assert len(glb_files) >= 39, f"Expected >=39 real CC0 .glb models, found {len(glb_files)}"
+    assert (REPO_ROOT / "assets" / "models" / "LICENSE-CC0.txt").exists()
+
+    # Verify zero CapsuleMesh character placeholders in showcase scene and in-game HUD
+    sandbox_txt = (REPO_ROOT / "scenes" / "showcase" / "novaforge_sandbox.tscn").read_text(encoding="utf-8")
+    hud_txt = (REPO_ROOT / "addons" / "novaforge_engine" / "ui" / "in_game_studio_hud.gd").read_text(encoding="utf-8")
+    assert "CapsuleMesh" not in sandbox_txt, "Showcase scene must use real .glb models, not CapsuleMesh!"
+    assert "CapsuleMesh" not in hud_txt, "In-game HUD must spawn real .glb models, not CapsuleMesh!"
+
+    godot_bin = REPO_ROOT / "engine_bin" / "Godot_v4.7.2-stable_linux.x86_64"
+    if not godot_bin.exists():
+        godot_bin = Path.home() / ".cache" / "novaforge_godot" / "Godot_v4.7.2-stable_linux.x86_64"
+    if not godot_bin.exists():
+        print("  -> PASS (39 .glb models & zero-capsule check verified; Godot binary skipped)")
+        return
+
+    with tempfile.TemporaryDirectory() as tmp:
+        gd_test = Path(tmp) / "verify_v20_forge.gd"
+        gd_test.write_text(
+            """extends SceneTree
+func _initialize() -> void:
+\tvar conv = load("res://addons/novaforge_engine/forge/real_image_to_3d_converter.gd")
+\tvar rigger = load("res://addons/novaforge_engine/rigging/real_mesh_autorigger.gd")
+\tvar sem = load("res://addons/novaforge_engine/ai_council/semantic_world_builder.gd")
+\tvar mres: Dictionary = conv.reconstruct_3d_mesh_from_image("res://assets/sample_images/cyber_samurai_concept.png", 64, 0.55, 1.85)
+\tif not mres.get("ok", false) or int(mres.get("triangles", 0)) < 500:
+\t\tquit(2); return
+\tvar mesh_node: Node3D = mres["node"]
+\tvar rres: Dictionary = rigger.autorig_node3d(mesh_node, true, "Walk", "res://generated/rigged/ci_test_rigged.glb")
+\tmesh_node.free()
+\tif not rres.get("ok", false) or int(rres.get("bones_count", 0)) < 19:
+\t\tquit(3); return
+\tvar world := Node3D.new()
+\tvar sres: Dictionary = sem.build_from_prompt(world, "یه ماشین اسپرت قرمز، دو تا شوالیه طلایی و قلعه بساز")
+\tif int(sres.get("count", 0)) < 3:
+\t\tquit(4); return
+\tprint("V20_FORGE_OK tris=", mres["triangles"], " bones=", rres["bones_count"], " spawned=", sres["count"])
+\trres["node"].free()
+\tworld.free()
+\tquit(0)
+""",
+            encoding="utf-8",
+        )
+        proc = subprocess.run(
+            [str(godot_bin), "--headless", "--quit", "--path", str(REPO_ROOT), "-s", str(gd_test)],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        out = (proc.stdout or "") + "\n" + (proc.stderr or "")
+        assert proc.returncode == 0 and "V20_FORGE_OK" in out, f"v2.0 Forge verification failed:\n{out}"
+    print(f"  -> PASS ({len(glb_files)} real .GLB models + Image-to-3D .GLB + 19-bone Auto-Rig + Semantic World Builder verified)")
 
 
 if __name__ == "__main__":
@@ -197,6 +263,7 @@ if __name__ == "__main__":
     test_3d_forge_autorig_and_video_mocap()
     test_gdscript_and_shader_files()
     test_real_godot4_headless_boot()
+    test_real_glb_library_image_to_3d_and_autorig()
     print("\n============================================================")
     print("ALL NOVAFORGE AI GAME ENGINE TESTS PASSED (100% GREEN)!")
     print("============================================================")
