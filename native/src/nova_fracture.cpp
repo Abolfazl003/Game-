@@ -75,7 +75,6 @@ void clip_cell_by_plane(ConvexCell& cell, const Vec3& plane_pt, const Vec3& plan
             float d_nxt = dot3(nxt - plane_pt, plane_normal);
 
             bool in_cur = (d_cur <= eps);
-            bool in_nxt = (d_nxt <= eps);
 
             if (in_cur) {
                 clipped.push_back(cur);

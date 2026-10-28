@@ -1,0 +1,2410 @@
+{
+  "engine": "NovaForge AI Game Engine",
+  "version": "1.0.0",
+  "architecture": "Zero-MCP Native In-Engine Bus + Colibri Multi-Brain Council",
+  "total_skills": 123,
+  "total_native_tools": 114,
+  "skills": [
+    {
+      "id": "skill/3d-lighting",
+      "slug": "3d-lighting",
+      "category": "rendering-and-lighting",
+      "summary": "Light a 3D scene: sun, omni and spot lights, WorldEnvironment, sky, shadows and ambient.",
+      "origin": "mit-adapted",
+      "tags": [
+        "3d",
+        "lighting",
+        "rendering-and-lighting"
+      ]
+    },
+    {
+      "id": "skill/adaptive-music",
+      "slug": "adaptive-music",
+      "category": "audio",
+      "summary": "Wire music stems to game state: combat, explore, boss and tension crossfades on a shared bus.",
+      "origin": "mit-adapted",
+      "tags": [
+        "adaptive",
+        "music",
+        "audio"
+      ]
+    },
+    {
+      "id": "skill/agent-playtesting",
+      "slug": "agent-playtesting",
+      "category": "gameplay",
+      "summary": "Playtest by driving the live game: deterministic launch, frame-stamped probes, scripted or recorded input.",
+      "origin": "mit-adapted",
+      "tags": [
+        "agent",
+        "playtesting",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/ambient-bed",
+      "slug": "ambient-bed",
+      "category": "audio",
+      "summary": "Generate a long looping location ambience (forest, dungeon, city, cave) on the Ambient bus.",
+      "origin": "mit-adapted",
+      "tags": [
+        "ambient",
+        "bed",
+        "audio"
+      ]
+    },
+    {
+      "id": "skill/animated-loop",
+      "slug": "animated-loop",
+      "category": "video",
+      "summary": "Generate a short seamless video loop: splash background, animated logo backdrop, idle title screen.",
+      "origin": "mit-adapted",
+      "tags": [
+        "animated",
+        "loop",
+        "video"
+      ]
+    },
+    {
+      "id": "skill/animation-tree",
+      "slug": "animation-tree",
+      "category": "animation",
+      "summary": "Wire AnimationTree state machines and blend trees: locomotion blends, attack interrupts, hit reactions.",
+      "origin": "mit-adapted",
+      "tags": [
+        "animation",
+        "tree",
+        "animation"
+      ]
+    },
+    {
+      "id": "skill/art-direction",
+      "slug": "art-direction",
+      "category": "rendering-and-lighting",
+      "summary": "Define the game's visual style (palette, mood, lighting, post) as an art bible in .summer/art-bible.md.",
+      "origin": "mit-adapted",
+      "tags": [
+        "art",
+        "direction",
+        "rendering-and-lighting"
+      ]
+    },
+    {
+      "id": "skill/asset-strategy",
+      "slug": "asset-strategy",
+      "category": "asset-pipeline",
+      "summary": "Route any 'I need a [thing]' asset request to the right skill: 2D, 3D, audio, video, VFX or animation.",
+      "origin": "mit-adapted",
+      "tags": [
+        "asset",
+        "strategy",
+        "asset-pipeline"
+      ]
+    },
+    {
+      "id": "skill/audio-direction",
+      "slug": "audio-direction",
+      "category": "audio",
+      "summary": "Define the game's sound (music style, SFX vocabulary, dynamic music) as .summer/audio-bible.md.",
+      "origin": "mit-adapted",
+      "tags": [
+        "audio",
+        "direction",
+        "audio"
+      ]
+    },
+    {
+      "id": "skill/auto-fire-targeting",
+      "slug": "auto-fire-targeting",
+      "category": "gameplay-mechanics",
+      "summary": "Fix auto-fire targeting (survivors, ARPG, tower defense) with pending damage to stop overkill.",
+      "origin": "mit-adapted",
+      "tags": [
+        "auto",
+        "fire",
+        "targeting",
+        "gameplay-mechanics"
+      ]
+    },
+    {
+      "id": "skill/bounded-engine-runs",
+      "slug": "bounded-engine-runs",
+      "category": "workflow",
+      "summary": "Run Summer headless or offscreen safely: time limits, one engine per project, import passes, crash checks.",
+      "origin": "mit-adapted",
+      "tags": [
+        "bounded",
+        "engine",
+        "runs",
+        "workflow"
+      ]
+    },
+    {
+      "id": "skill/brainstorm-game",
+      "slug": "brainstorm-game",
+      "category": "scene-and-project",
+      "summary": "Turn a vague game idea into a 1-page brief (genre, scope, core loop, mechanics) in .summer/GameSoul.md.",
+      "origin": "mit-adapted",
+      "tags": [
+        "brainstorm",
+        "game",
+        "scene-and-project"
+      ]
+    },
+    {
+      "id": "skill/brainstorming",
+      "slug": "brainstorming",
+      "category": "gameplay",
+      "summary": "Explore user intent, requirements and design before any creative work: features, mechanics, behavior.",
+      "origin": "mit-adapted",
+      "tags": [
+        "brainstorming",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/browse-templates",
+      "slug": "browse-templates",
+      "category": "scene-and-project",
+      "summary": "List Summer Engine project templates, present the choices, and create a project from the chosen one.",
+      "origin": "mit-adapted",
+      "tags": [
+        "browse",
+        "templates",
+        "scene-and-project"
+      ]
+    },
+    {
+      "id": "skill/camera-rigs",
+      "slug": "camera-rigs",
+      "category": "scene-and-project",
+      "summary": "Camera rigs: Camera2D follow with limits, first-person head, SpringArm3D third-person, top-down, FOV.",
+      "origin": "mit-adapted",
+      "tags": [
+        "camera",
+        "rigs",
+        "scene-and-project"
+      ]
+    },
+    {
+      "id": "skill/celeste-momentum-platforming",
+      "slug": "celeste-momentum-platforming",
+      "category": "game-feel",
+      "summary": "Celeste-style 2D precision platformer movement — momentum running, coyote time, variable jumps, dash, wall jump/slide, climb stamina, pixel corner correction.",
+      "origin": "mit-adapted",
+      "tags": [
+        "celeste",
+        "momentum",
+        "platforming",
+        "game-feel"
+      ]
+    },
+    {
+      "id": "skill/character-animation-wiring",
+      "slug": "character-animation-wiring",
+      "category": "animation",
+      "summary": "Wire a rigged character end to end: real clips and bones, locomotion states, method tracks, root motion.",
+      "origin": "mit-adapted",
+      "tags": [
+        "character",
+        "animation",
+        "wiring",
+        "animation"
+      ]
+    },
+    {
+      "id": "skill/character-model",
+      "slug": "character-model",
+      "category": "3d-assets",
+      "summary": "Generate a rigged humanoid (player, NPC, enemy, boss) from a T-pose reference, previewed before rigging.",
+      "origin": "mit-adapted",
+      "tags": [
+        "character",
+        "model",
+        "3d-assets"
+      ]
+    },
+    {
+      "id": "skill/character-movement",
+      "slug": "character-movement",
+      "category": "character-controllers",
+      "summary": "Player controllers for 2D and 3D, plus the standard third-person controller for Summer humanoids.",
+      "origin": "mit-adapted",
+      "tags": [
+        "character",
+        "movement",
+        "character-controllers"
+      ]
+    },
+    {
+      "id": "skill/character-portrait",
+      "slug": "character-portrait",
+      "category": "2d-assets",
+      "summary": "Generate one polished character bust for dialogue UI, character select, lore cards or codex entries.",
+      "origin": "mit-adapted",
+      "tags": [
+        "character",
+        "portrait",
+        "2d-assets"
+      ]
+    },
+    {
+      "id": "skill/cinematic-cutscene",
+      "slug": "cinematic-cutscene",
+      "category": "video",
+      "summary": "Generate a non-interactive cutscene: a reference-locked 5-10s video shot with optional voiced dialogue.",
+      "origin": "mit-adapted",
+      "tags": [
+        "cinematic",
+        "cutscene",
+        "video"
+      ]
+    },
+    {
+      "id": "skill/combat-basics",
+      "slug": "combat-basics",
+      "category": "gameplay-mechanics",
+      "summary": "Damage: hitbox and hurtbox Areas, a reusable Health component, damage signals, knockback, projectiles.",
+      "origin": "mit-adapted",
+      "tags": [
+        "combat",
+        "basics",
+        "gameplay-mechanics"
+      ]
+    },
+    {
+      "id": "skill/compatibility-renderer-traps",
+      "slug": "compatibility-renderer-traps",
+      "category": "rendering-and-lighting",
+      "summary": "Make a Forward+ game look right on the Compatibility renderer: instance uniforms, MultiMesh, vertex colors.",
+      "origin": "mit-adapted",
+      "tags": [
+        "compatibility",
+        "renderer",
+        "traps",
+        "rendering-and-lighting"
+      ]
+    },
+    {
+      "id": "skill/concept-art",
+      "slug": "concept-art",
+      "category": "2d-assets",
+      "summary": "Explore art direction with 3-4 rough concept variants of a character, environment or prop.",
+      "origin": "mit-adapted",
+      "tags": [
+        "concept",
+        "art",
+        "2d-assets"
+      ]
+    },
+    {
+      "id": "skill/concept-to-level",
+      "slug": "concept-to-level",
+      "category": "level-design",
+      "summary": "3D map from concept art to a shippable level: user questions, owned lanes, render checks, collision in step.",
+      "origin": "mit-adapted",
+      "tags": [
+        "concept",
+        "to",
+        "level",
+        "level-design"
+      ]
+    },
+    {
+      "id": "skill/create-asset-sheet",
+      "slug": "create-asset-sheet",
+      "category": "2d-assets",
+      "summary": "Generate a pack of 2D assets from one prompt (tile sheet, UI kit, character pack, biome), sliced.",
+      "origin": "mit-adapted",
+      "tags": [
+        "create",
+        "asset",
+        "sheet",
+        "2d-assets"
+      ]
+    },
+    {
+      "id": "skill/debug",
+      "slug": "debug",
+      "category": "debugging",
+      "summary": "Disciplined bug, crash and error loop: script errors, console, debugger, hypothesis, fix, verify.",
+      "origin": "mit-adapted",
+      "tags": [
+        "debug",
+        "debugging"
+      ]
+    },
+    {
+      "id": "skill/debugging-game-feel",
+      "slug": "debugging-game-feel",
+      "category": "gameplay",
+      "summary": "Debug features that work but feel wrong: floaty jumps, mushy combat, sluggish camera.",
+      "origin": "mit-adapted",
+      "tags": [
+        "debugging",
+        "game",
+        "feel",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/design-level",
+      "slug": "design-level",
+      "category": "level-design",
+      "summary": "Design one level (layout, pacing, encounters, secrets) as a design doc plus a node-tree skeleton.",
+      "origin": "mit-adapted",
+      "tags": [
+        "design",
+        "level",
+        "level-design"
+      ]
+    },
+    {
+      "id": "skill/design-mechanic",
+      "slug": "design-mechanic",
+      "category": "gameplay-mechanics",
+      "summary": "Design one mechanic in detail (input, feedback, failure modes, tunables) as a doc plus a script stub.",
+      "origin": "mit-adapted",
+      "tags": [
+        "design",
+        "mechanic",
+        "gameplay-mechanics"
+      ]
+    },
+    {
+      "id": "skill/design-npc",
+      "slug": "design-npc",
+      "category": "ai-and-npcs",
+      "summary": "Design enemy, NPC, boss or companion behavior: perception, state machine, telegraphs, script stub.",
+      "origin": "mit-adapted",
+      "tags": [
+        "design",
+        "npc",
+        "ai-and-npcs"
+      ]
+    },
+    {
+      "id": "skill/diagnosing-perf-regressions",
+      "slug": "diagnosing-perf-regressions",
+      "category": "gameplay",
+      "summary": "Find why frame rate, frame time or load time got worse since a known-good state.",
+      "origin": "mit-adapted",
+      "tags": [
+        "diagnosing",
+        "perf",
+        "regressions",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/dispatching-parallel-agents",
+      "slug": "dispatching-parallel-agents",
+      "category": "gameplay",
+      "summary": "Work 2+ independent tasks in parallel when they share no state and have no sequential dependencies.",
+      "origin": "mit-adapted",
+      "tags": [
+        "dispatching",
+        "parallel",
+        "agents",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/driving-the-editor-ui",
+      "slug": "driving-the-editor-ui",
+      "category": "gameplay",
+      "summary": "Drive the editor UI by name: run actions, clear blocking dialogs, switch screens, read a dock.",
+      "origin": "mit-adapted",
+      "tags": [
+        "driving",
+        "the",
+        "editor",
+        "ui",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/environment-kit",
+      "slug": "environment-kit",
+      "category": "3d-assets",
+      "summary": "Generate a modular environment kit: walls, floor tiles, pillars, doors, arches in one visual style.",
+      "origin": "mit-adapted",
+      "tags": [
+        "environment",
+        "kit",
+        "3d-assets"
+      ]
+    },
+    {
+      "id": "skill/export-and-ship",
+      "slug": "export-and-ship",
+      "category": "deployment",
+      "summary": "Prepare a game export: check templates and targets, validate release assets, build after approval.",
+      "origin": "mit-adapted",
+      "tags": [
+        "export",
+        "and",
+        "ship",
+        "deployment"
+      ]
+    },
+    {
+      "id": "skill/fabricating-assets",
+      "slug": "fabricating-assets",
+      "category": "gameplay",
+      "summary": "Fabricate meshes with a Blender script (summer_fabricate_3d): exact-size kits, VFX meshes, post-processing.",
+      "origin": "mit-adapted",
+      "tags": [
+        "fabricating",
+        "assets",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/facial-and-lipsync",
+      "slug": "facial-and-lipsync",
+      "category": "animation",
+      "summary": "Make a character's mouth move with a voice-over: phonemes, viseme blendshapes, facial expressions.",
+      "origin": "mit-adapted",
+      "tags": [
+        "facial",
+        "and",
+        "lipsync",
+        "animation"
+      ]
+    },
+    {
+      "id": "skill/fps-controller",
+      "slug": "fps-controller",
+      "category": "character-controllers",
+      "summary": "First-person controller: WASD, mouse look, jump, coyote time, jump buffering, air control.",
+      "origin": "mit-adapted",
+      "tags": [
+        "fps",
+        "controller",
+        "character-controllers"
+      ]
+    },
+    {
+      "id": "skill/game-feel",
+      "slug": "game-feel",
+      "category": "visual-effects",
+      "summary": "Add juice: hit-flash, trauma camera shake and audio ducking, one hit fires all three.",
+      "origin": "mit-adapted",
+      "tags": [
+        "game",
+        "feel",
+        "visual-effects"
+      ]
+    },
+    {
+      "id": "skill/gameskill",
+      "slug": "gameskill",
+      "category": "workflow",
+      "summary": "Capture what a game-dev session learned as a reusable skill (project, user or Summer library) for next time.",
+      "origin": "mit-adapted",
+      "tags": [
+        "gameskill",
+        "workflow"
+      ]
+    },
+    {
+      "id": "skill/gdscript-patterns",
+      "slug": "gdscript-patterns",
+      "category": "scripting-patterns",
+      "summary": "GDScript conventions: type hints, signals, exports, onready, lifecycle methods, node paths, naming.",
+      "origin": "mit-adapted",
+      "tags": [
+        "gdscript",
+        "patterns",
+        "scripting-patterns"
+      ]
+    },
+    {
+      "id": "skill/generate-motion",
+      "slug": "generate-motion",
+      "category": "animation",
+      "summary": "Attach a library animation clip (idle, walk, run, attack) to a rigged character via AnimationPlayer.",
+      "origin": "mit-adapted",
+      "tags": [
+        "generate",
+        "motion",
+        "animation"
+      ]
+    },
+    {
+      "id": "skill/godogen-visual-proof-game-generation",
+      "slug": "godogen-visual-proof-game-generation",
+      "category": "workflow",
+      "summary": "Godogen-style game generation with a visual QC loop — capture frames from the running game, self-verify against the brief, bounded fix rounds, proof clip.",
+      "origin": "mit-adapted",
+      "tags": [
+        "godogen",
+        "visual",
+        "proof",
+        "game",
+        "generation",
+        "workflow"
+      ]
+    },
+    {
+      "id": "skill/headless-scripting",
+      "slug": "headless-scripting",
+      "category": "gameplay",
+      "summary": "Run a GDScript file against Summer Engine from the shell for what no MCP tool does: navmesh, TileSets.",
+      "origin": "mit-adapted",
+      "tags": [
+        "headless",
+        "scripting",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/instantiate-asset-pack",
+      "slug": "instantiate-asset-pack",
+      "category": "2d-assets",
+      "summary": "Lay out a whole create-asset-sheet pack in the scene: composites, paint order, Sprite2D and NinePatch.",
+      "origin": "mit-adapted",
+      "tags": [
+        "instantiate",
+        "asset",
+        "pack",
+        "2d-assets"
+      ]
+    },
+    {
+      "id": "skill/investigating-bugs",
+      "slug": "investigating-bugs",
+      "category": "gameplay",
+      "summary": "Systematic investigation of any bug, test failure, or unexpected behavior before proposing fixes.",
+      "origin": "mit-adapted",
+      "tags": [
+        "investigating",
+        "bugs",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/launch-ready",
+      "slug": "launch-ready",
+      "category": "deployment",
+      "summary": "Get a game ready to launch on Summer Games and take it live: upload, real screenshots, store art and listing, gathered and filled in.",
+      "origin": "mit-adapted",
+      "tags": [
+        "launch",
+        "ready",
+        "deployment"
+      ]
+    },
+    {
+      "id": "skill/lumera-single-image-scene-reconstruction",
+      "slug": "lumera-single-image-scene-reconstruction",
+      "category": "art-pipeline",
+      "summary": "Lumera-style single image to editable 3D scene — VLM-parsed object boxes and parametric lights, per-object meshes, HDR probe, .tscn assembly, refinement loop.",
+      "origin": "mit-adapted",
+      "tags": [
+        "lumera",
+        "single",
+        "image",
+        "scene",
+        "reconstruction",
+        "art-pipeline"
+      ]
+    },
+    {
+      "id": "skill/make-content",
+      "slug": "make-content",
+      "category": "video",
+      "summary": "Make a finished, postable video of your game, cut per platform and saved for review.",
+      "origin": "mit-adapted",
+      "tags": [
+        "make",
+        "content",
+        "video"
+      ]
+    },
+    {
+      "id": "skill/make-game",
+      "slug": "make-game",
+      "category": "scene-and-project",
+      "summary": "Orchestrate 'make me a game': brainstorm, plan, scaffold, mechanics, art, audio, polish, verify, ship.",
+      "origin": "mit-adapted",
+      "tags": [
+        "make",
+        "game",
+        "scene-and-project"
+      ]
+    },
+    {
+      "id": "skill/multiplayer",
+      "slug": "multiplayer",
+      "category": "multiplayer-and-networking",
+      "summary": "Start here for Summer multiplayer: how authority, clients, Worlds and Sessions fit, and what comes next.",
+      "origin": "mit-adapted",
+      "tags": [
+        "multiplayer",
+        "multiplayer-and-networking"
+      ]
+    },
+    {
+      "id": "skill/multiplayer-movement",
+      "slug": "multiplayer-movement",
+      "category": "multiplayer-and-networking",
+      "summary": "Movement in Summer multiplayer: owners move instantly, others glide, the authority checks each pose.",
+      "origin": "mit-adapted",
+      "tags": [
+        "multiplayer",
+        "movement",
+        "multiplayer-and-networking"
+      ]
+    },
+    {
+      "id": "skill/multiplayer-project",
+      "slug": "multiplayer-project",
+      "category": "multiplayer-and-networking",
+      "summary": "Set up a Summer multiplayer project: entry scenes, World and queue files, joining, a first Local Play.",
+      "origin": "mit-adapted",
+      "tags": [
+        "multiplayer",
+        "project",
+        "multiplayer-and-networking"
+      ]
+    },
+    {
+      "id": "skill/multiplayer-publish",
+      "slug": "multiplayer-publish",
+      "category": "multiplayer-and-networking",
+      "summary": "Ship a hosted Summer multiplayer game: the bundle, server preset, pre-upload checks, a new Build.",
+      "origin": "mit-adapted",
+      "tags": [
+        "multiplayer",
+        "publish",
+        "multiplayer-and-networking"
+      ]
+    },
+    {
+      "id": "skill/multiplayer-state",
+      "slug": "multiplayer-state",
+      "category": "multiplayer-and-networking",
+      "summary": "Authority-owned state in Summer multiplayer: shared and private State groups, Commands, Events.",
+      "origin": "mit-adapted",
+      "tags": [
+        "multiplayer",
+        "state",
+        "multiplayer-and-networking"
+      ]
+    },
+    {
+      "id": "skill/multiplayer-testing",
+      "slug": "multiplayer-testing",
+      "category": "multiplayer-and-networking",
+      "summary": "Test a Summer multiplayer game with Local Play: several players, bad network, bots, a passing run.",
+      "origin": "mit-adapted",
+      "tags": [
+        "multiplayer",
+        "testing",
+        "multiplayer-and-networking"
+      ]
+    },
+    {
+      "id": "skill/music-track",
+      "slug": "music-track",
+      "category": "audio",
+      "summary": "Generate a music track: game loops of 30s or more with a loop point, or linear cinematic cues.",
+      "origin": "mit-adapted",
+      "tags": [
+        "music",
+        "track",
+        "audio"
+      ]
+    },
+    {
+      "id": "skill/new-project",
+      "slug": "new-project",
+      "category": "scene-and-project",
+      "summary": "Create a blank Summer Engine project: ask for the project name and run summer create empty.",
+      "origin": "mit-adapted",
+      "tags": [
+        "new",
+        "project",
+        "scene-and-project"
+      ]
+    },
+    {
+      "id": "skill/organic-model",
+      "slug": "organic-model",
+      "category": "3d-assets",
+      "summary": "Generate organic 3D shapes (trees, rocks, mushrooms, plants, crystals) where irregularity looks natural.",
+      "origin": "mit-adapted",
+      "tags": [
+        "organic",
+        "model",
+        "3d-assets"
+      ]
+    },
+    {
+      "id": "skill/painted-25d-world",
+      "slug": "painted-25d-world",
+      "category": "2d",
+      "summary": "Build a 2D or 2.5D game as a painted world: a 3D blockout under one fixed camera, an AI paint-over projected onto it, sprite characters.",
+      "origin": "mit-adapted",
+      "tags": [
+        "painted",
+        "25d",
+        "world",
+        "2d"
+      ]
+    },
+    {
+      "id": "skill/pixel-art",
+      "slug": "pixel-art",
+      "category": "2d-assets",
+      "summary": "Generate pixel-art sprites, items, tiles and portraits at a set resolution with a limited palette.",
+      "origin": "mit-adapted",
+      "tags": [
+        "pixel",
+        "art",
+        "2d-assets"
+      ]
+    },
+    {
+      "id": "skill/play",
+      "slug": "play",
+      "category": "scene-and-project",
+      "summary": "Run the project in Summer Engine, wait briefly, then report a clean run, errors or warnings.",
+      "origin": "mit-adapted",
+      "tags": [
+        "play",
+        "scene-and-project"
+      ]
+    },
+    {
+      "id": "skill/playtesting-a-feature",
+      "slug": "playtesting-a-feature",
+      "category": "gameplay",
+      "summary": "Before calling a gameplay feature done, run the game and walk through it. Static checks do not count.",
+      "origin": "mit-adapted",
+      "tags": [
+        "playtesting",
+        "a",
+        "feature",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/procedural-animation",
+      "slug": "procedural-animation",
+      "category": "animation",
+      "summary": "Runtime bone changes on top of clips: head look-at, foot IK, hand grabs a prop, lean, recoil.",
+      "origin": "mit-adapted",
+      "tags": [
+        "procedural",
+        "animation",
+        "animation"
+      ]
+    },
+    {
+      "id": "skill/prop-model",
+      "slug": "prop-model",
+      "category": "3d-assets",
+      "summary": "Generate one static 3D prop (sword, barrel, chest, lantern, statue): one object, no rig, a MeshInstance3D.",
+      "origin": "mit-adapted",
+      "tags": [
+        "prop",
+        "model",
+        "3d-assets"
+      ]
+    },
+    {
+      "id": "skill/psx-retro-rendering",
+      "slug": "psx-retro-rendering",
+      "category": "shaders",
+      "summary": "PlayStation 1 rendering in Summer Engine — low-res output, RGB5 and exact dither, affine textures, vertex snapping, blend modes, fog; limits named.",
+      "origin": "mit-adapted",
+      "tags": [
+        "psx",
+        "retro",
+        "rendering",
+        "shaders"
+      ]
+    },
+    {
+      "id": "skill/realtime-wet-surfaces",
+      "slug": "realtime-wet-surfaces",
+      "category": "shaders",
+      "summary": "Real-time wetness on existing materials without losing their values — value-copying wet shader, geometry-driven wet mask, instance-uniform wet amount.",
+      "origin": "mit-adapted",
+      "tags": [
+        "realtime",
+        "wet",
+        "surfaces",
+        "shaders"
+      ]
+    },
+    {
+      "id": "skill/release-checklist",
+      "slug": "release-checklist",
+      "category": "deployment",
+      "summary": "Pre-launch check for Summer Games: export, upload checks, store art, listing fields.",
+      "origin": "mit-adapted",
+      "tags": [
+        "release",
+        "checklist",
+        "deployment"
+      ]
+    },
+    {
+      "id": "skill/release-readiness",
+      "slug": "release-readiness",
+      "category": "deployment",
+      "summary": "Prove players can play a Summer release: server, online join, progress, files.",
+      "origin": "mit-adapted",
+      "tags": [
+        "release",
+        "readiness",
+        "deployment"
+      ]
+    },
+    {
+      "id": "skill/retarget",
+      "slug": "retarget",
+      "category": "animation",
+      "summary": "Apply animation clips from one rigged character to another: one clip library, many models.",
+      "origin": "mit-adapted",
+      "tags": [
+        "retarget",
+        "animation"
+      ]
+    },
+    {
+      "id": "skill/save-load",
+      "slug": "save-load",
+      "category": "scripting-patterns",
+      "summary": "Save and load game state: user:// paths, JSON progress vs ConfigFile settings, versioned saves, autosave.",
+      "origin": "mit-adapted",
+      "tags": [
+        "save",
+        "load",
+        "scripting-patterns"
+      ]
+    },
+    {
+      "id": "skill/scene-composition",
+      "slug": "scene-composition",
+      "category": "scene-and-project",
+      "summary": "Scene structure: node hierarchy, when to extract sub-scenes, reusable prefabs, instance vs add node.",
+      "origin": "mit-adapted",
+      "tags": [
+        "scene",
+        "composition",
+        "scene-and-project"
+      ]
+    },
+    {
+      "id": "skill/scene-hierarchy-design",
+      "slug": "scene-hierarchy-design",
+      "category": "workflow",
+      "summary": "Structure scenes by access pattern: asset vs live hierarchies, wrapper nodes, sub-scenes, path-agnostic code.",
+      "origin": "mit-adapted",
+      "tags": [
+        "scene",
+        "hierarchy",
+        "design",
+        "workflow"
+      ]
+    },
+    {
+      "id": "skill/scene-scripting",
+      "slug": "scene-scripting",
+      "category": "gameplay",
+      "summary": "Build scenes, levels, HUDs and wiring with one editor GDScript (summer_run_script) instead of call chains.",
+      "origin": "mit-adapted",
+      "tags": [
+        "scene",
+        "scripting",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/scene-to-level",
+      "slug": "scene-to-level",
+      "category": "level-design",
+      "summary": "Turn a reference image or concept art into a playable scene: concept, asset pack, terrain, assembly.",
+      "origin": "mit-adapted",
+      "tags": [
+        "scene",
+        "to",
+        "level",
+        "level-design"
+      ]
+    },
+    {
+      "id": "skill/skill-create",
+      "slug": "skill-create",
+      "category": "workflow",
+      "summary": "Bootstrap a new Summer library skill (library/skills/<slug>/ with resource.yaml and SKILL.md), frontmatter, and stub sections.",
+      "origin": "mit-adapted",
+      "tags": [
+        "skill",
+        "create",
+        "workflow"
+      ]
+    },
+    {
+      "id": "skill/skill-improve",
+      "slug": "skill-improve",
+      "category": "workflow",
+      "summary": "Upgrade an underperforming Summer skill — run it against a behavioral spec with and without changes via a parallel-eval harness; ship the winner.",
+      "origin": "mit-adapted",
+      "tags": [
+        "skill",
+        "improve",
+        "workflow"
+      ]
+    },
+    {
+      "id": "skill/skill-test",
+      "slug": "skill-test",
+      "category": "workflow",
+      "summary": "Lint a Summer skill before commit, audit the whole library, or check a behavioral spec assertion — static structural rules plus behavioral specs.",
+      "origin": "mit-adapted",
+      "tags": [
+        "skill",
+        "test",
+        "workflow"
+      ]
+    },
+    {
+      "id": "skill/skintokens-auto-rigging",
+      "slug": "skintokens-auto-rigging",
+      "category": "art-pipeline",
+      "summary": "Offline auto-rigging with skin-tokens.cpp (GGML SkinTokens/TokenRig port) — skeleton and skin weights from a static GLB mesh on CPU/Vulkan, into Summer Engine.",
+      "origin": "mit-adapted",
+      "tags": [
+        "skintokens",
+        "auto",
+        "rigging",
+        "art-pipeline"
+      ]
+    },
+    {
+      "id": "skill/skybox-panorama",
+      "slug": "skybox-panorama",
+      "category": "2d-assets",
+      "summary": "Generate a 360-degree sky panorama and wire it as a PanoramaSkyMaterial Sky resource on WorldEnvironment.",
+      "origin": "mit-adapted",
+      "tags": [
+        "skybox",
+        "panorama",
+        "2d-assets"
+      ]
+    },
+    {
+      "id": "skill/sound-effect",
+      "slug": "sound-effect",
+      "category": "audio",
+      "summary": "Make sound effects (swings, hits, whooshes, reloads, UI): three versions to pick from, then wire them.",
+      "origin": "mit-adapted",
+      "tags": [
+        "sound",
+        "effect",
+        "audio"
+      ]
+    },
+    {
+      "id": "skill/spatial-placement",
+      "slug": "spatial-placement",
+      "category": "scene-and-project",
+      "summary": "Place 3D objects and modular kit pieces from measured geometry: floors, walls, facades, pipes, alcoves.",
+      "origin": "mit-adapted",
+      "tags": [
+        "spatial",
+        "placement",
+        "scene-and-project"
+      ]
+    },
+    {
+      "id": "skill/sprite-sheet",
+      "slug": "sprite-sheet",
+      "category": "2d-assets",
+      "summary": "Generate animated 2D character sprite sheets (walk, attack, idle, death) for AnimatedSprite2D.",
+      "origin": "mit-adapted",
+      "tags": [
+        "sprite",
+        "sheet",
+        "2d-assets"
+      ]
+    },
+    {
+      "id": "skill/text-to-motion",
+      "slug": "text-to-motion",
+      "category": "animation",
+      "summary": "Make custom 2-second animation clips from text on the user's own rigged models: people, animals, props.",
+      "origin": "mit-adapted",
+      "tags": [
+        "text",
+        "to",
+        "motion",
+        "animation"
+      ]
+    },
+    {
+      "id": "skill/tileable-texture",
+      "slug": "tileable-texture",
+      "category": "2d-assets",
+      "summary": "Generate a seamless tileable texture for walls, floors or terrain, wired as a StandardMaterial3D albedo.",
+      "origin": "mit-adapted",
+      "tags": [
+        "tileable",
+        "texture",
+        "2d-assets"
+      ]
+    },
+    {
+      "id": "skill/trailer-shot",
+      "slug": "trailer-shot",
+      "category": "video",
+      "summary": "Generate trailer footage: slow-mo combat, establishing shots, hero beats, splash screens, 5-10 seconds.",
+      "origin": "mit-adapted",
+      "tags": [
+        "trailer",
+        "shot",
+        "video"
+      ]
+    },
+    {
+      "id": "skill/tune-performance",
+      "slug": "tune-performance",
+      "category": "performance",
+      "summary": "Profile a slow game, find rendering, physics or script hotspots, and propose fixes with expected gains.",
+      "origin": "mit-adapted",
+      "tags": [
+        "tune",
+        "performance",
+        "performance"
+      ]
+    },
+    {
+      "id": "skill/ui-basics",
+      "slug": "ui-basics",
+      "category": "ui-and-ux",
+      "summary": "Build UI: HUDs, menus, health bars, dialogue boxes, Control trees, anchors, containers and themes.",
+      "origin": "mit-adapted",
+      "tags": [
+        "ui",
+        "basics",
+        "ui-and-ux"
+      ]
+    },
+    {
+      "id": "skill/ui-graphics",
+      "slug": "ui-graphics",
+      "category": "2d-assets",
+      "summary": "Generate game UI art (icons, buttons, panels, frames, HUD widgets) flat, on a transparent background.",
+      "origin": "mit-adapted",
+      "tags": [
+        "ui",
+        "graphics",
+        "2d-assets"
+      ]
+    },
+    {
+      "id": "skill/use-widget-asset",
+      "slug": "use-widget-asset",
+      "category": "2d-assets",
+      "summary": "Wire a widget slice from an asset pack (panel, button, bar, toggle) into NinePatchRect or TextureRect.",
+      "origin": "mit-adapted",
+      "tags": [
+        "use",
+        "widget",
+        "asset",
+        "2d-assets"
+      ]
+    },
+    {
+      "id": "skill/vehicle-model",
+      "slug": "vehicle-model",
+      "category": "3d-assets",
+      "summary": "Generate a hard-surface vehicle (car, spaceship, mech, boat, tank) as a static or VehicleBody3D mesh.",
+      "origin": "mit-adapted",
+      "tags": [
+        "vehicle",
+        "model",
+        "3d-assets"
+      ]
+    },
+    {
+      "id": "skill/verification-before-completion",
+      "slug": "verification-before-completion",
+      "category": "gameplay",
+      "summary": "Run verification and read its output before claiming work done, fixed or passing: evidence first.",
+      "origin": "mit-adapted",
+      "tags": [
+        "verification",
+        "before",
+        "completion",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/verifying-scenes",
+      "slug": "verifying-scenes",
+      "category": "gameplay",
+      "summary": "Prove scene work landed: snapshot, diff, screenshots, runtime reads, 3D audits, shot sheets and zooms.",
+      "origin": "mit-adapted",
+      "tags": [
+        "verifying",
+        "scenes",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/vfx-dissolve",
+      "slug": "vfx-dissolve",
+      "category": "visual-effects",
+      "summary": "Dissolve effect: a mesh burns away with a glowing edge, from a noise-threshold ShaderMaterial.",
+      "origin": "mit-adapted",
+      "tags": [
+        "vfx",
+        "dissolve",
+        "visual-effects"
+      ]
+    },
+    {
+      "id": "skill/vfx-fire",
+      "slug": "vfx-fire",
+      "category": "visual-effects",
+      "summary": "Fire effect: animated flames from GPUParticles3D, a particle shader and a noise color ramp.",
+      "origin": "mit-adapted",
+      "tags": [
+        "vfx",
+        "fire",
+        "visual-effects"
+      ]
+    },
+    {
+      "id": "skill/vfx-hit-spark",
+      "slug": "vfx-hit-spark",
+      "category": "visual-effects",
+      "summary": "Hit-spark effect: a one-shot burst of additive particles oriented to the surface, fired on impact.",
+      "origin": "mit-adapted",
+      "tags": [
+        "vfx",
+        "hit",
+        "spark",
+        "visual-effects"
+      ]
+    },
+    {
+      "id": "skill/vfx-lightning",
+      "slug": "vfx-lightning",
+      "category": "visual-effects",
+      "summary": "Lightning bolt effect: a jagged procedural path with a glow shader, end sparks and screen shake.",
+      "origin": "mit-adapted",
+      "tags": [
+        "vfx",
+        "lightning",
+        "visual-effects"
+      ]
+    },
+    {
+      "id": "skill/vfx-magic-glow",
+      "slug": "vfx-magic-glow",
+      "category": "visual-effects",
+      "summary": "Magic-glow effect: a pulsing OmniLight3D, drifting additive motes and an optional emission shader.",
+      "origin": "mit-adapted",
+      "tags": [
+        "vfx",
+        "magic",
+        "glow",
+        "visual-effects"
+      ]
+    },
+    {
+      "id": "skill/vfx-muzzle-flash",
+      "slug": "vfx-muzzle-flash",
+      "category": "visual-effects",
+      "summary": "Muzzle-flash effect: a one-shot ~80 ms burst at a gun barrel, from particles or a star-burst quad.",
+      "origin": "mit-adapted",
+      "tags": [
+        "vfx",
+        "muzzle",
+        "flash",
+        "visual-effects"
+      ]
+    },
+    {
+      "id": "skill/vfx-smoke",
+      "slug": "vfx-smoke",
+      "category": "visual-effects",
+      "summary": "Smoke effect: a rising column or puff of soft particles with a noise and density falloff shader.",
+      "origin": "mit-adapted",
+      "tags": [
+        "vfx",
+        "smoke",
+        "visual-effects"
+      ]
+    },
+    {
+      "id": "skill/vfx-water-ripple",
+      "slug": "vfx-water-ripple",
+      "category": "visual-effects",
+      "summary": "Water-ripple effect: animated normal-distortion ripples on a water plane or Decal, set off by impacts.",
+      "origin": "mit-adapted",
+      "tags": [
+        "vfx",
+        "water",
+        "ripple",
+        "visual-effects"
+      ]
+    },
+    {
+      "id": "skill/voice-line",
+      "slug": "voice-line",
+      "category": "audio",
+      "summary": "Generate voice lines (NPC barks, narrator, dialogue) with a character-to-voice choice and multi-line support.",
+      "origin": "mit-adapted",
+      "tags": [
+        "voice",
+        "line",
+        "audio"
+      ]
+    },
+    {
+      "id": "skill/web-and-touch-input",
+      "slug": "web-and-touch-input",
+      "category": "scene-and-project",
+      "summary": "Browser and phone input: the first-click rule for sound and mouse capture, focus, touch buttons, a stick.",
+      "origin": "mit-adapted",
+      "tags": [
+        "web",
+        "and",
+        "touch",
+        "input",
+        "scene-and-project"
+      ]
+    },
+    {
+      "id": "skill/web-compatibility-look",
+      "slug": "web-compatibility-look",
+      "category": "rendering-and-lighting",
+      "summary": "Make a browser game look high-end in the Compatibility renderer (WebGL 2): what works, recipes, speed.",
+      "origin": "mit-adapted",
+      "tags": [
+        "web",
+        "compatibility",
+        "look",
+        "rendering-and-lighting"
+      ]
+    },
+    {
+      "id": "skill/world-building-3d",
+      "slug": "world-building-3d",
+      "category": "scene-and-project",
+      "summary": "Compose, ground and space 3D scenes with Summer's four spatial tools, one geometric decision at a time.",
+      "origin": "mit-adapted",
+      "tags": [
+        "world",
+        "building",
+        "3d",
+        "scene-and-project"
+      ]
+    },
+    {
+      "id": "skill/writing-plans",
+      "slug": "writing-plans",
+      "category": "gameplay",
+      "summary": "Turn a spec or requirements for a multi-step task into a written implementation plan before touching code.",
+      "origin": "mit-adapted",
+      "tags": [
+        "writing",
+        "plans",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/writing-skills",
+      "slug": "writing-skills",
+      "category": "gameplay",
+      "summary": "Create, edit, and verify agent skills — format, structure, testing with subagents, and best practices.",
+      "origin": "mit-adapted",
+      "tags": [
+        "writing",
+        "skills",
+        "gameplay"
+      ]
+    },
+    {
+      "id": "skill/colibri-multi-brain-council",
+      "slug": "colibri-multi-brain-council",
+      "category": "ai-architecture",
+      "summary": "Orchestrate multiple local AI brains (Director, C++/Blueprint Coder, 3D Artist, Mocap Animator, QA Critic) via Colibrì VRAM/RAM/NVMe streaming.",
+      "origin": "novaforge-native",
+      "tags": [
+        "colibri",
+        "multi-brain",
+        "council",
+        "local-ai",
+        "moe",
+        "vram-relay",
+        "چند مغز",
+        "کولیبری",
+        "هوش مصنوعی لوکال",
+        "شورای هوش مصنوعی",
+        "حافظه"
+      ]
+    },
+    {
+      "id": "skill/blueprint-cpp-hybrid",
+      "slug": "blueprint-cpp-hybrid",
+      "category": "scripting-architecture",
+      "summary": "Build gameplay simultaneously with Visual Blueprint Node Graphs, Native C++20 GDExtension, and GDScript.",
+      "origin": "novaforge-native",
+      "tags": [
+        "blueprint",
+        "cpp",
+        "c++",
+        "visual-scripting",
+        "gdextension",
+        "transpiler",
+        "بلوپرینت",
+        "سی پلاس پلاس",
+        "کدنویسی",
+        "گراف",
+        "اسکریپت"
+      ]
+    },
+    {
+      "id": "skill/blender-zero-config-materials",
+      "slug": "blender-zero-config-materials",
+      "category": "asset-pipeline",
+      "summary": "Import .blend, .glb, .gltf, .fbx, .obj, .dae, .usd, .abc, .ply, .stl with 100% automatic PBR texture discovery & DirectX/OpenGL normal auto-fix.",
+      "origin": "novaforge-native",
+      "tags": [
+        "blender",
+        "blend",
+        "fbx",
+        "glb",
+        "usd",
+        "alembic",
+        "pbr",
+        "auto-texture",
+        "normal-map",
+        "بلندر",
+        "تکسچر",
+        "متریال",
+        "فرمت",
+        "ایمپورت",
+        "نرمال مپ"
+      ]
+    },
+    {
+      "id": "skill/video-to-motion-mocap",
+      "slug": "video-to-motion-mocap",
+      "category": "animation-mocap",
+      "summary": "Extract 3D world-space root motion, body joints, fingers, face, Foot-Locking IK, and automatic combat hitbox keyframes from any video.",
+      "origin": "novaforge-native",
+      "tags": [
+        "video-to-motion",
+        "mocap",
+        "foot-locking",
+        "ik",
+        "combat-tagging",
+        "retarget",
+        "ویدیو",
+        "انیمیشن",
+        "دویدن",
+        "جنگیدن",
+        "فایت",
+        "موشن کپچر",
+        "حرکت"
+      ]
+    },
+    {
+      "id": "skill/in-engine-cutscene-sequencer",
+      "slug": "in-engine-cutscene-sequencer",
+      "category": "cinematics",
+      "summary": "Author Blender-grade Pose/IK, Bezier Graph Editor, NLA layers, and seamless real-time cutscenes directly in-engine ('این تیکه کات‌سینه').",
+      "origin": "novaforge-native",
+      "tags": [
+        "cutscene",
+        "sequencer",
+        "pose-mode",
+        "ik",
+        "graph-editor",
+        "nla",
+        "seamless-camera",
+        "کات سین",
+        "انیمیشن سازی",
+        "بلندر",
+        "دوربین سینمایی",
+        "تایم لاین"
+      ]
+    },
+    {
+      "id": "skill/smart-interactive-objects",
+      "slug": "smart-interactive-objects",
+      "category": "interactive-world",
+      "summary": "Click any 3D prop in the viewport to open the Smart Context Menu: doors/chests with auto-hinge, pickups, weapons, physics traps, or custom AI prompts.",
+      "origin": "novaforge-native",
+      "tags": [
+        "smart-object",
+        "interactable",
+        "context-menu",
+        "door-hinge",
+        "pickup",
+        "equip",
+        "آبجکت",
+        "کلیک",
+        "منو",
+        "اینترکت",
+        "تعامل",
+        "در",
+        "سلاح"
+      ]
+    },
+    {
+      "id": "skill/voronoi-3d-destruction",
+      "slug": "voronoi-3d-destruction",
+      "category": "physics-destruction",
+      "summary": "Real-time 3D Voronoi mesh fracturing with Jolt Physics rigid shards for glass, wood, stone, metal, and explosive barrels.",
+      "origin": "novaforge-native",
+      "tags": [
+        "destruction",
+        "fracture",
+        "voronoi",
+        "shatter",
+        "jolt-physics",
+        "explosive",
+        "تخریب",
+        "شکستن",
+        "سلاح",
+        "انفجار",
+        "تیکه تیکه",
+        "فیزیک"
+      ]
+    },
+    {
+      "id": "skill/living-evolving-npcs",
+      "slug": "living-evolving-npcs",
+      "category": "npc-ai",
+      "summary": "Modular checkbox NPC traits + Evolving Life & Nemesis AI where NPC careers, wealth, families, scars, and combat tactics progress alongside game time.",
+      "origin": "novaforge-native",
+      "tags": [
+        "npc",
+        "living-world",
+        "evolving-life",
+        "nemesis",
+        "memory",
+        "daily-routine",
+        "free-talk",
+        "ان پی سی",
+        "زندگی",
+        "هوشمند",
+        "پیشرفت",
+        "حافظه",
+        "انتقام",
+        "دیالوگ"
+      ]
+    },
+    {
+      "id": "skill/visual-quality-tiers",
+      "slug": "visual-quality-tiers",
+      "category": "rendering-quality",
+      "summary": "Switch instantly between AAA Unreal-Grade (Vulkan SDFGI/SSR/Volumetric/ACES), Standard Unity-Style, and Indie Stylized (Cel-Shade, Low-Poly, HD-2D, PSX).",
+      "origin": "novaforge-native",
+      "tags": [
+        "quality-tier",
+        "aaa",
+        "unreal-grade",
+        "unity-style",
+        "indie",
+        "cel-shaded",
+        "hd-2d",
+        "psx",
+        "کیفیت",
+        "گرافیک",
+        "آنریل",
+        "یونیتی",
+        "ایندی",
+        "پیکسلی",
+        "کارتونی"
+      ]
+    },
+    {
+      "id": "skill/all-genre-perspectives",
+      "slug": "all-genre-perspectives",
+      "category": "genres-cameras",
+      "summary": "Runtime-switchable camera perspectives (FPS, TPS Over-Shoulder, TPS Souls Lock-On, 2.5D Side/Spline, HD-2D, Isometric/RTS, 2D, Fixed) + 10 Genre Kits.",
+      "origin": "novaforge-native",
+      "tags": [
+        "fps",
+        "tps",
+        "2.5d",
+        "hd-2d",
+        "isometric",
+        "rts",
+        "souls-like",
+        "fighting",
+        "racing",
+        "survival",
+        "ژانر",
+        "اول شخص",
+        "سوم شخص",
+        "۲.۵ بعدی",
+        "ایزومتریک",
+        "سبک بازی"
+      ]
+    },
+    {
+      "id": "skill/elemental-weather-chemistry",
+      "slug": "elemental-weather-chemistry",
+      "category": "world-systems",
+      "summary": "Dynamic weather, 24h day/night cycle, and systemic Fire/Water/Wind/Lightning chemistry reactions.",
+      "origin": "novaforge-native",
+      "tags": [
+        "weather",
+        "day-night",
+        "elemental-chemistry",
+        "fire",
+        "water",
+        "lightning",
+        "wind",
+        "آب و هوا",
+        "باران",
+        "آتش",
+        "برف",
+        "شب و روز",
+        "عناصر"
+      ]
+    },
+    {
+      "id": "skill/open-world-chunk-streaming",
+      "slug": "open-world-chunk-streaming",
+      "category": "world-systems",
+      "summary": "Stream large open worlds in spatial chunks with Auto-LOD mesh optimization and background NPC simulation.",
+      "origin": "novaforge-native",
+      "tags": [
+        "open-world",
+        "chunk-streaming",
+        "auto-lod",
+        "culling",
+        "terrain",
+        "جهان باز",
+        "استریم مپ",
+        "نقشه بزرگ",
+        "بهینه سازی",
+        "فریم ریت"
+      ]
+    },
+    {
+      "id": "skill/world-persistence-timemachine",
+      "slug": "world-persistence-timemachine",
+      "category": "persistence-tooling",
+      "summary": "Save/Load full living-world state (fractured objects + evolved NPCs) & revert editor AI changes via Project Time-Machine snapshots.",
+      "origin": "novaforge-native",
+      "tags": [
+        "save-load",
+        "world-persistence",
+        "time-machine",
+        "snapshot",
+        "undo",
+        "سیو",
+        "لود",
+        "ذخیره بازی",
+        "تایم ماشین",
+        "برگشت به قبل"
+      ]
+    },
+    {
+      "id": "skill/persian-rtl-smart-ui",
+      "slug": "persian-rtl-smart-ui",
+      "category": "ui-localization",
+      "summary": "Build responsive HUDs, menus, radial wheels, controller/touch bindings, and native Persian RTL UI with HarfBuzz shaping & local AI localization.",
+      "origin": "novaforge-native",
+      "tags": [
+        "persian",
+        "rtl",
+        "ui",
+        "hud",
+        "localization",
+        "gamepad",
+        "touch-controls",
+        "فارسی",
+        "رابط کاربری",
+        "منو",
+        "راست به چپ",
+        "ترجمه",
+        "دسته بازی"
+      ]
+    },
+    {
+      "id": "skill/one-click-colibri-ship",
+      "slug": "one-click-colibri-ship",
+      "category": "export-release",
+      "summary": "One-click multi-platform game export (Windows, Linux, macOS, Android, iOS, Web) bundling the lightweight Colibrì C runtime for living-NPC games.",
+      "origin": "novaforge-native",
+      "tags": [
+        "export",
+        "build",
+        "installer",
+        "colibri-runtime",
+        "windows",
+        "android",
+        "web",
+        "خروجی",
+        "اکسپورت",
+        "ساخت بازی",
+        "ویندوز",
+        "اندروید",
+        "انتشار"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "tool_name": "nova_add_node",
+      "slug": "add-node",
+      "summary": "Add a node of any Godot type to an exact scene, which does not need to be the active editor tab.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_align_distribute_3d",
+      "slug": "align-distribute-3d",
+      "summary": "Align (min/center/max) or equal-space (centers/gaps) 2-16 ordered 3D subjects along one world axis from their visible AABBs, then save the scene.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_attach_to_surface",
+      "slug": "attach-to-surface",
+      "summary": "Mount a piece on a wall, ceiling or floor — turn its measured back into the surface found by a ray, keep it upright, seat it at a standoff. Saves the scene.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_batch",
+      "slug": "batch",
+      "summary": "Run engine ops in one call, verbatim; one undo step unless single-only ops split it. ReparentNode keeps and verifies its subtree; raw ConnectSignal is refused.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_camera_bookmark",
+      "slug": "camera-bookmark",
+      "summary": "Save, list, or delete named camera viewpoints stored in the project, so before/after screenshots are taken from exactly the same pose.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_capture_gameplay",
+      "slug": "capture-gameplay",
+      "summary": "Capture real gameplay PNGs (HUD included) offscreen without a running editor; game flags and player steps (press, key, click) get past the title screen.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_check_job",
+      "slug": "check-job",
+      "summary": "Check the status of an async generation job by id.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_clear_console",
+      "slug": "clear-console",
+      "summary": "Clear the editor's Output panel for a clean slate before running the game.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_connect_ports",
+      "slug": "connect-ports",
+      "summary": "Join one piece's port (a Marker3D, or an open pipe end id such as '+Y') to another's, facing it; refuses joins that tilt the piece. Saves the scene.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_connect_signal",
+      "slug": "connect-signal",
+      "summary": "Connect a signal between two nodes so the saved scene keeps it (CONNECT_PERSIST, verified from the saved .tscn); the receiver should define the target method.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_content_make",
+      "slug": "content-make",
+      "summary": "Make a piece of content for a game. Copies a library reference beat for beat with footage on this computer, checks it, saves it to Review.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_create_debug_report",
+      "slug": "create-debug-report",
+      "summary": "\"Create a support-ready Markdown debug report: doctor checks, engine health, diagnostics, console, and debugger output.\"",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_create_scene",
+      "slug": "create-scene",
+      "summary": "Create a new minimal .tscn on disk with a create-only guard and read-back verification; never touches the open scene.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_debug_views",
+      "slug": "debug-views",
+      "summary": "'One pose as a grid of beauty, lighting-only, unshaded/albedo, world normals, overdraw and wireframe views.'",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_enable_plugin",
+      "slug": "enable-plugin",
+      "summary": "Enable an editor plugin (res://addons/<name>/) and report the real load result, or that an older engine only queued it.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_export_game",
+      "slug": "export-game",
+      "summary": "Export the game in the exact file the Summer Games store takes per platform (iPhone, Android, macOS, Windows bundle; web build; desktop download), headless.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_export_templates",
+      "slug": "export-templates",
+      "summary": "List and install Summer Engine export templates (Summer's WebGPU Forward+ web template, macOS, Windows) from Summer's CDN, sha256-checked.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_fabricate_3d",
+      "slug": "fabricate-3d",
+      "summary": "Fabricate a mesh with a bpy script in the user's own Blender (headless, engine-supervised), import the .glb into res://, optionally instantiate it.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_frame_nodes",
+      "slug": "frame-nodes",
+      "summary": "'Frame nodes by their world bounds and render with the scene''s REAL environment and lights (optionally save the pose as a bookmark).'",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_frame_shot",
+      "slug": "frame-shot",
+      "summary": "'Smart framing: find, score and bookmark camera poses for a shot type (establishing, eye level, low-angle, detail, corridor) with in-engine visibility tests.'",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_game_control",
+      "slug": "game-control",
+      "summary": "Pause the running game, resume it, step exactly N physics or process frames, set the time scale, or list the live game instances.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_game_input",
+      "slug": "game-input",
+      "summary": "Drive the running game's input — script timed synthetic events, or record the real inputs and replay them deterministically on a seeded instance.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_game_probe",
+      "slug": "game-probe",
+      "summary": "State AND pixels of one frame of the RUNNING game, atomically — live tree, property reads, and a screenshot stamped with the same frame counters.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_generate_3d",
+      "slug": "generate-3d",
+      "summary": "Generate a 3D model from text or images via Summer Studio, with optional auto-rig and animation pipeline; returns a job id to poll with nova_check_job.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_generate_audio",
+      "slug": "generate-audio",
+      "summary": "\"Generate audio via Summer Studio: text-to-speech, sound effects, music, or multi-voice dialogue.\"",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_generate_image",
+      "slug": "generate-image",
+      "summary": "Generate or edit an image with allowlisted AI models via Summer Studio; supports text-to-image, image-to-image, and optional background removal.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_generate_motion",
+      "slug": "generate-motion",
+      "summary": "Generate animation clips for a rigged model — curated humanoid mocap by name, or text-to-motion on any of your own rigs; costs credits, so confirm first.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_generate_sfx_choices",
+      "slug": "generate-sfx-choices",
+      "summary": "\"Make one sound effect with several models and show the versions in Summer Studio; the person approves one or more and that model becomes their default.\"",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_generate_video",
+      "slug": "generate-video",
+      "summary": "Generate a video from text or an image with allowlisted models via Summer Studio.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_agent_playbook",
+      "slug": "get-agent-playbook",
+      "summary": "\"AI-first operating guide for NovaForge Zero-MCP Native Bus: safe workflow, verification ladder, honesty rules, anti-patterns, and recovery steps.\"",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_asset",
+      "slug": "get-asset",
+      "summary": "Fetch one asset by exact Summer asset id, including stable file URL, metadata, license, visibility, and provider details.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_choices",
+      "slug": "get-choices",
+      "summary": "\"Read a sound-effect choice set: whether the person decided, which versions they approved (audioUrl, assetId, note) and their default sound-effect model.\"",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_console",
+      "slug": "get-console",
+      "summary": "Read recent editor Output panel messages, deduplicated and filterable by level, type, or substring. Editor console only - never the post-play verdict.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_debugger_errors",
+      "slug": "get-debugger-errors",
+      "summary": "Read deduplicated runtime errors from the debugger, distinct from console prints; optional stack traces.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_debugger_warnings",
+      "slug": "get-debugger-warnings",
+      "summary": "Read runtime warnings from the debugger panel as structured entries with file, line, and callstack.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_diagnostics",
+      "slug": "get-diagnostics",
+      "summary": "Prioritized overview of editor console, runtime debugger, and script errors and warnings, with complete counts and a trimmed noise tail.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_project_context",
+      "slug": "get-project-context",
+      "summary": "\"Bind to the open project and return a compact context (project, current and main scene, health summary, template pin, memory, warnings); tree on request.\"",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_runtime_tree",
+      "slug": "get-runtime-tree",
+      "summary": "Scene tree of the RUNNING game — spawned enemies, autoloads, pooled nodes — live state the editor reads can never show.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_scene_tree",
+      "slug": "get-scene-tree",
+      "summary": "Read a scene's node tree, with explicit depth and limit to avoid the engine's silent default truncation.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_script_errors",
+      "slug": "get-script-errors",
+      "summary": "Check one GDScript file for parse and compile errors without running the game.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_get_studio_workflow",
+      "slug": "get-studio-workflow",
+      "summary": "\"Discover Summer Studio's guided workflow recipes: starter prompts, ordered steps, required tools, and honest support levels.\"",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_grep",
+      "slug": "grep",
+      "summary": "Search project files with a regex (ripgrep through the engine) and get file, line and text per match, with optional context lines and a result cap.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_import_asset",
+      "slug": "import-asset",
+      "summary": "Search the asset library and import the best match into the project in one step, optionally adding 3D models to a scene.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_import_from_url",
+      "slug": "import-from-url",
+      "summary": "Download one file from a URL and run Godot's full import pipeline so the asset is immediately usable.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_import_from_url_batch",
+      "slug": "import-from-url-batch",
+      "summary": "Download multiple files by URL in one operation with a single filesystem scan afterwards.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_import_hdri",
+      "slug": "import-hdri",
+      "summary": "Search Poly Haven's CC0 HDRI library and import one into res://sky/ as environment lighting, with the exact run-script snippet that wires the sky.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_input_map_bind",
+      "slug": "input-map-bind",
+      "summary": "Create an input action if needed and bind keyboard or mouse events to it.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_inspect_asset",
+      "slug": "inspect-asset",
+      "summary": "Measure a 3D asset file without adding it to a scene — AABB, origin, meshes, largest planar faces, open pipe ends, Marker3D anchors, collision shapes.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_inspect_node",
+      "slug": "inspect-node",
+      "summary": "A node's editable properties with values, Variant types and resources, or only named fields plus derived transform, global_transform, scene_file_path.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_inspect_resource",
+      "slug": "inspect-resource",
+      "summary": "Read a resource file (a mesh's AABB, surfaces and materials; a scene's nodes; any resource's non-default properties) or a resource a node holds.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_inspect_runtime_node",
+      "slug": "inspect-runtime-node",
+      "summary": "Live properties of one node in the RUNNING game — actual stats, position, flags — without stopping the game and losing the state.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_instantiate_scene",
+      "slug": "instantiate-scene",
+      "summary": "Add an existing scene or 3D model file as a child node, optionally placed in the same call (position, rotation_degrees, scale or transform).",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_is_running",
+      "slug": "is-running",
+      "summary": "Check whether the game is running; returns the active scene path when it is.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_measure",
+      "slug": "measure",
+      "summary": "Gap or overlap per axis between two placed nodes, or whether one face of many nodes is coplanar — catches facade gaps and modules standing proud. Read-only.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_navigation_probe",
+      "slug": "navigation-probe",
+      "summary": "Read-only reachability between two world points on the scene's Godot navigation map — readiness, snapped endpoints, route length, up to 16 route points.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_open",
+      "slug": "open",
+      "summary": "Open the exact local://novaforge-hub page or editor surface by intent name — billing, my games, an MCP guide, a scene, a node, a dock — or print the URL/op.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_open_main_scene",
+      "slug": "open-main-scene",
+      "summary": "Open the project's configured main scene from project settings instead of guessing scene filenames.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_open_scene",
+      "slug": "open-scene",
+      "summary": "Open a scene file in the editor to switch tabs.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_place_adjacent",
+      "slug": "place-adjacent",
+      "summary": "Move one node so its bounds face sits against another's along an axis, lining up the other axes — facade modules edge to edge, storeys stacked. Saves the scene.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_play",
+      "slug": "play",
+      "summary": "Start the game quietly (editor keeps tab and focus) — main or a given scene, embedded or offscreen, with pins, or a local multiplayer session (players).",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_project_setting",
+      "slug": "project-setting",
+      "summary": "Set one project.godot setting, like main scene, window size, renderer, or gravity.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_projects_create_local",
+      "slug": "projects-create-local",
+      "summary": "'Create a project on this computer. Writes a template (3d-basic by default) to a folder, no shell needed. Returns projectPath. Next: projects.open_local.'",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_projects_open_local",
+      "slug": "projects-open-local",
+      "summary": "'Open a project in Summer Engine. Waits until it connects; installs the engine only with install: true (the person''s yes). Next: engine.get_project_context.'",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_raycast",
+      "slug": "raycast",
+      "summary": "Cast one ray from any point in an open scene — hit node, point and normal; physics first, visual AABB fallback declared. Read-only.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_read_file",
+      "slug": "read-file",
+      "summary": "Read a project text file, a line or byte window of it, or the entries of a .json picked by json_path/keys, with the full-file sha256 receipt.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_read_library",
+      "slug": "read-library",
+      "summary": "Load one library entry by id — a skill's body and metadata, a tool's call recipe, a template's pin, a reference's text — ending in the feedback footer.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_recent_events",
+      "slug": "recent-events",
+      "summary": "Read the newest engine events (saves, plays, op receipts, script errors, imports) in one zero-wait poll — and the next_seq cursor to wait from.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_remove_node",
+      "slug": "remove-node",
+      "summary": "Remove a node and all its children from a scene; undoable, but destructive.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_repeat_along",
+      "slug": "repeat-along",
+      "summary": "Instance copies of one scene along a line in one call — clamps every 0.45 m, braces, fence posts, window rows — and get the created node paths back.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_replace_node",
+      "slug": "replace-node",
+      "summary": "Replace a node with another scene or type, keeping its parent, index, name, transform and children, and verify the saved scene holds it.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_replace_text",
+      "slug": "replace-text",
+      "summary": "\"Safely replace text in an existing project file: unique match required by default, then a sha256-guarded write.\"",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_run_editor_script",
+      "slug": "run-editor-script",
+      "summary": "Run an EditorScript `func _run():` in a fresh headless child editor against the on-disk project — the cold path for batch and project-wide jobs.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_run_script",
+      "slug": "run-script",
+      "summary": "Run a GDScript `func run(ctx):` inside the live editor against scenePath — one script instead of a chain of add-node/set-prop calls.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_runtime_animate",
+      "slug": "runtime-animate",
+      "summary": "Drive and read animation in the RUNNING game — AnimationPlayer clips, AnimationTree state machines, and live Skeleton3D bone poses.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_runtime_call",
+      "slug": "runtime-call",
+      "summary": "Call one method on a node in the RUNNING game and get its return value — trigger gameplay code directly instead of waiting for input or timers.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_runtime_set",
+      "slug": "runtime-set",
+      "summary": "Set one property on a node in the RUNNING game — the live object, never the scene file — and read back whether it applied.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_runtime_spawn",
+      "slug": "runtime-spawn",
+      "summary": "Spawn a PackedScene into the RUNNING game (action spawn) or free a live node (action free) — stage a test in seconds without touching the scene file.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_save_scene",
+      "slug": "save-scene",
+      "summary": "Save an explicit scene to disk, for standalone saves or save-as.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_scene_audit",
+      "slug": "scene-audit",
+      "summary": "'Read-only pass over any 3D scene, from geometry and materials: see-through holes, exposed edges, open pipe ends, floor gaps, clipping props.'",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_screenshot",
+      "slug": "screenshot",
+      "summary": "Capture a frame from the editor viewport, an offscreen scene render (fixed or bookmarked pose, numbered labels), or the running game, as an actual image.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_search_assets",
+      "slug": "search-assets",
+      "summary": "Search the Summer asset library and your own assets by keyword and meaning; returns names, types, preview and import-ready URLs.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_search_library",
+      "slug": "search-library",
+      "summary": "Search the Summer library by describing the task in plain words — ranked entries of every kind, with the id to load next via nova_read_library.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_select_node",
+      "slug": "select-node",
+      "summary": "Select a node in the editor scene tree and show it in the inspector.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_set_prop",
+      "slug": "set-prop",
+      "summary": "Set a node property using Godot string syntax for vectors, colors, transforms, and resource class names.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_set_resource_property",
+      "slug": "set-resource-property",
+      "summary": "Set a nested property on a resource attached to a node, like a collision shape size or material color.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_shot_sheet",
+      "slug": "shot-sheet",
+      "summary": "'Render N bookmarks and/or poses into one labelled grid image with real lighting; compare each bookmark with its previous render (difference map).'",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_slice_asset_sheet",
+      "slug": "slice-asset-sheet",
+      "summary": "Detect and crop every distinct game asset from a generated sheet image, uploading named slices with bounding boxes.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_snap_to_surface",
+      "slug": "snap-to-surface",
+      "summary": "Move one 3D subject along a world ray until it sits at the requested gap from the first surface (floor, ramp, shelf, table), then save the scene.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_snapshot_diff",
+      "slug": "snapshot-diff",
+      "summary": "Diff two world snapshots into added/removed/changed nodes and count deltas — the structural receipt that a mutation did exactly what was intended.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_starcast",
+      "slug": "starcast",
+      "summary": "Read-only 3D placement rundown for one node — 26 directional clearance casts, contact-or-overlap evidence, grounding, nearby geometry. Never moves or saves.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_start_game_task",
+      "slug": "start-game-task",
+      "summary": "\"Plan the right Summer workflow for a game-building task: skill routes, tool groups, confirmation gates, and verification steps.\"",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_stop",
+      "slug": "stop",
+      "summary": "Stop the running game (or one named offscreen instance). Does not revert scene edits, undo anything, or save — the editor state is left exactly as it is.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_test_placement",
+      "slug": "test-placement",
+      "summary": "Ghost-test one 3D node at a candidate global pose without moving it — overlap evidence, grounded state, signed floor gap. Read-only.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_ui_actions",
+      "slug": "ui-actions",
+      "summary": "List the editor's named actions or invoke one by name exactly as its menu item / shortcut would — open Project Settings, switch screens, toggle panels.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_ui_activate",
+      "slug": "ui-activate",
+      "summary": "Activate one editor control by tree path — press, toggle, focus, select a tab, type text, dial a value — or dismiss a blocking dialog; state is read back.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_ui_screenshot",
+      "slug": "ui-screenshot",
+      "summary": "PNG of the editor window or one dock/dialog/control as an image — the pixels-last fallback for looking at the editor UI, never for picking click coordinates.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_ui_tree",
+      "slug": "ui-tree",
+      "summary": "Structured tree of the live editor UI (controls, paths, text, state) or every visible dialog with its blocking flag — the cheap alternative to a screenshot.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_view_set",
+      "slug": "view-set",
+      "summary": "\"Show the person what you work on: the editor view (home, chat, 3D, 2D, script, game, Studio), the right rail, the focus and the nodes to frame.\"",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_wait_for_event",
+      "slug": "wait-for-event",
+      "summary": "Wait for an engine event — the game starting, an op finishing, a script error, a save — instead of sleeping and re-polling; honest timeout.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_world_snapshot",
+      "slug": "world-snapshot",
+      "summary": "Structured scene snapshot (paths, transforms, world AABBs, fingerprints, counts), filterable by subtree, class and field; the read around every mutation.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_write_file",
+      "slug": "write-file",
+      "summary": "Create or safely overwrite one complete text file through the identity-bound engine; exactly one guard is required, so writes fail closed.",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_zoom",
+      "slug": "zoom",
+      "summary": "'High-resolution close-up of exactly a frame region or of mark N, rendered as the exact sub-frustum at full resolution (real detail, not upscaled pixels).'",
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_compile_blueprint",
+      "slug": "compile-blueprint",
+      "summary": "Compile a visual Blueprint graph into GDScript or C++20 GDExtension code.",
+      "tags": [
+        "scripting",
+        "blueprint",
+        "cpp"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_import_blender_asset",
+      "slug": "import-blender-asset",
+      "summary": "Import .blend/.glb/.fbx/.obj/.dae/.usd/.abc/.ply/.stl and auto-bind PBR textures.",
+      "tags": [
+        "3d",
+        "blender",
+        "materials"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_image_to_3d",
+      "slug": "image-to-3d",
+      "summary": "Generate a watertight 3D mesh + PBR texture + 3 LODs locally from an image or text prompt.",
+      "tags": [
+        "3d",
+        "local-ai",
+        "character"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_auto_rig_character",
+      "slug": "auto-rig-character",
+      "summary": "Fit a 52-bone Humanoid Skeleton3D with geodesic skin weights and retarget animations.",
+      "tags": [
+        "rigging",
+        "skeleton",
+        "animation"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_video_to_motion",
+      "slug": "video-to-motion",
+      "summary": "Extract 3D root motion, body/finger/face animation, Foot-Locking IK & hitbox tags from video.",
+      "tags": [
+        "mocap",
+        "video",
+        "combat"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_create_cutscene",
+      "slug": "create-cutscene",
+      "summary": "Create a live in-engine cutscene trigger, camera rail, rack-focus DOF & seamless gameplay blend.",
+      "tags": [
+        "cutscene",
+        "cinematics",
+        "camera"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_configure_smart_object",
+      "slug": "configure-smart-object",
+      "summary": "Attach interactive door/pickup/weapon/lever or Voronoi 3D destruction behaviors to a 3D prop.",
+      "tags": [
+        "smart-object",
+        "destruction",
+        "jolt"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_configure_living_npc",
+      "slug": "configure-living-npc",
+      "summary": "Configure modular NPC senses, combat tactics, free-talk voice & Evolving Life / Nemesis AI.",
+      "tags": [
+        "npc",
+        "evolving-life",
+        "ai"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_set_visual_quality",
+      "slug": "set-visual-quality",
+      "summary": "Switch visual tier between AAA_UNREAL, STANDARD_UNITY, INDIE_CEL_ANIME, INDIE_LOWPOLY_COZY, INDIE_HD2D, INDIE_PSX_RETRO.",
+      "tags": [
+        "rendering",
+        "quality",
+        "shaders"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_set_camera_perspective",
+      "slug": "set-camera-perspective",
+      "summary": "Switch camera & movement rig between FPS, TPS_SHOULDER, TPS_SOULS, SIDE_2_5D, HD_2D, ISOMETRIC, PURE_2D, FIXED_CINEMATIC.",
+      "tags": [
+        "camera",
+        "genre",
+        "2.5d"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_run_council_prompt",
+      "slug": "run-council-prompt",
+      "summary": "Dispatch a prompt across the 5-Brain Local AI Council via Colibrì tiered memory.",
+      "tags": [
+        "council",
+        "colibri",
+        "local-ai"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    },
+    {
+      "tool_name": "nova_time_machine_snapshot",
+      "slug": "time-machine-snapshot",
+      "summary": "Create or restore an instant project snapshot before/after AI edits.",
+      "tags": [
+        "undo",
+        "snapshot",
+        "safety"
+      ],
+      "transport": "direct-in-engine-bus (zero-mcp)"
+    }
+  ]
+}

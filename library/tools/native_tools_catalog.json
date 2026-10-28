@@ -1,0 +1,746 @@
+[
+  {
+    "tool_name": "nova_add_node",
+    "slug": "add-node",
+    "summary": "Add a node of any Godot type to an exact scene, which does not need to be the active editor tab.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_align_distribute_3d",
+    "slug": "align-distribute-3d",
+    "summary": "Align (min/center/max) or equal-space (centers/gaps) 2-16 ordered 3D subjects along one world axis from their visible AABBs, then save the scene.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_attach_to_surface",
+    "slug": "attach-to-surface",
+    "summary": "Mount a piece on a wall, ceiling or floor — turn its measured back into the surface found by a ray, keep it upright, seat it at a standoff. Saves the scene.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_batch",
+    "slug": "batch",
+    "summary": "Run engine ops in one call, verbatim; one undo step unless single-only ops split it. ReparentNode keeps and verifies its subtree; raw ConnectSignal is refused.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_camera_bookmark",
+    "slug": "camera-bookmark",
+    "summary": "Save, list, or delete named camera viewpoints stored in the project, so before/after screenshots are taken from exactly the same pose.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_capture_gameplay",
+    "slug": "capture-gameplay",
+    "summary": "Capture real gameplay PNGs (HUD included) offscreen without a running editor; game flags and player steps (press, key, click) get past the title screen.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_check_job",
+    "slug": "check-job",
+    "summary": "Check the status of an async generation job by id.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_clear_console",
+    "slug": "clear-console",
+    "summary": "Clear the editor's Output panel for a clean slate before running the game.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_connect_ports",
+    "slug": "connect-ports",
+    "summary": "Join one piece's port (a Marker3D, or an open pipe end id such as '+Y') to another's, facing it; refuses joins that tilt the piece. Saves the scene.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_connect_signal",
+    "slug": "connect-signal",
+    "summary": "Connect a signal between two nodes so the saved scene keeps it (CONNECT_PERSIST, verified from the saved .tscn); the receiver should define the target method.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_content_make",
+    "slug": "content-make",
+    "summary": "Make a piece of content for a game. Copies a library reference beat for beat with footage on this computer, checks it, saves it to Review.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_create_debug_report",
+    "slug": "create-debug-report",
+    "summary": "\"Create a support-ready Markdown debug report: doctor checks, engine health, diagnostics, console, and debugger output.\"",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_create_scene",
+    "slug": "create-scene",
+    "summary": "Create a new minimal .tscn on disk with a create-only guard and read-back verification; never touches the open scene.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_debug_views",
+    "slug": "debug-views",
+    "summary": "'One pose as a grid of beauty, lighting-only, unshaded/albedo, world normals, overdraw and wireframe views.'",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_enable_plugin",
+    "slug": "enable-plugin",
+    "summary": "Enable an editor plugin (res://addons/<name>/) and report the real load result, or that an older engine only queued it.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_export_game",
+    "slug": "export-game",
+    "summary": "Export the game in the exact file the Summer Games store takes per platform (iPhone, Android, macOS, Windows bundle; web build; desktop download), headless.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_export_templates",
+    "slug": "export-templates",
+    "summary": "List and install Summer Engine export templates (Summer's WebGPU Forward+ web template, macOS, Windows) from Summer's CDN, sha256-checked.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_fabricate_3d",
+    "slug": "fabricate-3d",
+    "summary": "Fabricate a mesh with a bpy script in the user's own Blender (headless, engine-supervised), import the .glb into res://, optionally instantiate it.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_frame_nodes",
+    "slug": "frame-nodes",
+    "summary": "'Frame nodes by their world bounds and render with the scene''s REAL environment and lights (optionally save the pose as a bookmark).'",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_frame_shot",
+    "slug": "frame-shot",
+    "summary": "'Smart framing: find, score and bookmark camera poses for a shot type (establishing, eye level, low-angle, detail, corridor) with in-engine visibility tests.'",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_game_control",
+    "slug": "game-control",
+    "summary": "Pause the running game, resume it, step exactly N physics or process frames, set the time scale, or list the live game instances.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_game_input",
+    "slug": "game-input",
+    "summary": "Drive the running game's input — script timed synthetic events, or record the real inputs and replay them deterministically on a seeded instance.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_game_probe",
+    "slug": "game-probe",
+    "summary": "State AND pixels of one frame of the RUNNING game, atomically — live tree, property reads, and a screenshot stamped with the same frame counters.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_generate_3d",
+    "slug": "generate-3d",
+    "summary": "Generate a 3D model from text or images via Summer Studio, with optional auto-rig and animation pipeline; returns a job id to poll with nova_check_job.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_generate_audio",
+    "slug": "generate-audio",
+    "summary": "\"Generate audio via Summer Studio: text-to-speech, sound effects, music, or multi-voice dialogue.\"",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_generate_image",
+    "slug": "generate-image",
+    "summary": "Generate or edit an image with allowlisted AI models via Summer Studio; supports text-to-image, image-to-image, and optional background removal.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_generate_motion",
+    "slug": "generate-motion",
+    "summary": "Generate animation clips for a rigged model — curated humanoid mocap by name, or text-to-motion on any of your own rigs; costs credits, so confirm first.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_generate_sfx_choices",
+    "slug": "generate-sfx-choices",
+    "summary": "\"Make one sound effect with several models and show the versions in Summer Studio; the person approves one or more and that model becomes their default.\"",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_generate_video",
+    "slug": "generate-video",
+    "summary": "Generate a video from text or an image with allowlisted models via Summer Studio.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_agent_playbook",
+    "slug": "get-agent-playbook",
+    "summary": "\"AI-first operating guide for NovaForge Zero-MCP Native Bus: safe workflow, verification ladder, honesty rules, anti-patterns, and recovery steps.\"",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_asset",
+    "slug": "get-asset",
+    "summary": "Fetch one asset by exact Summer asset id, including stable file URL, metadata, license, visibility, and provider details.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_choices",
+    "slug": "get-choices",
+    "summary": "\"Read a sound-effect choice set: whether the person decided, which versions they approved (audioUrl, assetId, note) and their default sound-effect model.\"",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_console",
+    "slug": "get-console",
+    "summary": "Read recent editor Output panel messages, deduplicated and filterable by level, type, or substring. Editor console only - never the post-play verdict.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_debugger_errors",
+    "slug": "get-debugger-errors",
+    "summary": "Read deduplicated runtime errors from the debugger, distinct from console prints; optional stack traces.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_debugger_warnings",
+    "slug": "get-debugger-warnings",
+    "summary": "Read runtime warnings from the debugger panel as structured entries with file, line, and callstack.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_diagnostics",
+    "slug": "get-diagnostics",
+    "summary": "Prioritized overview of editor console, runtime debugger, and script errors and warnings, with complete counts and a trimmed noise tail.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_project_context",
+    "slug": "get-project-context",
+    "summary": "\"Bind to the open project and return a compact context (project, current and main scene, health summary, template pin, memory, warnings); tree on request.\"",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_runtime_tree",
+    "slug": "get-runtime-tree",
+    "summary": "Scene tree of the RUNNING game — spawned enemies, autoloads, pooled nodes — live state the editor reads can never show.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_scene_tree",
+    "slug": "get-scene-tree",
+    "summary": "Read a scene's node tree, with explicit depth and limit to avoid the engine's silent default truncation.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_script_errors",
+    "slug": "get-script-errors",
+    "summary": "Check one GDScript file for parse and compile errors without running the game.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_get_studio_workflow",
+    "slug": "get-studio-workflow",
+    "summary": "\"Discover Summer Studio's guided workflow recipes: starter prompts, ordered steps, required tools, and honest support levels.\"",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_grep",
+    "slug": "grep",
+    "summary": "Search project files with a regex (ripgrep through the engine) and get file, line and text per match, with optional context lines and a result cap.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_import_asset",
+    "slug": "import-asset",
+    "summary": "Search the asset library and import the best match into the project in one step, optionally adding 3D models to a scene.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_import_from_url",
+    "slug": "import-from-url",
+    "summary": "Download one file from a URL and run Godot's full import pipeline so the asset is immediately usable.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_import_from_url_batch",
+    "slug": "import-from-url-batch",
+    "summary": "Download multiple files by URL in one operation with a single filesystem scan afterwards.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_import_hdri",
+    "slug": "import-hdri",
+    "summary": "Search Poly Haven's CC0 HDRI library and import one into res://sky/ as environment lighting, with the exact run-script snippet that wires the sky.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_input_map_bind",
+    "slug": "input-map-bind",
+    "summary": "Create an input action if needed and bind keyboard or mouse events to it.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_inspect_asset",
+    "slug": "inspect-asset",
+    "summary": "Measure a 3D asset file without adding it to a scene — AABB, origin, meshes, largest planar faces, open pipe ends, Marker3D anchors, collision shapes.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_inspect_node",
+    "slug": "inspect-node",
+    "summary": "A node's editable properties with values, Variant types and resources, or only named fields plus derived transform, global_transform, scene_file_path.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_inspect_resource",
+    "slug": "inspect-resource",
+    "summary": "Read a resource file (a mesh's AABB, surfaces and materials; a scene's nodes; any resource's non-default properties) or a resource a node holds.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_inspect_runtime_node",
+    "slug": "inspect-runtime-node",
+    "summary": "Live properties of one node in the RUNNING game — actual stats, position, flags — without stopping the game and losing the state.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_instantiate_scene",
+    "slug": "instantiate-scene",
+    "summary": "Add an existing scene or 3D model file as a child node, optionally placed in the same call (position, rotation_degrees, scale or transform).",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_is_running",
+    "slug": "is-running",
+    "summary": "Check whether the game is running; returns the active scene path when it is.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_measure",
+    "slug": "measure",
+    "summary": "Gap or overlap per axis between two placed nodes, or whether one face of many nodes is coplanar — catches facade gaps and modules standing proud. Read-only.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_navigation_probe",
+    "slug": "navigation-probe",
+    "summary": "Read-only reachability between two world points on the scene's Godot navigation map — readiness, snapped endpoints, route length, up to 16 route points.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_open",
+    "slug": "open",
+    "summary": "Open the exact local://novaforge-hub page or editor surface by intent name — billing, my games, an MCP guide, a scene, a node, a dock — or print the URL/op.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_open_main_scene",
+    "slug": "open-main-scene",
+    "summary": "Open the project's configured main scene from project settings instead of guessing scene filenames.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_open_scene",
+    "slug": "open-scene",
+    "summary": "Open a scene file in the editor to switch tabs.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_place_adjacent",
+    "slug": "place-adjacent",
+    "summary": "Move one node so its bounds face sits against another's along an axis, lining up the other axes — facade modules edge to edge, storeys stacked. Saves the scene.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_play",
+    "slug": "play",
+    "summary": "Start the game quietly (editor keeps tab and focus) — main or a given scene, embedded or offscreen, with pins, or a local multiplayer session (players).",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_project_setting",
+    "slug": "project-setting",
+    "summary": "Set one project.godot setting, like main scene, window size, renderer, or gravity.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_projects_create_local",
+    "slug": "projects-create-local",
+    "summary": "'Create a project on this computer. Writes a template (3d-basic by default) to a folder, no shell needed. Returns projectPath. Next: projects.open_local.'",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_projects_open_local",
+    "slug": "projects-open-local",
+    "summary": "'Open a project in Summer Engine. Waits until it connects; installs the engine only with install: true (the person''s yes). Next: engine.get_project_context.'",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_raycast",
+    "slug": "raycast",
+    "summary": "Cast one ray from any point in an open scene — hit node, point and normal; physics first, visual AABB fallback declared. Read-only.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_read_file",
+    "slug": "read-file",
+    "summary": "Read a project text file, a line or byte window of it, or the entries of a .json picked by json_path/keys, with the full-file sha256 receipt.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_read_library",
+    "slug": "read-library",
+    "summary": "Load one library entry by id — a skill's body and metadata, a tool's call recipe, a template's pin, a reference's text — ending in the feedback footer.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_recent_events",
+    "slug": "recent-events",
+    "summary": "Read the newest engine events (saves, plays, op receipts, script errors, imports) in one zero-wait poll — and the next_seq cursor to wait from.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_remove_node",
+    "slug": "remove-node",
+    "summary": "Remove a node and all its children from a scene; undoable, but destructive.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_repeat_along",
+    "slug": "repeat-along",
+    "summary": "Instance copies of one scene along a line in one call — clamps every 0.45 m, braces, fence posts, window rows — and get the created node paths back.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_replace_node",
+    "slug": "replace-node",
+    "summary": "Replace a node with another scene or type, keeping its parent, index, name, transform and children, and verify the saved scene holds it.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_replace_text",
+    "slug": "replace-text",
+    "summary": "\"Safely replace text in an existing project file: unique match required by default, then a sha256-guarded write.\"",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_run_editor_script",
+    "slug": "run-editor-script",
+    "summary": "Run an EditorScript `func _run():` in a fresh headless child editor against the on-disk project — the cold path for batch and project-wide jobs.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_run_script",
+    "slug": "run-script",
+    "summary": "Run a GDScript `func run(ctx):` inside the live editor against scenePath — one script instead of a chain of add-node/set-prop calls.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_runtime_animate",
+    "slug": "runtime-animate",
+    "summary": "Drive and read animation in the RUNNING game — AnimationPlayer clips, AnimationTree state machines, and live Skeleton3D bone poses.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_runtime_call",
+    "slug": "runtime-call",
+    "summary": "Call one method on a node in the RUNNING game and get its return value — trigger gameplay code directly instead of waiting for input or timers.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_runtime_set",
+    "slug": "runtime-set",
+    "summary": "Set one property on a node in the RUNNING game — the live object, never the scene file — and read back whether it applied.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_runtime_spawn",
+    "slug": "runtime-spawn",
+    "summary": "Spawn a PackedScene into the RUNNING game (action spawn) or free a live node (action free) — stage a test in seconds without touching the scene file.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_save_scene",
+    "slug": "save-scene",
+    "summary": "Save an explicit scene to disk, for standalone saves or save-as.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_scene_audit",
+    "slug": "scene-audit",
+    "summary": "'Read-only pass over any 3D scene, from geometry and materials: see-through holes, exposed edges, open pipe ends, floor gaps, clipping props.'",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_screenshot",
+    "slug": "screenshot",
+    "summary": "Capture a frame from the editor viewport, an offscreen scene render (fixed or bookmarked pose, numbered labels), or the running game, as an actual image.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_search_assets",
+    "slug": "search-assets",
+    "summary": "Search the Summer asset library and your own assets by keyword and meaning; returns names, types, preview and import-ready URLs.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_search_library",
+    "slug": "search-library",
+    "summary": "Search the Summer library by describing the task in plain words — ranked entries of every kind, with the id to load next via nova_read_library.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_select_node",
+    "slug": "select-node",
+    "summary": "Select a node in the editor scene tree and show it in the inspector.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_set_prop",
+    "slug": "set-prop",
+    "summary": "Set a node property using Godot string syntax for vectors, colors, transforms, and resource class names.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_set_resource_property",
+    "slug": "set-resource-property",
+    "summary": "Set a nested property on a resource attached to a node, like a collision shape size or material color.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_shot_sheet",
+    "slug": "shot-sheet",
+    "summary": "'Render N bookmarks and/or poses into one labelled grid image with real lighting; compare each bookmark with its previous render (difference map).'",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_slice_asset_sheet",
+    "slug": "slice-asset-sheet",
+    "summary": "Detect and crop every distinct game asset from a generated sheet image, uploading named slices with bounding boxes.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_snap_to_surface",
+    "slug": "snap-to-surface",
+    "summary": "Move one 3D subject along a world ray until it sits at the requested gap from the first surface (floor, ramp, shelf, table), then save the scene.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_snapshot_diff",
+    "slug": "snapshot-diff",
+    "summary": "Diff two world snapshots into added/removed/changed nodes and count deltas — the structural receipt that a mutation did exactly what was intended.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_starcast",
+    "slug": "starcast",
+    "summary": "Read-only 3D placement rundown for one node — 26 directional clearance casts, contact-or-overlap evidence, grounding, nearby geometry. Never moves or saves.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_start_game_task",
+    "slug": "start-game-task",
+    "summary": "\"Plan the right Summer workflow for a game-building task: skill routes, tool groups, confirmation gates, and verification steps.\"",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_stop",
+    "slug": "stop",
+    "summary": "Stop the running game (or one named offscreen instance). Does not revert scene edits, undo anything, or save — the editor state is left exactly as it is.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_test_placement",
+    "slug": "test-placement",
+    "summary": "Ghost-test one 3D node at a candidate global pose without moving it — overlap evidence, grounded state, signed floor gap. Read-only.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_ui_actions",
+    "slug": "ui-actions",
+    "summary": "List the editor's named actions or invoke one by name exactly as its menu item / shortcut would — open Project Settings, switch screens, toggle panels.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_ui_activate",
+    "slug": "ui-activate",
+    "summary": "Activate one editor control by tree path — press, toggle, focus, select a tab, type text, dial a value — or dismiss a blocking dialog; state is read back.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_ui_screenshot",
+    "slug": "ui-screenshot",
+    "summary": "PNG of the editor window or one dock/dialog/control as an image — the pixels-last fallback for looking at the editor UI, never for picking click coordinates.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_ui_tree",
+    "slug": "ui-tree",
+    "summary": "Structured tree of the live editor UI (controls, paths, text, state) or every visible dialog with its blocking flag — the cheap alternative to a screenshot.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_view_set",
+    "slug": "view-set",
+    "summary": "\"Show the person what you work on: the editor view (home, chat, 3D, 2D, script, game, Studio), the right rail, the focus and the nodes to frame.\"",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_wait_for_event",
+    "slug": "wait-for-event",
+    "summary": "Wait for an engine event — the game starting, an op finishing, a script error, a save — instead of sleeping and re-polling; honest timeout.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_world_snapshot",
+    "slug": "world-snapshot",
+    "summary": "Structured scene snapshot (paths, transforms, world AABBs, fingerprints, counts), filterable by subtree, class and field; the read around every mutation.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_write_file",
+    "slug": "write-file",
+    "summary": "Create or safely overwrite one complete text file through the identity-bound engine; exactly one guard is required, so writes fail closed.",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_zoom",
+    "slug": "zoom",
+    "summary": "'High-resolution close-up of exactly a frame region or of mark N, rendered as the exact sub-frustum at full resolution (real detail, not upscaled pixels).'",
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_compile_blueprint",
+    "slug": "compile-blueprint",
+    "summary": "Compile a visual Blueprint graph into GDScript or C++20 GDExtension code.",
+    "tags": [
+      "scripting",
+      "blueprint",
+      "cpp"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_import_blender_asset",
+    "slug": "import-blender-asset",
+    "summary": "Import .blend/.glb/.fbx/.obj/.dae/.usd/.abc/.ply/.stl and auto-bind PBR textures.",
+    "tags": [
+      "3d",
+      "blender",
+      "materials"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_image_to_3d",
+    "slug": "image-to-3d",
+    "summary": "Generate a watertight 3D mesh + PBR texture + 3 LODs locally from an image or text prompt.",
+    "tags": [
+      "3d",
+      "local-ai",
+      "character"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_auto_rig_character",
+    "slug": "auto-rig-character",
+    "summary": "Fit a 52-bone Humanoid Skeleton3D with geodesic skin weights and retarget animations.",
+    "tags": [
+      "rigging",
+      "skeleton",
+      "animation"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_video_to_motion",
+    "slug": "video-to-motion",
+    "summary": "Extract 3D root motion, body/finger/face animation, Foot-Locking IK & hitbox tags from video.",
+    "tags": [
+      "mocap",
+      "video",
+      "combat"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_create_cutscene",
+    "slug": "create-cutscene",
+    "summary": "Create a live in-engine cutscene trigger, camera rail, rack-focus DOF & seamless gameplay blend.",
+    "tags": [
+      "cutscene",
+      "cinematics",
+      "camera"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_configure_smart_object",
+    "slug": "configure-smart-object",
+    "summary": "Attach interactive door/pickup/weapon/lever or Voronoi 3D destruction behaviors to a 3D prop.",
+    "tags": [
+      "smart-object",
+      "destruction",
+      "jolt"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_configure_living_npc",
+    "slug": "configure-living-npc",
+    "summary": "Configure modular NPC senses, combat tactics, free-talk voice & Evolving Life / Nemesis AI.",
+    "tags": [
+      "npc",
+      "evolving-life",
+      "ai"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_set_visual_quality",
+    "slug": "set-visual-quality",
+    "summary": "Switch visual tier between AAA_UNREAL, STANDARD_UNITY, INDIE_CEL_ANIME, INDIE_LOWPOLY_COZY, INDIE_HD2D, INDIE_PSX_RETRO.",
+    "tags": [
+      "rendering",
+      "quality",
+      "shaders"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_set_camera_perspective",
+    "slug": "set-camera-perspective",
+    "summary": "Switch camera & movement rig between FPS, TPS_SHOULDER, TPS_SOULS, SIDE_2_5D, HD_2D, ISOMETRIC, PURE_2D, FIXED_CINEMATIC.",
+    "tags": [
+      "camera",
+      "genre",
+      "2.5d"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_run_council_prompt",
+    "slug": "run-council-prompt",
+    "summary": "Dispatch a prompt across the 5-Brain Local AI Council via Colibrì tiered memory.",
+    "tags": [
+      "council",
+      "colibri",
+      "local-ai"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  },
+  {
+    "tool_name": "nova_time_machine_snapshot",
+    "slug": "time-machine-snapshot",
+    "summary": "Create or restore an instant project snapshot before/after AI edits.",
+    "tags": [
+      "undo",
+      "snapshot",
+      "safety"
+    ],
+    "transport": "direct-in-engine-bus (zero-mcp)"
+  }
+]
