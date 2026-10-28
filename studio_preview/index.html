@@ -1,606 +1,746 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NovaForge AI Game Engine — پیش‌نمایش زنده استودیو</title>
+<title>Godot Engine 4.6 — NovaForge AI Edition</title>
 <style>
   :root {
-    --bg-dark: #0b0f17;
-    --panel: #131a27;
-    --panel-alt: #192234;
-    --border: #27344d;
-    --accent: #38bdf8;
-    --accent-2: #a855f7;
-    --success: #22c55e;
-    --warn: #f59e0b;
-    --danger: #ef4444;
-    --text: #e2e8f0;
-    --muted: #94a3b8;
+    --gd-bg-darkest: #161920;
+    --gd-bg-base: #202531;
+    --gd-bg-panel: #252b39;
+    --gd-bg-elevated: #2e3546;
+    --gd-bg-hover: #384156;
+    --gd-border: #13161c;
+    --gd-line: #363e50;
+    --gd-accent: #478cbf;
+    --gd-accent-bright: #5daaf0;
+    --gd-3d-red: #f64b5b;
+    --gd-2d-blue: #6b9eff;
+    --gd-ui-green: #6be28b;
+    --gd-nova: #a78bfa;
+    --gd-text: #e0e4ec;
+    --gd-muted: #9199ab;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; }
-  body { background: var(--bg-dark); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Tahoma, sans-serif; font-size: 12px; user-select: none; }
+  body { background: var(--gd-bg-darkest); color: var(--gd-text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-  header {
-    height: 52px; background: #0f1623; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between; padding: 0 16px; gap: 10px;
+  /* Godot 4 Top Menu & Main Workspace Bar */
+  .gd-topbar {
+    height: 36px; background: var(--gd-bg-darkest); border-bottom: 1px solid var(--gd-border);
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 8px;
   }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; color: #fff; }
-  .badge { background: rgba(56,189,248,0.14); color: var(--accent); border: 1px solid rgba(56,189,248,0.35); padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-  .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  select, button, input {
-    background: var(--panel-alt); color: var(--text); border: 1px solid var(--border);
-    border-radius: 7px; padding: 6px 10px; font-size: 12px; cursor: pointer;
-  }
-  button.primary { background: linear-gradient(135deg, #0284c7, #7c3aed); border: none; font-weight: 700; color: #fff; }
-  button.primary:hover { opacity: 0.92; }
-  button:hover { border-color: var(--accent); }
+  .gd-menus { display: flex; align-items: center; gap: 2px; }
+  .gd-logo { display: flex; align-items: center; gap: 6px; padding: 0 8px 0 2px; font-weight: 700; color: #fff; }
+  .menu-item { padding: 4px 8px; border-radius: 4px; color: var(--gd-text); cursor: pointer; }
+  .menu-item:hover { background: var(--gd-bg-elevated); }
+  .menu-item.nova-menu { color: var(--gd-nova); font-weight: 600; }
 
-  .workspace { flex: 1; display: grid; grid-template-columns: 300px 1fr 340px; min-height: 0; }
-  .dock { background: var(--panel); border-left: 1px solid var(--border); border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding: 12px; gap: 12px; }
-  .card { background: var(--panel-alt); border: 1px solid var(--border); border-radius: 10px; padding: 11px; display: flex; flex-direction: column; gap: 8px; }
-  .card h3 { font-size: 12.5px; color: var(--accent); display: flex; justify-content: space-between; align-items: center; }
-  .meter { height: 7px; background: #0b0f17; border-radius: 99px; overflow: hidden; border: 1px solid var(--border); }
-  .meter > span { display: block; height: 100%; background: linear-gradient(90deg, #22c55e, #38bdf8); transition: width 0.35s; }
-
-  .viewport-wrap { position: relative; background: #070a10; display: flex; flex-direction: column; min-height: 0; }
-  canvas#sceneCanvas { width: 100%; flex: 1; display: block; cursor: crosshair; }
-  .hud-hint {
-    position: absolute; top: 12px; right: 12px; background: rgba(15,22,35,0.84);
-    border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 11.5px; color: var(--muted); pointer-events: none; line-height: 1.7;
+  .gd-workspaces { display: flex; align-items: center; gap: 3px; background: #12151b; padding: 3px; border-radius: 6px; }
+  .ws-btn {
+    padding: 4px 11px; border-radius: 4px; color: var(--gd-muted); cursor: pointer; font-weight: 600;
+    display: flex; align-items: center; gap: 5px; border: none; background: transparent;
   }
+  .ws-btn:hover { color: #fff; background: var(--gd-bg-panel); }
+  .ws-btn.active { background: var(--gd-bg-elevated); color: var(--gd-accent-bright); box-shadow: inset 0 -2px 0 var(--gd-accent-bright); }
+  .ws-btn.nova-ws { color: #c4b5fd; }
+
+  .gd-playbar { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+  .play-btn {
+    background: var(--gd-bg-panel); border: 1px solid var(--gd-line); color: var(--gd-text);
+    padding: 4px 9px; border-radius: 4px; cursor: pointer; font-weight: 700;
+  }
+  .play-btn:hover { background: var(--gd-bg-hover); }
+  .play-btn.run { color: var(--gd-ui-green); }
+  .renderer-tag {
+    background: #1a2230; border: 1px solid #2e4361; color: var(--gd-accent-bright);
+    padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 6px;
+  }
+
+  /* Main 3-Column Godot Dock Layout */
+  .gd-main { flex: 1; display: grid; grid-template-columns: 255px 1fr 315px; gap: 3px; padding: 3px; min-height: 0; background: var(--gd-bg-darkest); }
+  .gd-col-left { display: grid; grid-template-rows: 1.15fr 0.85fr; gap: 3px; min-height: 0; }
+  .gd-col-center { display: flex; flex-direction: column; gap: 3px; min-height: 0; }
+  .gd-dock { background: var(--gd-bg-base); border: 1px solid var(--gd-border); border-radius: 4px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+  .dock-tabs {
+    height: 27px; background: #191d26; border-bottom: 1px solid var(--gd-border);
+    display: flex; align-items: flex-end; padding: 0 4px; gap: 2px;
+  }
+  .dock-tab {
+    padding: 4px 10px; font-size: 11.5px; color: var(--gd-muted); cursor: pointer;
+    border-radius: 4px 4px 0 0; background: transparent; border: none;
+  }
+  .dock-tab.active { background: var(--gd-bg-base); color: var(--gd-text); font-weight: 600; border-top: 2px solid var(--gd-accent); }
+  .dock-tab.nova-tab.active { border-top-color: var(--gd-nova); color: #ddd6fe; }
+
+  .dock-toolbar {
+    height: 28px; padding: 0 6px; display: flex; align-items: center; gap: 5px;
+    border-bottom: 1px solid #181c25; background: var(--gd-bg-base);
+  }
+  .gd-input {
+    background: #161a22; border: 1px solid #303748; color: var(--gd-text);
+    border-radius: 3px; padding: 3px 7px; font-size: 11.5px; width: 100%; user-select: text;
+  }
+  .gd-btn {
+    background: var(--gd-bg-elevated); border: 1px solid var(--gd-line); color: var(--gd-text);
+    padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 11px; white-space: nowrap;
+  }
+  .gd-btn:hover { background: var(--gd-bg-hover); border-color: var(--gd-accent); }
+  .gd-btn.nova { background: #2e264a; border-color: #6d52b3; color: #ede9fe; }
+  .gd-btn.nova:hover { background: #3c3163; }
+  select.gd-select {
+    background: #181c25; border: 1px solid var(--gd-line); color: var(--gd-text);
+    padding: 2px 6px; border-radius: 3px; font-size: 11px; cursor: pointer;
+  }
+
+  /* Scene Tree & FileSystem */
+  .tree-list { flex: 1; overflow-y: auto; padding: 4px; }
+  .tree-row {
+    display: flex; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 3px; cursor: pointer; font-size: 11.5px;
+  }
+  .tree-row:hover { background: var(--gd-bg-panel); }
+  .tree-row.selected { background: #2d435e; color: #fff; }
+  .node-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .dot-3d { background: var(--gd-3d-red); }
+  .dot-env { background: #eab308; }
+  .dot-nova { background: var(--gd-nova); }
+  .dot-folder { background: #60a5fa; border-radius: 2px; }
+
+  /* Center Spatial 3D Viewport */
+  .viewport-panel { flex: 1; background: var(--gd-bg-base); border: 1px solid var(--gd-border); border-radius: 4px; display: flex; flex-direction: column; min-height: 0; position: relative; }
+  .spatial-toolbar {
+    height: 30px; background: var(--gd-bg-base); border-bottom: 1px solid var(--gd-border);
+    display: flex; align-items: center; padding: 0 6px; gap: 4px; overflow-x: auto;
+  }
+  .tool-icon {
+    padding: 3px 7px; border-radius: 3px; background: transparent; border: 1px solid transparent;
+    color: var(--gd-text); cursor: pointer; font-size: 11.5px;
+  }
+  .tool-icon.active { background: var(--gd-bg-elevated); border-color: var(--gd-accent); color: var(--gd-accent-bright); }
+  .v-sep { width: 1px; height: 16px; background: var(--gd-line); margin: 0 3px; }
+
+  .canvas-holder { flex: 1; position: relative; min-height: 0; background: #14171f; overflow: hidden; }
+  canvas#vpCanvas { width: 100%; height: 100%; display: block; }
+  .vp-scene-tabs {
+    height: 24px; background: #181c24; border-bottom: 1px solid var(--gd-border);
+    display: flex; align-items: center; padding: 0 6px; gap: 4px;
+  }
+  .scene-tab { background: var(--gd-bg-base); padding: 3px 10px; border-radius: 4px 4px 0 0; font-size: 11px; color: #fff; border-top: 2px solid var(--gd-3d-red); }
+
+  .vp-overlay-info {
+    position: absolute; top: 8px; left: 10px; color: rgba(224,228,236,0.78); font-size: 11px; pointer-events: none; line-height: 1.5;
+  }
+  .vp-axis-gizmo {
+    position: absolute; top: 10px; right: 12px; width: 54px; height: 54px; pointer-events: none;
+  }
+
+  /* Viewport Alt+Click Smart Context Menu */
+  .gd-popup {
+    position: absolute; display: none; width: 268px; background: #1d222d; border: 1px solid var(--gd-line);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.65); border-radius: 4px; padding: 5px; z-index: 40; flex-direction: column; gap: 4px;
+  }
+  .gd-popup.open { display: flex; }
+  .gd-popup-title { font-size: 11px; font-weight: 700; color: var(--gd-nova); padding: 3px 6px; border-bottom: 1px solid var(--gd-line); }
+  .gd-popup-item { padding: 5px 8px; border-radius: 3px; cursor: pointer; font-size: 11.5px; display: flex; align-items: center; gap: 6px; }
+  .gd-popup-item:hover { background: #2d435e; color: #fff; }
+
+  /* Cutscene Letterbox */
   .cutscene-bars { position: absolute; inset: 0; pointer-events: none; display: none; flex-direction: column; justify-content: space-between; }
   .cutscene-bars.active { display: flex; }
-  .bar { height: 48px; background: #000; display: flex; align-items: center; justify-content: center; color: #f8fafc; font-size: 13px; letter-spacing: 0.3px; }
+  .cs-bar { height: 38px; background: rgba(0,0,0,0.92); color: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 12px; dir: rtl; }
 
-  .context-menu {
-    position: absolute; display: none; width: 270px; background: #111827; border: 1px solid var(--accent);
-    border-radius: 10px; box-shadow: 0 16px 40px rgba(0,0,0,0.65); padding: 10px; z-index: 30; gap: 7px; flex-direction: column;
-  }
-  .context-menu.open { display: flex; }
-  .context-menu h4 { font-size: 12.5px; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-  .chk-row { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--text); cursor: pointer; }
+  /* Right Inspector + NovaForge Injected Module */
+  .inspector-body { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+  .insp-header { background: #191d26; padding: 6px 8px; border-radius: 3px; display: flex; align-items: center; gap: 6px; font-weight: 700; border: 1px solid #2b3242; }
+  .insp-section { border: 1px solid #2c3344; border-radius: 3px; overflow: hidden; }
+  .insp-sec-title { background: #282f3e; padding: 4px 8px; font-weight: 600; font-size: 11px; color: #cbd5e1; display: flex; justify-content: space-between; }
+  .insp-sec-title.nova-sec { background: #2b2345; color: #ddd6fe; border-bottom: 1px solid #4c3b7c; }
+  .insp-row { display: grid; grid-template-columns: 110px 1fr; align-items: center; padding: 4px 8px; border-top: 1px solid #1c212c; font-size: 11px; gap: 6px; }
+  .insp-chk { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-top: 1px solid #1c212c; font-size: 11px; cursor: pointer; }
 
-  .bottom-tabs { height: 185px; background: #0e1420; border-top: 1px solid var(--border); padding: 10px 14px; overflow-y: auto; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; direction: ltr; text-align: left; color: #cbd5e1; white-space: pre-wrap; }
-  textarea {
-    width: 100%; min-height: 76px; background: #0b0f17; color: #fff; border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px; font-size: 12px; resize: vertical; line-height: 1.5;
+  /* Godot 4 Bottom Panel + Extra NovaForge Tabs */
+  .gd-bottom { background: var(--gd-bg-base); border: 1px solid var(--gd-border); border-radius: 4px; display: flex; flex-direction: column; height: 205px; }
+  .bottom-content { flex: 1; overflow: auto; padding: 8px; background: #181c24; min-height: 0; }
+  .bottom-bar {
+    height: 26px; background: #151820; border-top: 1px solid var(--gd-border);
+    display: flex; align-items: center; padding: 0 8px; gap: 4px; overflow-x: auto;
   }
-  .brain-pill { display: flex; align-items: center; justify-content: space-between; font-size: 11px; padding: 5px 8px; border-radius: 6px; background: #0e1522; border: 1px solid var(--border); }
-  .brain-pill.active { border-color: var(--success); color: #86efac; }
-  .npc-bio { font-size: 11.5px; line-height: 1.65; color: #cbd5e1; }
+  .b-tab {
+    padding: 3px 9px; border-radius: 3px; color: var(--gd-muted); cursor: pointer; background: transparent; border: none; font-size: 11.5px;
+  }
+  .b-tab:hover { color: #fff; background: var(--gd-bg-panel); }
+  .b-tab.active { background: var(--gd-bg-elevated); color: var(--gd-accent-bright); font-weight: 600; }
+  .b-tab.nova-b { color: #c4b5fd; }
+  .b-tab.nova-b.active { color: #fff; background: #352a59; }
+
+  /* GraphEdit Visual Blueprint Simulation inside Godot Bottom Panel */
+  .graph-canvas {
+    position: relative; height: 100%; min-height: 145px;
+    background-color: #141820;
+    background-image: radial-gradient(#2c3446 1px, transparent 1px);
+    background-size: 16px 16px; border: 1px solid #283040; border-radius: 3px; overflow: hidden;
+  }
+  .gnode {
+    position: absolute; width: 175px; background: #232937; border: 1px solid #455068; border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+  }
+  .gnode-hdr { padding: 4px 8px; font-weight: 700; font-size: 11px; border-radius: 4px 4px 0 0; color: #fff; }
+  .gnode-body { padding: 6px 8px; font-size: 10.5px; color: #cbd5e1; display: flex; justify-content: space-between; }
+  .pin { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #5daaf0; }
+
+  table.gd-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  table.gd-table th { text-align: left; padding: 4px 8px; background: #202634; color: var(--gd-muted); border-bottom: 1px solid var(--gd-line); }
+  table.gd-table td { padding: 4px 8px; border-bottom: 1px solid #202532; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="brand">
-    <span>🚀 NovaForge AI Engine</span>
-    <span class="badge">Zero-MCP Native</span>
-    <span class="badge">123 Skills | 114 Tools</span>
-    <span class="badge">Godot 4.6 + Jolt + C++20</span>
+<!-- GODOT 4 TOP BAR -->
+<div class="gd-topbar">
+  <div class="gd-menus">
+    <div class="gd-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#478cbf"><path d="M12 2C7.2 2 3.5 5.2 3.2 9.8l1.9.6V13l-1.6.7c.7 4.3 4.2 7.3 8.5 7.3s7.8-3 8.5-7.3l-1.6-.7v-2.6l1.9-.6C20.5 5.2 16.8 2 12 2zm-3.5 8.2a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8zm7 0a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8zM8.5 16h7v1.5h-7V16z"/></svg>
+      <span>Godot 4.6</span>
+    </div>
+    <span class="menu-item">Scene</span>
+    <span class="menu-item">Project</span>
+    <span class="menu-item">Debug</span>
+    <span class="menu-item">Editor</span>
+    <span class="menu-item nova-menu" id="menuNova">⚡ NovaForge AI</span>
+    <span class="menu-item">Help</span>
   </div>
-  <div class="toolbar">
-    <label style="font-size:11.5px;color:var(--muted)">کیفیت گرافیک:</label>
-    <select id="qualitySelect">
-      <option value="AAA_UNREAL">AAA / Unreal-Grade (Forward+ SDFGI)</option>
-      <option value="STANDARD_UNITY">Standard / Unity-Style (Balanced)</option>
-      <option value="INDIE_CEL_ANIME">Indie / Cel-Shaded Anime</option>
-      <option value="INDIE_HD2D">Indie / HD-2D Diorama</option>
-      <option value="INDIE_PSX_RETRO">Indie / PSX Retro (Vertex Snap)</option>
-    </select>
 
-    <label style="font-size:11.5px;color:var(--muted)">دوربین / ژانر:</label>
-    <select id="camSelect">
-      <option value="TPS_SOULS">سوم‌شخص سولزلایک (TPS Lock-On)</option>
-      <option value="TPS_SHOULDER">سوم‌شخص روی شانه (Over-Shoulder)</option>
-      <option value="FPS">اول‌شخص کامل (True FPS)</option>
-      <option value="SIDE_2_5D">۲.۵ بعدی سایداسکرولینگ (2.5D)</option>
-      <option value="ISOMETRIC">ایزومتریک / استراتژیک (Isometric)</option>
-    </select>
-
-    <button id="btnAdvanceDay">⏩ جلو بردن زمان بازی (+۵ روز زندگی NPCها)</button>
-    <button id="btnUndoSnap">⏪ Time-Machine Undo</button>
+  <!-- Godot 4 Center Workspace Switcher -->
+  <div class="gd-workspaces">
+    <button class="ws-btn" data-ws="2D">2D</button>
+    <button class="ws-btn active" data-ws="3D">3D</button>
+    <button class="ws-btn" data-ws="Script">Script</button>
+    <button class="ws-btn nova-ws" data-ws="Blueprint">⚡ Blueprint</button>
+    <button class="ws-btn" data-ws="AssetLib">AssetLib</button>
   </div>
-</header>
 
-<div class="workspace">
-  <!-- Right Dock (RTL first column): Multi-Brain Colibri Council -->
-  <aside class="dock">
-    <div class="card">
-      <h3><span>🧠 شورای ۵ مغز لوکال (Colibrì)</span><span id="relayBadge" style="color:var(--success);font-size:10.5px">آماده</span></h3>
-      <div class="brain-pill" id="b0"><span>1. مغز کارگردان (GLM-5.3 MoE)</span><span>NVMe Stream</span></div>
-      <div class="brain-pill" id="b1"><span>2. مغز کدنویس C++ / Blueprint</span><span>RAM Cache</span></div>
-      <div class="brain-pill" id="b2"><span>3. مغز سه‌بعدی و متریال بلندر</span><span>Auto-PBR</span></div>
-      <div class="brain-pill" id="b3"><span>4. مغز موشن‌کپچر و کات‌سین</span><span>Foot-IK</span></div>
-      <div class="brain-pill" id="b4"><span>5. مغز داور و Scene Audit</span><span>Zero-Bug</span></div>
+  <!-- Godot 4 Playtest Controls & Renderer -->
+  <div class="gd-playbar">
+    <button class="play-btn run" id="btnPlayScene" title="Play Project (F5)">▶</button>
+    <button class="play-btn" title="Pause">⏸</button>
+    <button class="play-btn" id="btnStopScene" title="Stop">■</button>
+    <button class="play-btn" id="btnPlayCutscene" title="Test Live Cutscene">🎬</button>
+    <span class="renderer-tag" id="rendererBadge">Forward+ (Jolt)</span>
+  </div>
+</div>
 
-      <div style="font-size:11px;color:var(--muted);margin-top:4px">مصرف VRAM هوش مصنوعی (با تخلیه خودکار برای رندر): <b id="vramTxt">0.4 GB / 5.0 GB</b></div>
-      <div class="meter"><span id="vramBar" style="width:12%"></span></div>
-    </div>
+<!-- GODOT 4 MAIN 3-COLUMN EDITOR WORKSPACE -->
+<div class="gd-main">
 
-    <div class="card">
-      <h3>⚡ پرامپت ساخت بازی، فایت، ریگ و کات‌سین</h3>
-      <textarea id="promptBox">یه جنگجوی سامورایی با کمبوی ۳ ضربه‌ای شمشیر بساز، صندوق چوبی با ضربه تیکه‌تیکه بشه و وقتی رسید دم دروازه، این تیکه کات‌سینه!</textarea>
-      <button class="primary" id="btnRunCouncil">اجرای همفکری شورا و ساخت در صحنه</button>
-    </div>
-
-    <div class="card">
-      <h3>📦 پایپ‌لاین بلندر، Auto-Rig و ویدیو موشن</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-        <button id="btnImg3D">🖼️ عکس ⬅️ مدل 3D + ریگ</button>
-        <button id="btnMocap">🎥 ویدیو ⬅️ فایت موشن</button>
-        <button id="btnBlend">🟠 ایمپورت .blend خودکار</button>
-        <button id="btnCutscene">🎬 تست کات‌سین زنده</button>
+  <!-- LEFT COLUMN: Native Godot Scene Dock + FileSystem Dock -->
+  <div class="gd-col-left">
+    <div class="gd-dock">
+      <div class="dock-tabs">
+        <button class="dock-tab active">Scene</button>
+        <button class="dock-tab">Import</button>
       </div>
-    </div>
-  </aside>
-
-  <!-- Center 3D Interactive Viewport + Blueprint/C++ Code Output -->
-  <main class="viewport-wrap">
-    <canvas id="sceneCanvas"></canvas>
-    <div class="hud-hint">
-      🖱️ <b>کلیک چپ روی «صندوق / بشکه» یا «کاوه آهنگر (NPC)» در صحنه:</b> باز شدن منوی هوشمند قابلیت‌ها و تخریب Voronoi!<br>
-      🎮 زاویه فعال: <b id="hudCam" style="color:#38bdf8">TPS_SOULS</b> | کیفیت: <b id="hudQual" style="color:#a855f7">AAA_UNREAL</b> | روز دنیای بازی: <b id="hudDay" style="color:#22c55e">روز ۱</b>
-    </div>
-
-    <div class="cutscene-bars" id="cutsceneOverlay">
-      <div class="bar">🎬 IN-ENGINE LIVE CUTSCENE SEQUENCER (Zero Black Screen — Real-Time Rack Focus & Slow-Mo)</div>
-      <div class="bar" id="cutsceneSub">«دروازه قلعه باز می‌شود... آماده نبرد شو!»</div>
-    </div>
-
-    <!-- Context Popup Menu on Object / NPC Click -->
-    <div class="context-menu" id="ctxMenu">
-      <h4 id="ctxTitle">منوی هوشمند آبجکت</h4>
-      <label class="chk-row"><input type="checkbox" id="chkInteract" checked /> قابل تعامل (`[E]` باز شدن با تشخیص خودکار لولا)</label>
-      <label class="chk-row"><input type="checkbox" id="chkDestruct" checked /> تخریب واقعی با سلاح (Voronoi 3D Shards)</label>
-      <label class="chk-row"><input type="checkbox" id="chkEvolve" checked /> هوش مصنوعی زندگی پیش‌رونده (Evolving Life)</label>
-      <input type="text" id="ctxPrompt" placeholder="پرامپت اختصاصی برای همین آبجکت/NPC..." />
-      <div style="display:flex;gap:6px">
-        <button class="primary" id="btnShatterNow" style="flex:1">💥 تست ضربه شمشیر / تعامل</button>
-        <button id="btnCloseCtx">بستن</button>
+      <div class="dock-toolbar">
+        <button class="gd-btn" title="Add Child Node">+</button>
+        <button class="gd-btn" title="Instantiate Child Scene">🔗</button>
+        <input class="gd-input" placeholder="Filter Nodes" />
+      </div>
+      <div class="tree-list" id="sceneTree">
+        <div class="tree-row" data-node="NovaForgeSandbox" data-type="Node3D"><span class="node-dot dot-3d"></span>NovaForgeSandbox</div>
+        <div class="tree-row" style="padding-left:18px" data-node="NovaWorldEnvironment" data-type="WorldEnvironment"><span class="node-dot dot-env"></span>NovaWorldEnvironment</div>
+        <div class="tree-row" style="padding-left:18px" data-node="SunLight3D" data-type="DirectionalLight3D"><span class="node-dot dot-3d"></span>SunLight3D</div>
+        <div class="tree-row" style="padding-left:18px" data-node="PerspectiveCameraRig3D" data-type="Node3D"><span class="node-dot dot-nova"></span>PerspectiveCameraRig3D</div>
+        <div class="tree-row" style="padding-left:18px" data-node="SamuraiHero" data-type="CharacterBody3D"><span class="node-dot dot-3d"></span>SamuraiHero (52-Bone Rig)</div>
+        <div class="tree-row selected" style="padding-left:18px" data-node="DestructibleAncientCrate" data-type="MeshInstance3D"><span class="node-dot dot-3d"></span>DestructibleAncientCrate ⚡</div>
+        <div class="tree-row" style="padding-left:18px" data-node="KavehBlacksmithNPC" data-type="CharacterBody3D"><span class="node-dot dot-nova"></span>KavehBlacksmithNPC (Living AI)</div>
       </div>
     </div>
 
-    <div class="bottom-tabs" id="codeConsole">// NovaForge Hybrid Output Console (Blueprint Graph + C++20 GDExtension + GDScript + Scene Audit)
-[System] Zero-MCP NativeToolBus online — 123 Game Skills & 114 Engine Tools loaded.
-[Colibrì] Tiered Memory ready: Dense INT4 in RAM | 21,504 MoE Experts on NVMe SSD | GPU VRAM protected for Godot 4 + Jolt Physics.</div>
-  </main>
-
-  <!-- Left Dock: Living NPC Biography & Active Modules -->
-  <aside class="dock">
-    <div class="card">
-      <h3><span>🧬 وضعیت NPC زنده (Evolving Life AI)</span></h3>
-      <div class="npc-bio" id="npcBioBox">
-        <b>نام:</b> کاوه آهنگر (Kaveh)<br>
-        <b>مرتبه شغلی:</b> شاگرد آهنگر (سطح ۱)<br>
-        <b>ثروت:</b> ۱۲۰ سکه طلا<br>
-        <b>رابطه با بازیکن:</b> +۱۰ (دوستانه)<br>
-        <b>زخم‌ها / حافظه نبرد:</b> بدون زخم | هنوز کمبوی بازیکن را ندیده
+    <div class="gd-dock">
+      <div class="dock-tabs">
+        <button class="dock-tab active">FileSystem</button>
       </div>
-      <div style="display:flex;gap:6px">
-        <button id="btnHelpNPC" style="flex:1">🤝 کمک و خرید</button>
-        <button id="btnFightNPC" style="flex:1">⚔️ درگیری و فرار</button>
+      <div class="dock-toolbar">
+        <input class="gd-input" placeholder="Filter Files (res://)" />
+      </div>
+      <div class="tree-list">
+        <div class="tree-row"><span class="node-dot dot-folder"></span>res://addons/novaforge_engine/</div>
+        <div class="tree-row" style="padding-left:18px"><span class="node-dot dot-nova"></span>plugin.gd</div>
+        <div class="tree-row" style="padding-left:18px"><span class="node-dot dot-nova"></span>ai_council/multi_brain_council.gd</div>
+        <div class="tree-row"><span class="node-dot dot-folder"></span>res://native/bin/libnova_core.so (C/C++)</div>
+        <div class="tree-row"><span class="node-dot dot-folder"></span>res://library/skills/ (123 Skills)</div>
+        <div class="tree-row"><span class="node-dot dot-folder"></span>res://pipelines/ (3D, Rig, Mocap, .blend)</div>
+        <div class="tree-row"><span class="node-dot dot-folder"></span>res://shaders/ (Cel, PSX, Elemental)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER COLUMN: Godot 3D Viewport + Modular Spatial Toolbar + Bottom Panel -->
+  <div class="gd-col-center">
+    <div class="viewport-panel">
+      <div class="vp-scene-tabs">
+        <div class="scene-tab">novaforge_sandbox.tscn ×</div>
+        <span style="color:var(--gd-muted);font-size:11px;padding-left:6px">+</span>
+      </div>
+
+      <!-- Native Godot 3D Toolbar + Injected NovaForge Spatial Container -->
+      <div class="spatial-toolbar">
+        <button class="tool-icon active" title="Select Mode (Q)">↖ Q</button>
+        <button class="tool-icon" title="Move Mode (W)">✥ W</button>
+        <button class="tool-icon" title="Rotate Mode (E)">↻ E</button>
+        <button class="tool-icon" title="Scale Mode (R)">⤢ R</button>
+        <div class="v-sep"></div>
+        <span style="color:var(--gd-muted);font-size:11px">Transform ▾</span>
+        <span style="color:var(--gd-muted);font-size:11px;margin-left:4px">View ▾</span>
+        <div class="v-sep"></div>
+
+        <!-- NOVAFORGE MODULE INJECTED INTO CONTAINER_SPATIAL_EDITOR_MENU -->
+        <span style="color:var(--gd-nova);font-weight:700;font-size:11px">⚡ NovaForge:</span>
+        <select class="gd-select" id="qualSelect" title="Visual Quality Tier">
+          <option value="AAA_UNREAL">Quality: AAA Unreal</option>
+          <option value="STANDARD_UNITY">Quality: Unity Balanced</option>
+          <option value="INDIE_CEL_ANIME">Quality: Indie Cel-Anime</option>
+          <option value="INDIE_HD2D">Quality: Indie HD-2D</option>
+          <option value="INDIE_PSX_RETRO">Quality: Indie PSX Retro</option>
+        </select>
+        <select class="gd-select" id="camSelect" title="Camera & Genre Rig">
+          <option value="TPS_SOULS">Cam: TPS Souls</option>
+          <option value="TPS_SHOULDER">Cam: Over-Shoulder</option>
+          <option value="FPS">Cam: True FPS</option>
+          <option value="SIDE_2_5D">Cam: 2.5D Side</option>
+          <option value="ISOMETRIC">Cam: Isometric</option>
+        </select>
+        <button class="gd-btn nova" id="btnMarkCutscene">🎬 Cutscene Here</button>
+        <button class="gd-btn" id="btnAdvanceDay">⏩ +5 Days (NPC Life)</button>
+        <button class="gd-btn" id="btnUndo">⏪ Undo</button>
+      </div>
+
+      <div class="canvas-holder">
+        <canvas id="vpCanvas"></canvas>
+        <div class="vp-overlay-info" id="vpInfo">
+          Perspective | Cam: TPS_SOULS | Quality: AAA_UNREAL | World Day 1<br>
+          Tip: Click Crate or NPC in 3D Viewport to open Smart Module Menu!
+        </div>
+        <!-- Godot X/Y/Z Axis Compass -->
+        <svg class="vp-axis-gizmo" viewBox="0 0 60 60">
+          <line x1="30" y1="30" x2="52" y2="36" stroke="#f64b5b" stroke-width="2.5"/>
+          <circle cx="52" cy="36" r="4.5" fill="#f64b5b"/>
+          <line x1="30" y1="30" x2="30" y2="8" stroke="#6be28b" stroke-width="2.5"/>
+          <circle cx="30" cy="8" r="4.5" fill="#6be28b"/>
+          <line x1="30" y1="30" x2="12" y2="42" stroke="#5daaf0" stroke-width="2.5"/>
+          <circle cx="12" cy="42" r="4.5" fill="#5daaf0"/>
+        </svg>
+
+        <div class="cutscene-bars" id="cutsceneBars">
+          <div class="cs-bar">🎬 Live In-Engine Cutscene Sequencer (Seamless Camera3D Blend — 0ms Black Screen)</div>
+          <div class="cs-bar">«این تیکه کات‌سینه: دروازه باز می‌شود و باس وارد میدان نبرد می‌شود!»</div>
+        </div>
+
+        <!-- Viewport Smart Popup Menu -->
+        <div class="gd-popup" id="vpPopup">
+          <div class="gd-popup-title" id="popupTitle">⚡ NovaForge Smart Context Menu</div>
+          <div class="gd-popup-item" id="actInteract">🚪 Toggle Auto-Hinge Door / Pickup [E]</div>
+          <div class="gd-popup-item" id="actShatter">💥 Test Weapon Hit -> Voronoi 3D Fracture (16 Shards)</div>
+          <div class="gd-popup-item" id="actEvolve">🧠 Evolve NPC Career / Test Nemesis Scar Memory</div>
+          <div class="gd-popup-item" id="actCutscene">🎬 Set Cutscene Trigger Zone ("این تیکه کات‌سینه")</div>
+        </div>
       </div>
     </div>
 
-    <div class="card">
-      <h3>🌦️ شیمی عناصر و جهان‌باز</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-        <button data-elem="CLEAR" class="elemBtn">☀️ صاف</button>
-        <button data-elem="RAIN" class="elemBtn">🌧️ باران (خیس)</button>
-        <button data-elem="FIRE" class="elemBtn">🔥 آتش + باد</button>
-        <button data-elem="LIGHTNING" class="elemBtn">⚡ صاعقه در آب</button>
+    <!-- GODOT 4 NATIVE BOTTOM PANEL + NOVAFORGE EXTRA MODULE TABS -->
+    <div class="gd-bottom">
+      <div class="bottom-content" id="bottomBody"></div>
+      <div class="bottom-bar">
+        <button class="b-tab active" data-btab="output">Output</button>
+        <button class="b-tab" data-btab="debugger">Debugger (0)</button>
+        <button class="b-tab" data-btab="animation">Animation</button>
+        <button class="b-tab" data-btab="shader">Shader Editor</button>
+        <div class="v-sep"></div>
+        <!-- Extra NovaForge Modules inside Godot 4's Bottom Panel -->
+        <button class="b-tab nova-b" data-btab="blueprint">⚡ Blueprint Graph</button>
+        <button class="b-tab nova-b" data-btab="cutscene">🎬 Cutscene & IK</button>
+        <button class="b-tab nova-b" data-btab="colibri">🧠 Local AI (Colibrì)</button>
       </div>
-      <div id="elemStatus" style="font-size:11px;color:var(--muted)">واکنش فعال: محیط پایدار | Chunk [0,0] LOD0</div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: Native Godot Inspector (+ Injected Smart Module) & AI Council Tab -->
+  <div class="gd-dock">
+    <div class="dock-tabs">
+      <button class="dock-tab active" data-rtab="inspector">Inspector</button>
+      <button class="dock-tab" data-rtab="node">Node</button>
+      <button class="dock-tab" data-rtab="history">History</button>
+      <button class="dock-tab nova-tab" data-rtab="council">🧠 AI Council</button>
     </div>
 
-    <div class="card">
-      <h3>🔗 پیش‌نمایش گراف Blueprint فعال</h3>
-      <div id="bpSummary" style="font-size:11px;color:#93c5fd;direction:ltr;text-align:left;line-height:1.6">
-[Event_BeginPlay] ──▶ [SetupPerspective: TPS_SOULS]
-[Event_OnAttack]  ──▶ [Branch: stamina >= 18]
-                        ├─True─▶ [PlayMeleeCombo3Hit] ──▶ [VoronoiHitCheck]
-                        └─False▶ [StaminaWarningHUD]
+    <!-- Tab 1: Native Godot 4 Inspector with Injected NovaForge EditorInspectorPlugin -->
+    <div class="inspector-body" id="rightInspector">
+      <div class="insp-header">
+        <span class="node-dot dot-3d"></span>
+        <span id="inspNodeName">DestructibleAncientCrate (MeshInstance3D)</span>
+      </div>
+
+      <!-- Injected by `smart_inspector_plugin.gd`! -->
+      <div class="insp-section">
+        <div class="insp-sec-title nova-sec"><span>▼ ⚡ NovaForge Smart Module</span><span>Plugin</span></div>
+        <label class="insp-chk"><input type="checkbox" id="inspChkInteract" checked /> Interactable (Auto-Hinge / Pickup [E])</label>
+        <label class="insp-chk"><input type="checkbox" id="inspChkDestruct" checked /> Destructible (Voronoi 3D Jolt Shards)</label>
+        <label class="insp-chk"><input type="checkbox" id="inspChkNPC" /> Living NPC (Evolving Life & Nemesis AI)</label>
+        <div class="insp-row">
+          <span>Material Preset</span>
+          <select class="gd-select" id="inspMatPreset">
+            <option>WOOD (16 Shards)</option>
+            <option>STONE (24 Shards)</option>
+            <option>GLASS (32 Shards)</option>
+            <option>EXPLOSIVE_BARREL</option>
+          </select>
+        </div>
+        <div style="padding:6px 8px;display:flex;gap:5px">
+          <button class="gd-btn nova" style="flex:1" id="btnInspPBR">🎨 Auto-Bind Blender PBR</button>
+          <button class="gd-btn" id="btnInspTestHit">💥 Test Hit</button>
+        </div>
+      </div>
+
+      <!-- Standard Godot 4 MeshInstance3D / Node3D Inspector Sections -->
+      <div class="insp-section">
+        <div class="insp-sec-title"><span>▼ GeometryInstance3D</span></div>
+        <div class="insp-row"><span>Cast Shadow</span><span>On (Jolt + Cascade)</span></div>
+        <div class="insp-row"><span>LOD Bias</span><span>Auto (LOD0 / LOD1 / LOD2)</span></div>
+      </div>
+
+      <div class="insp-section">
+        <div class="insp-sec-title"><span>▼ Node3D — Transform</span></div>
+        <div class="insp-row"><span>Position</span><span style="color:#f64b5b">x: 2.5</span> <span style="color:#6be28b">y: 0.6</span> <span style="color:#5daaf0">z: -2.0</span></div>
+        <div class="insp-row"><span>Rotation</span><span>0° , 0° , 0°</span></div>
+        <div class="insp-row"><span>Scale</span><span>1.0 , 1.0 , 1.0</span></div>
+      </div>
+
+      <div class="insp-section">
+        <div class="insp-sec-title"><span>▼ Living NPC Status (Kaveh)</span></div>
+        <div id="npcInspectorSummary" style="padding:6px 8px;font-size:11px;line-height:1.6;color:#cbd5e1;direction:rtl;text-align:right">
+          کاوه آهنگر | سطح ۱ (شاگرد آهنگر) | ۱۲۰ طلا | رابطه: +۱۰
+        </div>
       </div>
     </div>
-  </aside>
+
+    <!-- Tab 2: Multi-Brain Council Dock (`DOCK_SLOT_RIGHT_BL`) -->
+    <div class="inspector-body" id="rightCouncil" style="display:none;direction:rtl;text-align:right">
+      <div class="insp-section">
+        <div class="insp-sec-title nova-sec"><span>🧠 شورای ۵ مغز لوکال (Zero-MCP)</span><span id="councilStateTxt">آماده</span></div>
+        <div style="padding:8px;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:11px;color:var(--gd-muted)">پرامپت فارسی یا انگلیسی خود را بنویسید تا هر ۵ مغز همفکری کرده و مستقیم صحنه گودو ۴، کد C++ و گراف Blueprint را بسازند:</div>
+          <textarea id="councilPrompt" class="gd-input" style="min-height:82px;resize:vertical">یه کاراکتر سامورایی با کمبوی ۳ ضربه‌ای بساز، صندوق با ضربه تیکه‌تیکه بشه و دم دروازه این تیکه کات‌سینه!</textarea>
+          <button class="gd-btn nova" id="btnRunCouncil" style="padding:6px;font-weight:700">⚡ اجرای شورا (Colibrì Sequential Relay)</button>
+          <div id="councilSteps" style="font-size:11px;color:#86efac;line-height:1.65">
+            • 123 مهارت بازی‌سازی (Summer + NovaForge) فعال<br>
+            • 114 ابزار داخلی مستقیم روی SceneTree (بدون MCP)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-const canvas = document.getElementById('sceneCanvas');
-const ctx = canvas.getContext('2d');
-const consoleBox = document.getElementById('codeConsole');
-
-let state = {
+const state = {
   quality: 'AAA_UNREAL',
   cam: 'TPS_SOULS',
   day: 1,
-  weather: 'CLEAR',
-  cutscene: false,
-  time: 0,
-  crateShattered: false,
+  bottomTab: 'output',
+  selectedNode: 'DestructibleAncientCrate',
+  crateBroken: false,
   shards: [],
-  playerSlash: 0,
-  npc: {
-    tier: 1,
-    title: 'شاگرد آهنگر (سطح ۱)',
-    gold: 120,
-    rel: 10,
-    scars: [],
-    counters: [],
-    comboSeen: 0
-  },
-  selectedEntity: null,
-  history: []
+  slashArc: 0,
+  npc: { tier: 1, roleFa: 'شاگرد آهنگر', gold: 120, rel: 10, scars: [] },
+  logs: [
+    "Godot Engine v4.6.stable.novaforge - https://godotengine.org",
+    "Vulkan API 1.3 - Forward+ - Using Jolt Physics 3D Engine (Default)",
+    "[NovaForge] Loaded GDExtension native/bin/libnova_core.so (Colibrì Tiered Runtime + C++20 Blueprint VM + Voronoi Fracturer).",
+    "[NovaForge] Zero-MCP NativeToolBus active: 123 Skills & 114 Engine Tools mounted into Godot 4 UI."
+  ]
 };
 
-function logLine(msg) {
-  consoleBox.textContent = msg + "\n" + consoleBox.textContent.slice(0, 2600);
+function addLog(line) {
+  state.logs.push(line);
+  if (state.bottomTab === 'output') renderBottomPanel();
 }
 
-function saveSnapshot(label) {
-  state.history.push(JSON.parse(JSON.stringify({
-    quality: state.quality, cam: state.cam, day: state.day,
-    crateShattered: state.crateShattered, npc: state.npc
-  })));
-  logLine(`[Time-Machine] Snapshot saved: "${label}" (Total: ${state.history.length})`);
+function renderBottomPanel() {
+  const box = document.getElementById('bottomBody');
+  if (state.bottomTab === 'output') {
+    box.innerHTML = `<div style="font-family:monospace;font-size:11.5px;line-height:1.55;color:#cbd5e1">${state.logs.slice(-12).map(l => `<div>${l}</div>`).join('')}</div>`;
+  } else if (state.bottomTab === 'blueprint') {
+    box.innerHTML = `
+      <div style="display:flex;gap:6px;margin-bottom:6px;align-items:center">
+        <button class="gd-btn" onclick="addLog('[Blueprint] Added MeleeCombo3Hit node to GraphEdit')">+ Add Node</button>
+        <button class="gd-btn nova" onclick="addLog('[Blueprint -> C++20] Compiled SamuraiFighterBP.hpp & GDScript cleanly!')">⚡ Compile -> C++20 & GDScript</button>
+        <span style="color:var(--gd-muted)">Godot 4 Native GraphEdit (Hybrid Blueprint + C++)</span>
+      </div>
+      <div class="graph-canvas">
+        <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+          <path d="M 195 52 C 235 52, 235 52, 265 52" stroke="#5daaf0" stroke-width="2.2" fill="none"/>
+          <path d="M 440 52 C 480 52, 480 65, 510 65" stroke="#6be28b" stroke-width="2.2" fill="none"/>
+        </svg>
+        <div class="gnode" style="left:20px;top:22px"><div class="gnode-hdr" style="background:#881b28">Event_OnAttackInput</div><div class="gnode-body"><span>Input: LeftClick</span><span class="pin"></span></div></div>
+        <div class="gnode" style="left:265px;top:22px"><div class="gnode-hdr" style="background:#2d4566">Branch (stamina >= 18)</div><div class="gnode-body"><span class="pin"></span><span>True ──▶</span><span class="pin" style="background:#6be28b"></span></div></div>
+        <div class="gnode" style="left:510px;top:32px"><div class="gnode-hdr" style="background:#1e567c">PlayMeleeCombo + Fracture</div><div class="gnode-body"><span class="pin"></span><span>Jolt Hitbox3D</span></div></div>
+      </div>`;
+  } else if (state.bottomTab === 'cutscene') {
+    box.innerHTML = `
+      <table class="gd-table">
+        <tr><th>Cutscene / Blender-Grade Pose & IK Track</th><th>Range</th><th>Mode / Curve</th><th>Transition</th></tr>
+        <tr><td>🎥 Camera3D Rail + Practical Rack-Focus DOF</td><td>0.0s - 2.2s</td><td>Bezier Smooth Ease</td><td>0ms Seamless Blend</td></tr>
+        <tr><td>🦴 Skeleton3D 2-Bone Foot-Locking IK & Pose</td><td>0.0s - 4.0s</td><td>Analytical IK + NLA Additive</td><td>Zero Foot-Sliding</td></tr>
+        <tr><td>⏱️ Boss Landing Impact Slow-Motion</td><td>2.2s - 3.0s</td><td>Engine.time_scale = 0.45</td><td>Return to Player Shoulder</td></tr>
+      </table>`;
+  } else if (state.bottomTab === 'colibri') {
+    box.innerHTML = `
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="color:#a78bfa;font-weight:700">Colibrì 3-Tier Memory: 3.0 GB VRAM Reserved for Godot Vulkan | INT4 Dense in RAM | Routed MoE Experts on NVMe SSD</span>
+        <div style="display:flex;gap:5px">
+          <button class="gd-btn nova" onclick="addLog('[AssetForge] Generated 3D Mesh + 3 LODs + 52-Bone Auto-Rig!')">🖼️ Image -> 3D + Rig</button>
+          <button class="gd-btn nova" onclick="state.slashArc=1;addLog('[VideoToMotion] Extracted 3D Motion + Foot-Locking IK + 21 Hitbox Tags!')">🎥 Video -> Motion</button>
+        </div>
+      </div>
+      <table class="gd-table">
+        <tr><th>Local Specialist Model</th><th>Council Role</th><th>Resident RAM</th><th>NVMe Stream</th><th>Status</th></tr>
+        <tr><td>glm-5.3-flash-colibri</td><td>Director + Viewport Vision</td><td>9.9 GB (INT4)</td><td>195 GB SSD</td><td style="color:#6be28b">✓ Ready</td></tr>
+        <tr><td>qwen3.6-35b-a3b-colibri</td><td>C++20 / Blueprint / GDScript Coder</td><td>4.2 GB</td><td>20 GB SSD</td><td style="color:#6be28b">✓ Ready</td></tr>
+        <tr><td>triposr + unirig-humanoid-v2</td><td>Image-to-3D + 52-Bone Auto-Rigger</td><td>1.8 GB</td><td>4.3 GB SSD</td><td style="color:#6be28b">✓ Ready</td></tr>
+        <tr><td>gvhmr-wham-mocap</td><td>Video-to-Motion + Foot-Locking IK</td><td>2.2 GB</td><td>4.1 GB SSD</td><td style="color:#6be28b">✓ Ready</td></tr>
+      </table>`;
+  } else {
+    box.innerHTML = `<div style="color:var(--gd-muted);padding:10px">Godot 4 Standard ${state.bottomTab.toUpperCase()} Panel — 0 Errors, 60 FPS Stable.</div>`;
+  }
 }
 
-function updateNPCUI() {
-  const n = state.npc;
-  document.getElementById('npcBioBox').innerHTML =
-    `<b>نام:</b> کاوه آهنگر (Kaveh)<br>` +
-    `<b>مرتبه شغلی:</b> ${n.title}<br>` +
-    `<b>ثروت:</b> ${n.gold} سکه طلا<br>` +
-    `<b>رابطه با بازیکن:</b> ${n.rel >= 0 ? '+' + n.rel : n.rel} (${n.rel <= -35 ? 'دشمن خونی / Nemesis' : (n.rel >= 35 ? 'متحد وفادار' : 'معمولی')})<br>` +
-    `<b>زخم‌ها / حافظه نبرد:</b> ${n.scars.length ? n.scars.join('، ') : 'بدون زخم'} | ${n.counters.length ? 'ضدحمله آموخته‌شده: ' + n.counters.join(', ') : 'در حال یادگیری'}`;
-  document.getElementById('hudDay').textContent = `روز ${state.day}`;
+document.querySelectorAll('.b-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.b-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.bottomTab = btn.dataset.btab;
+    renderBottomPanel();
+  });
+});
+
+document.querySelectorAll('[data-ws]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-ws]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (btn.dataset.ws === 'Blueprint') {
+      document.querySelector('[data-btab="blueprint"]').click();
+    }
+  });
+});
+
+document.querySelectorAll('[data-rtab]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('[data-rtab]').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const isCouncil = tab.dataset.rtab === 'council';
+    document.getElementById('rightInspector').style.display = isCouncil ? 'none' : 'flex';
+    document.getElementById('rightCouncil').style.display = isCouncil ? 'flex' : 'none';
+  });
+});
+
+document.getElementById('menuNova').addEventListener('click', () => {
+  document.querySelector('[data-rtab="council"]').click();
+});
+
+document.querySelectorAll('#sceneTree .tree-row').forEach(row => {
+  row.addEventListener('click', () => {
+    document.querySelectorAll('#sceneTree .tree-row').forEach(r => r.classList.remove('selected'));
+    row.classList.add('selected');
+    state.selectedNode = row.dataset.node;
+    document.getElementById('inspNodeName').textContent = `${row.dataset.node} (${row.dataset.type})`;
+    document.getElementById('inspChkNPC').checked = row.dataset.node.includes('NPC');
+  });
+});
+
+function refreshInfo() {
+  document.getElementById('vpInfo').innerHTML =
+    `Perspective | Cam: ${state.cam} | Quality: ${state.quality} | World Day ${state.day}<br>` +
+    `Tip: Click Crate or NPC in 3D Viewport to open Godot PopupMenu!`;
+  document.getElementById('npcInspectorSummary').textContent =
+    `کاوه آهنگر | سطح ${state.npc.tier} (${state.npc.roleFa}) | ${state.npc.gold} طلا | رابطه: +${state.npc.rel}` +
+    (state.npc.scars.length ? ` | زخم: ${state.npc.scars.join('،')}` : '');
 }
 
-document.getElementById('qualitySelect').addEventListener('change', e => {
-  saveSnapshot('Before Quality Switch');
+document.getElementById('qualSelect').addEventListener('change', e => {
   state.quality = e.target.value;
-  document.getElementById('hudQual').textContent = state.quality;
-  logLine(`[NovaQuality] Switched visual pipeline -> ${state.quality} (Auto-LOD & Shaders reconfigured)`);
+  document.getElementById('rendererBadge').textContent =
+    state.quality === 'INDIE_PSX_RETRO' ? 'Compatibility (PSX)' : 'Forward+ (Jolt)';
+  refreshInfo();
+  addLog(`[NovaQuality] Applied Visual Quality Tier: ${state.quality}`);
 });
 
 document.getElementById('camSelect').addEventListener('change', e => {
   state.cam = e.target.value;
-  document.getElementById('hudCam').textContent = state.cam;
-  logLine(`[PerspectiveCameraRig3D] Runtime camera & movement rig -> ${state.cam}`);
-});
-
-document.getElementById('btnAdvanceDay').addEventListener('click', () => {
-  saveSnapshot('Advance World Time');
-  state.day += 5;
-  if (state.npc.rel <= -35) {
-    state.npc.title = 'فرمانده یاغیان زخم‌خورده (Nemesis Lv.3)';
-    state.npc.gold += 90;
-  } else {
-    state.npc.gold += 160;
-    if (state.npc.gold >= 500) {
-      state.npc.tier = 3;
-      state.npc.title = 'استادکار سلطنتی + کارگاه بزرگ و شاگرد';
-    } else if (state.npc.gold >= 260) {
-      state.npc.tier = 2;
-      state.npc.title = 'آهنگر ارشد شهر (سطح ۲)';
-    }
-  }
-  updateNPCUI();
-  logLine(`[NovaWorldLife] Advanced +5 days -> Day ${state.day}. Off-screen Living NPCs evolved careers & alliances!`);
-});
-
-document.getElementById('btnHelpNPC').addEventListener('click', () => {
-  state.npc.rel = Math.min(100, state.npc.rel + 25);
-  state.npc.gold += 55;
-  updateNPCUI();
-  logLine(`[LivingNPCBrain3D] Player traded & helped Kaveh -> Relationship: +${state.npc.rel}`);
-});
-
-document.getElementById('btnFightNPC').addEventListener('click', () => {
-  state.npc.rel = Math.max(-100, state.npc.rel - 50);
-  state.npc.comboSeen += 1;
-  if (!state.npc.scars.includes('جای زخم شمشیر روی گونه چپ')) {
-    state.npc.scars.push('جای زخم شمشیر روی گونه چپ');
-  }
-  if (!state.npc.counters.includes('Parry_3Hit_Katana')) {
-    state.npc.counters.push('Parry_3Hit_Katana');
-  }
-  state.playerSlash = 1.0;
-  updateNPCUI();
-  logLine(`[Nemesis Memory] Kaveh survived with cheek scar & learned counter-parry against Player's Katana Combo!`);
-});
-
-document.getElementById('btnUndoSnap').addEventListener('click', () => {
-  const prev = state.history.pop();
-  if (!prev) { logLine(`[Time-Machine] No earlier snapshot.`); return; }
-  state.quality = prev.quality;
-  state.cam = prev.cam;
-  state.day = prev.day;
-  state.crateShattered = prev.crateShattered;
-  state.shards = [];
-  state.npc = prev.npc;
-  updateNPCUI();
-  document.getElementById('hudQual').textContent = state.quality;
-  document.getElementById('hudCam').textContent = state.cam;
-  logLine(`[Time-Machine] Restored project state cleanly!`);
-});
-
-document.querySelectorAll('.elemBtn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const elem = btn.dataset.elem;
-    const prev = state.weather;
-    state.weather = elem;
-    let reaction = 'محیط پایدار';
-    if (elem === 'LIGHTNING' && prev === 'RAIN') {
-      reaction = '⚡ واکنش زنجیره‌ای صاعقه روی زمین خیس (AoE Shock 45 DMG)!';
-    } else if (elem === 'RAIN' && prev === 'FIRE') {
-      reaction = '💨 باران آتش را خاموش کرد + تولید بخار غلیظ و سطح خیس SSR!';
-    } else if (elem === 'FIRE') {
-      reaction = '🔥 گسترش آتش در جهت وزش باد روی چمن و چوب!';
-    }
-    document.getElementById('elemStatus').textContent = reaction;
-    logLine(`[ElementalWeatherSystem] Weather/Element -> ${elem} | ${reaction}`);
-  });
-});
-
-function triggerCutscene() {
-  state.cutscene = true;
-  document.getElementById('cutsceneOverlay').classList.add('active');
-  logLine(`[CutsceneDirector] Seamless blend from Gameplay Camera -> Cinematic Rail (32mm Lens DOF, 0.45x Slow-Mo, 0ms Black Screen)`);
-  setTimeout(() => {
-    state.cutscene = false;
-    document.getElementById('cutsceneOverlay').classList.remove('active');
-    logLine(`[CutsceneDirector] Blended smoothly back behind player shoulder!`);
-  }, 3400);
-}
-
-document.getElementById('btnCutscene').addEventListener('click', triggerCutscene);
-
-document.getElementById('btnImg3D').addEventListener('click', () => {
-  logLine(`[AssetForge + AutoRigger] Image -> 3D Mesh (4,675 verts + LOD0/1/2) -> Fitted 52-Bone SkeletonProfileHumanoid (sum(weights)=1.0000)!`);
-});
-
-document.getElementById('btnMocap').addEventListener('click', () => {
-  state.playerSlash = 1.0;
-  logLine(`[VideoToMotion] Extracted 3D world-space combo + Fingers + Face | Foot-Locking IK pinned 47 stance frames | Tagged 21 Hitbox/Spark events!`);
-});
-
-document.getElementById('btnBlend').addEventListener('click', () => {
-  logLine(`[Universal3DImporter] Imported .blend/.fbx/.usd -> Auto-bound Albedo, Flipped DirectX Normal Y-Channel, Inverted Gloss->Roughness & Unpacked ORM!`);
-});
-
-document.getElementById('btnRunCouncil').addEventListener('click', async () => {
-  saveSnapshot('Pre-Council Prompt');
-  const p = document.getElementById('promptBox').value;
-  const pills = ['b0','b1','b2','b3','b4'];
-  const vramBar = document.getElementById('vramBar');
-  const vramTxt = document.getElementById('vramTxt');
-  const badge = document.getElementById('relayBadge');
-  badge.textContent = 'در حال همفکری...';
-
-  const vramSteps = ['2.1 GB / 5.0 GB', '1.8 GB / 5.0 GB', '2.6 GB / 5.0 GB', '1.9 GB / 5.0 GB', '1.4 GB / 5.0 GB'];
-  const widths = ['44%', '36%', '52%', '38%', '28%'];
-
-  for (let i = 0; i < pills.length; i++) {
-    pills.forEach(id => document.getElementById(id).classList.remove('active'));
-    document.getElementById(pills[i]).classList.add('active');
-    vramBar.style.width = widths[i];
-    vramTxt.textContent = vramSteps[i];
-    await new Promise(r => setTimeout(r, 260));
-  }
-  pills.forEach(id => document.getElementById(id).classList.remove('active'));
-  vramBar.style.width = '8%';
-  vramTxt.textContent = '0.3 GB / 5.0 GB (VRAM Flushed for Renderer)';
-  badge.textContent = 'تایید نهایی شورا ✓';
-
-  state.playerSlash = 1.0;
-  if (p.includes('تیکه') || p.includes('بشکن')) shatterCrate();
-  if (p.includes('کات‌سین') || p.includes('کات سین')) triggerCutscene();
-
-  logLine(
-`[MultiBrainCouncil] Unified Verified Output for: "${p.slice(0, 55)}..."
-  -> Skills Matched: [combat-basics, blueprint-cpp-hybrid, voronoi-3d-destruction, in-engine-cutscene-sequencer]
-  -> Compiled SamuraiFighterBP -> C++20 GDExtension + GDScript | Scene Audit: 0 Errors!`
-  );
+  refreshInfo();
+  addLog(`[PerspectiveCameraRig3D] Switched camera perspective -> ${state.cam}`);
 });
 
 function shatterCrate() {
-  state.crateShattered = true;
-  state.shards = [];
-  for (let i = 0; i < 16; i++) {
-    const ang = (Math.PI * 2 * i) / 16;
-    state.shards.push({
-      x: 0, y: 0,
-      vx: Math.cos(ang) * (2.2 + Math.random() * 2.5),
-      vy: -3.5 - Math.random() * 3.0,
-      rot: Math.random() * 3
-    });
-  }
-  logLine(`[VoronoiFracturer C++20] Sliced crate into 16 watertight convex Jolt RigidBody3D shards!`);
+  state.crateBroken = true;
+  state.slashArc = 1.0;
+  state.shards = Array.from({length: 16}, (_, i) => ({
+    x: 0, y: 0,
+    vx: Math.cos((Math.PI * 2 * i) / 16) * (2 + Math.random() * 2.5),
+    vy: -3 - Math.random() * 2.5
+  }));
+  addLog(`[VoronoiFracturer C++20] DestructibleAncientCrate shattered into 16 Jolt RigidBody3D shards!`);
 }
 
-// Viewport Canvas Interaction & Real-Time Stylization Renderer
-let hitTargets = { crate: {x:0,y:0,r:45}, npc: {x:0,y:0,r:48} };
+function playCutscene() {
+  const bars = document.getElementById('cutsceneBars');
+  bars.classList.add('active');
+  addLog(`[CutsceneDirector] Seamless In-Engine Cutscene started (Camera3D blend + Rack Focus DOF).`);
+  setTimeout(() => bars.classList.remove('active'), 3000);
+}
+
+document.getElementById('btnMarkCutscene').addEventListener('click', playCutscene);
+document.getElementById('btnPlayCutscene').addEventListener('click', playCutscene);
+document.getElementById('btnPlayScene').addEventListener('click', () => { state.slashArc = 1.0; addLog(`[Godot 4] Running novaforge_sandbox.tscn (60 FPS, Jolt Physics active)...`); });
+document.getElementById('btnStopScene').addEventListener('click', () => { state.crateBroken = false; addLog(`[Godot 4] Stopped scene playback; restored editor state.`); });
+document.getElementById('btnInspTestHit').addEventListener('click', shatterCrate);
+document.getElementById('btnInspPBR').addEventListener('click', () => addLog(`[Universal3DImporter] Auto-bound Albedo, Flipped DirectX Normal Y-Channel & Unpacked ORM!`));
+
+document.getElementById('btnAdvanceDay').addEventListener('click', () => {
+  state.day += 5;
+  state.npc.gold += 155;
+  state.npc.tier = state.npc.gold >= 400 ? 3 : 2;
+  state.npc.roleFa = state.npc.tier === 3 ? 'استادکار سلطنتی + کارگاه بزرگ' : 'آهنگر ارشد شهر';
+  refreshInfo();
+  addLog(`[NovaWorldLife] World advanced to Day ${state.day}: Kaveh progressed to ${state.npc.roleFa} (${state.npc.gold}g).`);
+});
+
+document.getElementById('btnUndo').addEventListener('click', () => {
+  state.crateBroken = false;
+  addLog(`[NovaTimeMachine] Restored last project snapshot.`);
+});
+
+document.getElementById('btnRunCouncil').addEventListener('click', () => {
+  const p = document.getElementById('councilPrompt').value;
+  document.getElementById('councilStateTxt').textContent = '✓ تایید نهایی شورا';
+  document.getElementById('councilSteps').innerHTML =
+    `✓ <b>Director (GLM-5.3):</b> طراحی کمبو و کات‌سین<br>` +
+    `✓ <b>Coder (Qwen3.6):</b> کامپایل گراف Blueprint و C++20<br>` +
+    `✓ <b>QA Critic:</b> بررسی Scene Audit بدون خطا (VRAM تخلیه شد)`;
+  shatterCrate();
+  if (p.includes('کات‌سین') || p.includes('کات سین')) playCutscene();
+  addLog(`[MultiBrainCouncil] Executed prompt via 5 Local Brains -> 0 Scene Audit warnings.`);
+});
+
+// 3D Viewport Canvas (Godot 4 Spatial Grid + Origin Axes + Entities)
+const canvas = document.getElementById('vpCanvas');
+const ctx = canvas.getContext('2d');
+let targets = { crate: {x:0,y:0}, npc: {x:0,y:0} };
 
 canvas.addEventListener('click', e => {
-  const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
-  const menu = document.getElementById('ctxMenu');
-
-  const dCrate = Math.hypot(mx - hitTargets.crate.x, my - hitTargets.crate.y);
-  const dNpc = Math.hypot(mx - hitTargets.npc.x, my - hitTargets.npc.y);
-
-  if (dCrate < hitTargets.crate.r) {
-    state.selectedEntity = 'crate';
-    document.getElementById('ctxTitle').textContent = '📦 منوی هوشمند: صندوق باستانی';
-    menu.style.left = Math.min(rect.width - 280, mx + 10) + 'px';
-    menu.style.top = Math.max(10, my - 20) + 'px';
-    menu.classList.add('open');
-  } else if (dNpc < hitTargets.npc.r) {
-    state.selectedEntity = 'npc';
-    document.getElementById('ctxTitle').textContent = '🧠 منوی هوشمند NPC: کاوه آهنگر';
-    menu.style.left = Math.min(rect.width - 280, mx + 10) + 'px';
-    menu.style.top = Math.max(10, my - 20) + 'px';
-    menu.classList.add('open');
+  const r = canvas.getBoundingClientRect();
+  const mx = e.clientX - r.left, my = e.clientY - r.top;
+  const pop = document.getElementById('vpPopup');
+  if (Math.hypot(mx - targets.crate.x, my - targets.crate.y) < 42 ||
+      Math.hypot(mx - targets.npc.x, my - targets.npc.y) < 42) {
+    pop.style.left = Math.min(r.width - 275, mx + 8) + 'px';
+    pop.style.top = Math.max(8, my - 10) + 'px';
+    pop.classList.add('open');
   } else {
-    menu.classList.remove('open');
+    pop.classList.remove('open');
   }
 });
 
-document.getElementById('btnCloseCtx').addEventListener('click', () => {
-  document.getElementById('ctxMenu').classList.remove('open');
+document.getElementById('actShatter').addEventListener('click', () => { document.getElementById('vpPopup').classList.remove('open'); shatterCrate(); });
+document.getElementById('actCutscene').addEventListener('click', () => { document.getElementById('vpPopup').classList.remove('open'); playCutscene(); });
+document.getElementById('actEvolve').addEventListener('click', () => {
+  document.getElementById('vpPopup').classList.remove('open');
+  if (!state.npc.scars.includes('زخم شمشیر')) state.npc.scars.push('زخم شمشیر');
+  document.getElementById('btnAdvanceDay').click();
+});
+document.getElementById('actInteract').addEventListener('click', () => {
+  document.getElementById('vpPopup').classList.remove('open');
+  addLog(`[SmartObjectBehavior3D] Auto-detected hinge edge on AABB & bound [E] Interaction.`);
 });
 
-document.getElementById('btnShatterNow').addEventListener('click', () => {
-  document.getElementById('ctxMenu').classList.remove('open');
-  if (state.selectedEntity === 'crate') {
-    if (state.crateShattered) {
-      state.crateShattered = false;
-      logLine(`[SmartObjectBehavior3D] Reset crate mesh.`);
-    } else {
-      shatterCrate();
-    }
-  } else {
-    state.npc.gold += 40;
-    updateNPCUI();
-    logLine(`[LivingNPCBrain3D] Updated NPC options & triggered dynamic dialogue.`);
-  }
-});
-
-function renderLoop() {
-  state.time += 0.03;
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
-  const pixelScale = state.quality === 'INDIE_PSX_RETRO' ? 0.32 : 1.0;
-  canvas.width = Math.max(200, Math.floor(w * pixelScale));
-  canvas.height = Math.max(150, Math.floor(h * pixelScale));
-  ctx.imageSmoothingEnabled = state.quality !== 'INDIE_PSX_RETRO';
-
+function drawViewport() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  const scale = state.quality === 'INDIE_PSX_RETRO' ? 0.35 : 1.0;
+  canvas.width = Math.max(200, Math.floor(w * scale));
+  canvas.height = Math.max(140, Math.floor(h * scale));
+  ctx.imageSmoothingEnabled = scale === 1.0;
   const cw = canvas.width, ch = canvas.height;
 
-  // Sky / Environment by Quality Tier
-  const skyGrad = ctx.createLinearGradient(0, 0, 0, ch * 0.62);
-  if (state.quality === 'AAA_UNREAL') {
-    skyGrad.addColorStop(0, '#0f172a');
-    skyGrad.addColorStop(1, '#1e3a5f');
-  } else if (state.quality === 'INDIE_CEL_ANIME') {
-    skyGrad.addColorStop(0, '#2563eb');
-    skyGrad.addColorStop(1, '#7dd3fc');
-  } else if (state.quality === 'INDIE_PSX_RETRO') {
-    skyGrad.addColorStop(0, '#1a1625');
-    skyGrad.addColorStop(1, '#3b2d4a');
+  // Godot 4 Default Procedural Sky & Ground Horizon
+  const g = ctx.createLinearGradient(0, 0, 0, ch);
+  if (state.quality === 'INDIE_CEL_ANIME') {
+    g.addColorStop(0, '#2a5ca8'); g.addColorStop(0.54, '#6fb1e8'); g.addColorStop(0.55, '#2b4c3f'); g.addColorStop(1, '#1d332a');
   } else {
-    skyGrad.addColorStop(0, '#1e293b');
-    skyGrad.addColorStop(1, '#334155');
+    g.addColorStop(0, '#232b3a'); g.addColorStop(0.54, '#3a4659'); g.addColorStop(0.55, '#202530'); g.addColorStop(1, '#161a22');
   }
-  ctx.fillStyle = skyGrad;
+  ctx.fillStyle = g;
   ctx.fillRect(0, 0, cw, ch);
 
-  const horizon = state.cam === 'ISOMETRIC' ? ch * 0.30 : ch * 0.56;
+  const hz = state.cam === 'ISOMETRIC' ? ch * 0.34 : ch * 0.55;
 
-  // Ground Plane + Perspective Grid
-  ctx.fillStyle = state.weather === 'RAIN' ? '#111c2d' : (state.quality === 'INDIE_CEL_ANIME' ? '#15803d' : '#16202e');
-  ctx.fillRect(0, horizon, cw, ch - horizon);
-
-  ctx.strokeStyle = 'rgba(148,163,184,0.16)';
+  // Godot 4 Spatial Perspective Grid + Red X / Blue Z Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.09)';
   ctx.lineWidth = 1;
-  for (let i = -8; i <= 8; i++) {
+  for (let i = -9; i <= 9; i++) {
     ctx.beginPath();
-    ctx.moveTo(cw * 0.5 + i * (cw * 0.04), horizon);
-    ctx.lineTo(cw * 0.5 + i * (cw * 0.16), ch);
+    ctx.moveTo(cw * 0.5 + i * cw * 0.035, hz);
+    ctx.lineTo(cw * 0.5 + i * cw * 0.14, ch);
     ctx.stroke();
   }
+  ctx.strokeStyle = '#f64b5b'; ctx.beginPath(); ctx.moveTo(0, hz + ch * 0.16); ctx.lineTo(cw, hz + ch * 0.16); ctx.stroke();
+  ctx.strokeStyle = '#5daaf0'; ctx.beginPath(); ctx.moveTo(cw * 0.5, hz); ctx.lineTo(cw * 0.5, ch); ctx.stroke();
 
-  // NPC Position (Left)
-  const npcX = cw * 0.28, npcY = horizon + ch * 0.17;
-  hitTargets.npc = { x: npcX / pixelScale, y: (npcY - 22 * pixelScale) / pixelScale, r: 46 };
-  ctx.fillStyle = state.npc.rel <= -35 ? '#ef4444' : '#f59e0b';
-  ctx.beginPath();
-  ctx.arc(npcX, npcY - 34 * pixelScale, 12 * pixelScale, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillRect(npcX - 11 * pixelScale, npcY - 20 * pixelScale, 22 * pixelScale, 34 * pixelScale);
-  ctx.fillStyle = '#fef08a';
-  ctx.font = `${Math.max(9, Math.floor(11 * pixelScale))}px sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.fillText(`کاوه (Lv.${state.npc.tier})`, npcX, npcY - 52 * pixelScale);
+  // Living NPC (Left)
+  const nx = cw * 0.30, ny = hz + ch * 0.16;
+  targets.npc = { x: nx / scale, y: (ny - 18 * scale) / scale };
+  ctx.fillStyle = '#eab308';
+  ctx.beginPath(); ctx.arc(nx, ny - 28 * scale, 9 * scale, 0, Math.PI * 2); ctx.fill();
+  ctx.fillRect(nx - 9 * scale, ny - 17 * scale, 18 * scale, 28 * scale);
 
-  // Player Hero (Center)
-  const heroX = cw * 0.50, heroY = horizon + ch * 0.22;
+  // Samurai Hero (Center)
+  const hx = cw * 0.50, hy = hz + ch * 0.18;
   if (state.cam !== 'FPS') {
-    ctx.fillStyle = '#38bdf8';
-    ctx.beginPath();
-    ctx.arc(heroX, heroY - 38 * pixelScale, 13 * pixelScale, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillRect(heroX - 12 * pixelScale, heroY - 23 * pixelScale, 24 * pixelScale, 38 * pixelScale);
-
-    // Katana slash arc
-    if (state.playerSlash > 0.02) {
-      ctx.strokeStyle = `rgba(56,189,248,${state.playerSlash})`;
-      ctx.lineWidth = 4 * pixelScale;
-      ctx.beginPath();
-      ctx.arc(heroX + 12 * pixelScale, heroY - 16 * pixelScale, 42 * pixelScale, -0.9, 1.1);
-      ctx.stroke();
-      state.playerSlash *= 0.92;
+    ctx.fillStyle = '#478cbf';
+    ctx.beginPath(); ctx.arc(hx, hy - 32 * scale, 10 * scale, 0, Math.PI * 2); ctx.fill();
+    ctx.fillRect(hx - 10 * scale, hy - 20 * scale, 20 * scale, 32 * scale);
+    if (state.slashArc > 0.02) {
+      ctx.strokeStyle = `rgba(93,170,240,${state.slashArc})`;
+      ctx.lineWidth = 3 * scale;
+      ctx.beginPath(); ctx.arc(hx + 8 * scale, hy - 14 * scale, 34 * scale, -0.8, 1.1); ctx.stroke();
+      state.slashArc *= 0.91;
     }
-  } else {
-    // FPS Weapon Viewmodel
-    ctx.fillStyle = '#94a3b8';
-    ctx.fillRect(cw * 0.68, ch * 0.68, cw * 0.08, ch * 0.32);
   }
 
-  // Smart Destructible Crate (Right)
-  const crateX = cw * 0.72, crateY = horizon + ch * 0.18;
-  hitTargets.crate = { x: crateX / pixelScale, y: crateY / pixelScale, r: 44 };
-  if (!state.crateShattered) {
-    ctx.fillStyle = '#b45309';
-    const sz = 36 * pixelScale;
-    ctx.fillRect(crateX - sz * 0.5, crateY - sz * 0.5, sz, sz);
-    ctx.strokeStyle = '#38bdf8';
+  // Selected Destructible Crate + Godot Orange Selection Box (Right)
+  const cx = cw * 0.70, cy = hz + ch * 0.16;
+  targets.crate = { x: cx / scale, y: cy / scale };
+  if (!state.crateBroken) {
+    const s = 30 * scale;
+    ctx.fillStyle = '#9a5b25';
+    ctx.fillRect(cx - s * 0.5, cy - s * 0.5, s, s);
+    ctx.strokeStyle = '#ff9f43'; // Godot 4 selection orange!
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(crateX - sz * 0.5, crateY - sz * 0.5, sz, sz);
-    ctx.fillStyle = '#e2e8f0';
-    ctx.fillText('[کلیک: تخریب/تعامل]', crateX, crateY - 26 * pixelScale);
+    ctx.strokeRect(cx - s * 0.5 - 2, cy - s * 0.5 - 2, s + 4, s + 4);
   } else {
-    ctx.fillStyle = '#d97706';
-    state.shards.forEach(s => {
-      s.x += s.vx * 0.45;
-      s.y += s.vy * 0.45;
-      s.vy += 0.28;
-      if (s.y > 18) { s.y = 18; s.vx *= 0.8; s.vy *= -0.35; }
-      ctx.fillRect(crateX + s.x * pixelScale, crateY + s.y * pixelScale, 8 * pixelScale, 8 * pixelScale);
+    ctx.fillStyle = '#c27838';
+    state.shards.forEach(p => {
+      p.x += p.vx * 0.4; p.y += p.vy * 0.4; p.vy += 0.25;
+      if (p.y > 14) { p.y = 14; p.vy *= -0.3; }
+      ctx.fillRect(cx + p.x * scale, cy + p.y * scale, 7 * scale, 7 * scale);
     });
   }
 
-  // Weather Particles
-  if (state.weather === 'RAIN' || state.weather === 'LIGHTNING') {
-    ctx.strokeStyle = 'rgba(125,211,252,0.5)';
-    for (let r = 0; r < 45; r++) {
-      const rx = ((r * 97 + state.time * 220) % cw);
-      const ry = ((r * 61 + state.time * 420) % ch);
-      ctx.beginPath();
-      ctx.moveTo(rx, ry);
-      ctx.lineTo(rx - 4, ry + 12);
-      ctx.stroke();
-    }
-  } else if (state.weather === 'FIRE') {
-    ctx.fillStyle = 'rgba(249,115,22,0.75)';
-    for (let f = 0; f < 22; f++) {
-      const fx = crateX - 40 + ((f * 19 + state.time * 60) % 90);
-      const fy = crateY + 10 - ((f * 23 + state.time * 80) % 55);
-      ctx.beginPath();
-      ctx.arc(fx, fy, 4 * pixelScale, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  requestAnimationFrame(renderLoop);
+  requestAnimationFrame(drawViewport);
 }
 
-updateNPCUI();
-renderLoop();
+renderBottomPanel();
+refreshInfo();
+drawViewport();
 </script>
 </body>
 </html>
