@@ -1,0 +1,31 @@
+# Godot 4+ cache & imports
+.godot/
+*.import
+*.translation
+
+# Native C/C++ build artifacts
+native/build/
+native/bin/*.o
+*.so
+*.dll
+*.dylib
+*.a
+
+# Python caches & virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Local AI downloaded model weights (Colibri / GGUF / 3D / Mocap)
+models/weights/
+models/containers/*.colibri
+models/gguf/*.gguf
+.novaforge_snapshots/
+
+# OS & IDE files
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
