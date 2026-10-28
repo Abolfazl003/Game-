@@ -1,19 +1,19 @@
 @tool
 extends EditorPlugin
 ## Main Godot 4 EditorPlugin for NovaForge AI Game Engine.
-## Preserves 100% of Godot 4's native Editor UI (Scene, FileSystem, 2D/3D/Script/AssetLib, Inspector, Output/Debugger/Animation)
-## while cleanly mounting modular NovaForge extensions into Godot 4's official extension slots:
-## 1. 3D Viewport Toolbar (`CONTAINER_SPATIAL_EDITOR_MENU`): Quality Tier, Camera/Genre, Cutscene & Time-Machine buttons
-## 2. Native Inspector (`EditorInspectorPlugin`): Smart Object, Voronoi Fracture, Living NPC & Auto-PBR checkboxes on any Node3D
-## 3. Right Dock Tab (`DOCK_SLOT_RIGHT_BL` beside Inspector/Node/History): Multi-Brain AI Council Prompt Assistant
-## 4. Bottom Panel Tabs (beside Output/Debugger/Animation/Shader Editor):
-##    - `Blueprint Graph` (Visual `GraphEdit` + C++20/GDScript compiler)
-##    - `Cutscene & IK` (Pose/IK, Bezier Curves, NLA & Live Cutscene Sequencer)
-##    - `Local AI (Colibrì)` (Tiered VRAM/RAM/SSD Model Hub + 3D/Rig/Mocap Forge)
-## 5. 3D Viewport Alt+Left-Click Raycast Context Popup Menu
+## Preserves 100% of Godot 4's native Editor UI while mounting all interactive NovaForge Studio panels:
+## - `NovaEditorController` live scene & viewport orchestrator
+## - Right-Upper Dock (`🧬 NPC و شیمی`): Living NPC Biography, Elemental Chemistry (Clear/Rain/Fire/Lightning), Smart Voronoi Object controls & Blueprint Summary
+## - Right-Lower Dock (`🧠 شورا و ساخت`): 5-Brain Colibrì Council + VRAM Meter + Persian Prompt-to-Scene + 2x2 Image-to-3D/Auto-Rig/Video-Mocap/Blender/Cutscene Forge
+## - 3D Spatial Viewport Toolbar: Quality Tier, Camera/Genre, +5 World Days, Voronoi Shatter, Live Cutscene & Time-Machine Undo
+## - Bottom Panel Tabs: `NovaForge Console`, `Blueprint Graph`, `Cutscene & IK`, `Local AI (Colibrì)`
+## - 3D Viewport `Alt + Left-Click` Smart Context PopupMenu
 
+var _editor_controller: Node
+var _living_world_dock: Control
 var _ai_council_dock: Control
 var _spatial_toolbar: Control
+var _console_panel: Control
 var _blueprint_panel: Control
 var _cutscene_panel: Control
 var _colibri_panel: Control
@@ -23,26 +23,45 @@ var _last_clicked_3d_node: Node3D
 
 
 func _enter_tree() -> void:
-	# 1. Right Dock Tab (next to Inspector / Node / History)
+	# 0. Central Live Scene & Viewport Controller
+	var ctrl_script = load("res://addons/novaforge_engine/editor/editor_scene_controller.gd")
+	if ctrl_script:
+		_editor_controller = ctrl_script.new()
+		_editor_controller.name = "NovaEditorController"
+		get_tree().root.call_deferred("add_child", _editor_controller)
+
+	# 1. Right-Bottom Unified NovaForge Studio Dock (`⚡ استودیو NovaForge`)
 	var dock_script = load("res://addons/novaforge_engine/editor/novaforge_main_dock.gd")
 	if dock_script:
 		_ai_council_dock = dock_script.new()
-		_ai_council_dock.name = "AI Council"
+		_ai_council_dock.name = "⚡ استودیو NovaForge"
 		add_control_to_dock(DOCK_SLOT_RIGHT_BL, _ai_council_dock)
 
-	# 2. Native 3D Viewport Top Toolbar
+	# 2. Dedicated Living World & Chemistry Dock Tab beside FileSystem (`🧬 NPC و شیمی`)
+	var lw_script = load("res://addons/novaforge_engine/editor/living_world_dock.gd")
+	if lw_script:
+		_living_world_dock = lw_script.new()
+		_living_world_dock.name = "🧬 NPC و شیمی"
+		add_control_to_dock(DOCK_SLOT_LEFT_BR, _living_world_dock)
+
+	# 3. Native 3D Viewport Top Toolbar
 	var tb_script = load("res://addons/novaforge_engine/editor/spatial_viewport_toolbar.gd")
 	if tb_script:
 		_spatial_toolbar = tb_script.new()
 		add_control_to_container(CONTAINER_SPATIAL_EDITOR_MENU, _spatial_toolbar)
 
-	# 3. Native Godot 4 Inspector Extension
+	# 4. Native Godot 4 Inspector Extension
 	var insp_script = load("res://addons/novaforge_engine/editor/smart_inspector_plugin.gd")
 	if insp_script:
 		_inspector_plugin = insp_script.new()
 		add_inspector_plugin(_inspector_plugin)
 
-	# 4. Native Bottom Panel Modules (alongside Output / Debugger / Animation / Shader Editor)
+	# 5. Native Bottom Panel Modules
+	var con_script = load("res://addons/novaforge_engine/editor/novaforge_console_panel.gd")
+	if con_script:
+		_console_panel = con_script.new()
+		add_control_to_bottom_panel(_console_panel, "NovaForge Console")
+
 	var bp_script = load("res://addons/novaforge_engine/editor/blueprint_graph_editor.gd")
 	if bp_script:
 		_blueprint_panel = bp_script.new()
@@ -58,11 +77,25 @@ func _enter_tree() -> void:
 		_colibri_panel = col_script.new()
 		add_control_to_bottom_panel(_colibri_panel, "Local AI (Colibrì)")
 
-	# 5. Viewport Alt+Click Smart Context Popup
+	# 6. Viewport Alt+Click Smart Context Popup
 	_build_3d_context_popup()
+
+	# Focus the Living World dock tab and open Hybrid Console cleanly after layout loads
+	call_deferred("_focus_novaforge_panels")
+
+
+func _focus_novaforge_panels() -> void:
+	if _living_world_dock and _living_world_dock.get_parent() is TabContainer:
+		var tc := _living_world_dock.get_parent() as TabContainer
+		tc.current_tab = _living_world_dock.get_index()
+	if _console_panel:
+		make_bottom_panel_item_visible(_console_panel)
 
 
 func _exit_tree() -> void:
+	if _living_world_dock:
+		remove_control_from_docks(_living_world_dock)
+		_living_world_dock.queue_free()
 	if _ai_council_dock:
 		remove_control_from_docks(_ai_council_dock)
 		_ai_council_dock.queue_free()
@@ -71,6 +104,9 @@ func _exit_tree() -> void:
 		_spatial_toolbar.queue_free()
 	if _inspector_plugin:
 		remove_inspector_plugin(_inspector_plugin)
+	if _console_panel:
+		remove_control_from_bottom_panel(_console_panel)
+		_console_panel.queue_free()
 	if _blueprint_panel:
 		remove_control_from_bottom_panel(_blueprint_panel)
 		_blueprint_panel.queue_free()
@@ -82,6 +118,8 @@ func _exit_tree() -> void:
 		_colibri_panel.queue_free()
 	if _context_popup:
 		_context_popup.queue_free()
+	if _editor_controller and is_instance_valid(_editor_controller):
+		_editor_controller.queue_free()
 
 
 func _handles(object: Object) -> bool:
@@ -91,10 +129,11 @@ func _handles(object: Object) -> bool:
 func _build_3d_context_popup() -> void:
 	_context_popup = PopupMenu.new()
 	_context_popup.name = "NovaSmartObjectPopup"
-	_context_popup.add_item("⚡ Interactable (Auto-Hinge Door / Chest / Pickup)", 1)
-	_context_popup.add_item("💥 Destructible with Weapon (Voronoi 3D Fracture)", 2)
-	_context_popup.add_item("🧠 Living NPC (Evolving Life & Nemesis AI)", 3)
-	_context_popup.add_item("🎬 Mark Live Cutscene Zone (این تیکه کات‌سینه)", 4)
+	_context_popup.add_item("💥 تست ضربه شمشیر / تخریب یا بازسازی Voronoi", 1)
+	_context_popup.add_item("🤝 تعامل دوستانه و خرید از NPC (+رابطه)", 2)
+	_context_popup.add_item("⚔️ درگیری با NPC و فعال‌سازی حافظه Nemesis", 3)
+	_context_popup.add_item("🎬 اجرای کات‌سین زنده در همین نقطه (این تیکه کات‌سینه)", 4)
+	_context_popup.add_item("🌧️ فعال‌سازی باران و شیمی سطح خیس", 5)
 	_context_popup.id_pressed.connect(_on_context_menu_id_pressed)
 	add_child(_context_popup)
 
@@ -110,25 +149,24 @@ func _forward_3d_gui_input(viewport_camera: Camera3D, event: InputEvent) -> int:
 			)
 			if not hit.is_empty() and hit.get("collider") is Node3D:
 				_last_clicked_3d_node = hit["collider"]
-				_context_popup.position = Vector2i(DisplayServer.mouse_get_position())
-				_context_popup.popup()
-				return EditorPlugin.AFTER_GUI_INPUT_STOP
+			_context_popup.position = Vector2i(DisplayServer.mouse_get_position())
+			_context_popup.popup()
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
 
 
 func _on_context_menu_id_pressed(id: int) -> void:
-	if _last_clicked_3d_node == null or not is_instance_valid(_last_clicked_3d_node):
+	if _editor_controller == null or not is_instance_valid(_editor_controller):
 		return
-	var bus = get_tree().root.get_node_or_null("NovaNativeBus")
-	if bus == null:
-		return
-	var rel_path := str(bus.get_active_scene_root().get_path_to(_last_clicked_3d_node))
+	var ctrl := _editor_controller as NovaEditorSceneController
 	match id:
 		1:
-			bus.invoke_tool("nova_configure_smart_object", {"path": rel_path, "interactable": true, "destructible": false})
+			ctrl.shatter_or_reset_crate()
 		2:
-			bus.invoke_tool("nova_configure_smart_object", {"path": rel_path, "destructible": true, "shard_count": 16, "material": "STONE"})
+			ctrl.help_npc()
 		3:
-			bus.invoke_tool("nova_configure_living_npc", {"path": rel_path, "enable_evolving_life": true})
+			ctrl.fight_npc()
 		4:
-			bus.invoke_tool("nova_create_cutscene", {"prompt": "این تیکه کات‌سینه", "seamless_blend": true})
+			ctrl.trigger_live_cutscene()
+		5:
+			ctrl.apply_elemental_weather("RAIN")

@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PORT="${1:-8080}"
 DISPLAY_NUM="${DISPLAY_NUM:-:99}"
-RESOLUTION="${RESOLUTION:-1440x860}"
+RESOLUTION="${RESOLUTION:-1760x960}"
 
 # Ensure native C/C++ GDExtension is compiled
 if [ ! -f "$ROOT_DIR/native/bin/libnova_core.so" ] && command -v make >/dev/null 2>&1; then

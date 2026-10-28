@@ -13,27 +13,26 @@
       overflow: hidden; display: flex; flex-direction: column;
     }
     #quickbar {
-      height: 40px; min-height: 40px;
-      background: linear-gradient(90deg, #1b202c 0%, #232a3b 100%);
-      border-bottom: 1px solid #323c52;
+      height: 36px; min-height: 36px;
+      background: linear-gradient(90deg, #181d28 0%, #22293a 100%);
+      border-bottom: 1px solid #303a50;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 12px; gap: 8px; z-index: 20; user-select: none;
+      padding: 0 10px; gap: 8px; z-index: 20; user-select: none;
     }
     .brand {
-      display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #7cc4ff;
+      display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700; color: #7cc4ff;
     }
     .status-dot {
-      width: 9px; height: 9px; border-radius: 50%; background: #f59e0b; display: inline-block;
+      width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; display: inline-block;
     }
     .status-dot.online { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
     .actions { display: flex; align-items: center; gap: 6px; }
     .qbtn {
       background: #2b354b; color: #f1f5f9; border: 1px solid #3f4e6d;
-      border-radius: 6px; padding: 5px 11px; font-size: 12px; font-family: inherit;
-      cursor: pointer; transition: background 0.15s, transform 0.1s;
+      border-radius: 5px; padding: 4px 10px; font-size: 11.5px; font-family: inherit;
+      cursor: pointer; transition: background 0.15s;
     }
     .qbtn:hover { background: #384664; }
-    .qbtn:active { transform: scale(0.97); }
     .qbtn.play { background: #15803d; border-color: #22c55e; font-weight: 700; }
     .qbtn.play:hover { background: #16a34a; }
     .qbtn.stop { background: #334155; border-color: #64748b; }
@@ -41,27 +40,6 @@
       flex: 1; width: 100%; position: relative; overflow: hidden; background: #161922;
     }
     #screen { width: 100%; height: 100%; overflow: hidden; }
-    #welcome-modal {
-      position: absolute; inset: 0;
-      background: rgba(16, 19, 27, 0.86); backdrop-filter: blur(5px);
-      display: flex; align-items: center; justify-content: center; z-index: 30;
-    }
-    .card {
-      width: min(480px, 92vw); background: #1e2433; border: 1px solid #384562;
-      border-radius: 14px; padding: 24px; text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.55);
-    }
-    .card h1 { margin: 0 0 8px; font-size: 20px; color: #f8fafc; }
-    .card p { margin: 0 0 18px; font-size: 13px; color: #94a3b8; line-height: 1.7; }
-    .big-btn {
-      width: 100%; padding: 13px 16px; margin-bottom: 10px;
-      border-radius: 9px; border: 1px solid transparent;
-      font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
-    }
-    .big-btn.primary { background: #2563eb; color: #fff; border-color: #60a5fa; }
-    .big-btn.primary:hover { background: #1d4ed8; }
-    .big-btn.green { background: #15803d; color: #fff; border-color: #4ade80; }
-    .big-btn.green:hover { background: #166534; }
   </style>
   <script type="module">
     import RFB from './core/rfb.js';
@@ -82,26 +60,18 @@
 
       rfb.addEventListener('connect', () => {
         document.getElementById('dot').classList.add('online');
-        document.getElementById('conn-txt').textContent = 'Godot Engine 4.7.2 (متصل و آماده)';
+        document.getElementById('conn-txt').textContent = 'Godot Engine 4.7.2 — NovaForge Studio (فعال)';
+        rfb.focus();
       });
 
       rfb.addEventListener('disconnect', () => {
         document.getElementById('dot').classList.remove('online');
         document.getElementById('conn-txt').textContent = 'در حال اتصال مجدد به گادوت ۴.۷...';
-        setTimeout(connectRealGodot, 1200);
+        setTimeout(connectRealGodot, 1000);
       });
     }
 
-    window.enterEditor = function () {
-      document.getElementById('welcome-modal').style.display = 'none';
-      if (rfb) {
-        rfb.sendKey(KeyTable.XK_F8, 'F8');
-        rfb.focus();
-      }
-    };
-
     window.playGameNow = function () {
-      document.getElementById('welcome-modal').style.display = 'none';
       if (rfb) {
         rfb.sendKey(KeyTable.XK_F5, 'F5');
         rfb.focus();
@@ -136,25 +106,16 @@
   <div id="quickbar">
     <div class="brand">
       <span id="dot" class="status-dot"></span>
-      <span id="conn-txt">در حال اتصال به Godot 4.7.2...</span>
+      <span id="conn-txt">در حال باز کردن Godot 4.7.2...</span>
     </div>
     <div class="actions">
       <button class="qbtn play" onclick="playGameNow()">▶ اجرای بازی سه‌بعدی (F5)</button>
       <button class="qbtn stop" onclick="stopGameNow()">🛠 برگشت به ادیتور گادوت (F8)</button>
       <button class="qbtn" onclick="toggleFull()">⛶ تمام‌صفحه</button>
-      <button class="qbtn" onclick="hideBar()" title="بستن نوار بالا">✕</button>
+      <button class="qbtn" onclick="hideBar()" title="مخفی کردن نوار بالا">✕</button>
     </div>
   </div>
-
   <div id="screen-wrap">
-    <div id="welcome-modal">
-      <div class="card">
-        <h1>🚀 NovaForge AI Game Engine</h1>
-        <p>موتور رسمی <b>Godot 4.7.2</b> به همراه پلاگین‌های هوش مصنوعی لوکال <b>Colibrì</b>، گراف <b>Blueprint/C++</b> و صحنه سه‌بعدی آماده در پس‌زمینه اجرا شده است.</p>
-        <button class="big-btn primary" onclick="enterEditor()">🛠️ ورود مستقیم به محیط ادیتور گادوت ۴.۷</button>
-        <button class="big-btn green" onclick="playGameNow()">🎮 اجرای مستقیم بازی نمونه سه‌بعدی</button>
-      </div>
-    </div>
     <div id="screen"></div>
   </div>
 </body>
