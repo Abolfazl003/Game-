@@ -24,6 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ENGINE_BIN_DIR = ROOT / "engine_bin"
+CACHE_BIN_DIR = Path.home() / ".cache" / "novaforge_godot"
 GODOT_VERSION = "4.7.2-stable"
 
 GODOT_URLS = {
@@ -64,7 +65,6 @@ def find_or_download_godot(auto_download: bool = True) -> Path | None:
         if found:
             return Path(found)
 
-    ENGINE_BIN_DIR.mkdir(parents=True, exist_ok=True)
     key = (platform.system(), platform.machine())
     if key not in GODOT_URLS and platform.system() == "Windows":
         key = ("Windows", "AMD64")
@@ -72,18 +72,22 @@ def find_or_download_godot(auto_download: bool = True) -> Path | None:
         return None
 
     url, rel_bin = GODOT_URLS[key]
-    bin_path = ENGINE_BIN_DIR / rel_bin
-    if bin_path.exists():
-        return bin_path
+    for base_dir in (ENGINE_BIN_DIR, CACHE_BIN_DIR):
+        candidate_bin = base_dir / rel_bin
+        if candidate_bin.exists():
+            return candidate_bin
 
     if not auto_download:
         return None
 
-    zip_path = ENGINE_BIN_DIR / f"godot_{GODOT_VERSION}.zip"
+    target_dir = ENGINE_BIN_DIR if platform.system() == "Windows" else CACHE_BIN_DIR
+    target_dir.mkdir(parents=True, exist_ok=True)
+    bin_path = target_dir / rel_bin
+    zip_path = target_dir / f"godot_{GODOT_VERSION}.zip"
     print(f"[NovaForge] Downloading official Godot {GODOT_VERSION} binary from:\n  {url}")
     urllib.request.urlretrieve(url, zip_path)
     with zipfile.ZipFile(zip_path, "r") as zf:
-        zf.extractall(ENGINE_BIN_DIR)
+        zf.extractall(target_dir)
     zip_path.unlink(missing_ok=True)
 
     if bin_path.exists() and platform.system() != "Windows":

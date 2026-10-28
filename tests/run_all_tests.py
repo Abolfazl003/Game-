@@ -167,6 +167,8 @@ def test_gdscript_and_shader_files() -> None:
 def test_real_godot4_headless_boot() -> None:
     godot_bin = REPO_ROOT / "engine_bin" / "Godot_v4.7.2-stable_linux.x86_64"
     if not godot_bin.exists():
+        godot_bin = Path.home() / ".cache" / "novaforge_godot" / "Godot_v4.7.2-stable_linux.x86_64"
+    if not godot_bin.exists():
         found = shutil.which("godot4") or shutil.which("godot")
         if found:
             godot_bin = Path(found)

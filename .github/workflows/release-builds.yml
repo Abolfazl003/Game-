@@ -43,11 +43,11 @@ jobs:
             LICENSE
 
   bundle-windows-x64:
-    name: Bundle NovaForge Engine (Windows x64 .exe + Real Godot 4.7.2)
+    name: Bundle NovaForge Engine (Windows x64 GUI .exe + Real Godot 4.7.2)
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Compile C11/C++20 Native Core (libnova_core.dll via MinGW-w64)
+      - name: Compile C11/C++20 Native Core (libnova_core.dll) & Native Win32 GUI Launcher (NovaForge_Studio.exe)
         shell: bash
         run: |
           mkdir -p native/bin
@@ -56,26 +56,22 @@ jobs:
           g++ -std=c++20 -O3 -I native/include -c native/src/nova_fracture.cpp -o fracture.o
           g++ -std=c++20 -O3 -I native/include -c native/src/gdextension_bridge.cpp -o bridge.o
           g++ -shared -static-libgcc -static-libstdc++ -o native/bin/libnova_core.dll colibri.o blueprint.o fracture.o bridge.o
+          g++ -std=c++20 -O3 -municode -mwindows -static-libgcc -static-libstdc++ \
+            launcher/win32_gui_launcher.cpp -o NovaForge_Studio.exe -lurlmon -lshell32 -lgdi32 -luser32
       - name: Download Official Godot 4.7.2-stable Windows (.exe)
         shell: bash
         run: |
           mkdir -p engine_bin
           curl -sSL -o godot_win.zip https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_win64.exe.zip
           unzip -q godot_win.zip -d engine_bin/
-      - name: Create Direct Play & Editor Batch Shortcuts
-        shell: bash
-        run: |
-          printf '@echo off\r\nstart "" "%%~dp0engine_bin\\Godot_v4.7.2-stable_win64.exe" -e --path "%%~dp0" scenes/showcase/novaforge_sandbox.tscn\r\n' > Open_NovaForge_Editor.bat
-          printf '@echo off\r\nstart "" "%%~dp0engine_bin\\Godot_v4.7.2-stable_win64.exe" --path "%%~dp0" res://scenes/showcase/novaforge_sandbox.tscn\r\n' > Play_Samurai_Showcase.bat
       - name: Upload Ready-to-Run Windows Bundle
         uses: actions/upload-artifact@v4
         with:
           name: NovaForge-AI-Engine-Windows-x64
           path: |
+            NovaForge_Studio.exe
             project.godot
             novaforge.gdextension
-            Open_NovaForge_Editor.bat
-            Play_Samurai_Showcase.bat
             run.bat
             launcher/
             engine_bin/

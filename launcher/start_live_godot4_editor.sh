@@ -11,19 +11,30 @@ if [ ! -f "$ROOT_DIR/native/bin/libnova_core.so" ] && command -v make >/dev/null
   make -C "$ROOT_DIR/native" all
 fi
 
-# Ensure official Godot 4.7.2 binary exists
+# Ensure official Godot 4.7.2 binary exists (portable engine_bin/ or ~/.cache/novaforge_godot/)
 GODOT_BIN="$ROOT_DIR/engine_bin/Godot_v4.7.2-stable_linux.x86_64"
 if [ ! -x "$GODOT_BIN" ]; then
+  GODOT_BIN="$HOME/.cache/novaforge_godot/Godot_v4.7.2-stable_linux.x86_64"
+fi
+if [ ! -x "$GODOT_BIN" ]; then
   python3 "$ROOT_DIR/launcher/novaforge_launcher.py" --download-only
+  GODOT_BIN="$HOME/.cache/novaforge_godot/Godot_v4.7.2-stable_linux.x86_64"
 fi
 
-# Clean up any stale display/VNC processes from previous runs
+# Clean up stale processes from earlier runs
 pkill -f "Xvfb ${DISPLAY_NUM}" 2>/dev/null || true
 pkill -f "x11vnc -display ${DISPLAY_NUM}" 2>/dev/null || true
 pkill -f "websockify.*:${PORT}" 2>/dev/null || true
 rm -f "/tmp/.X${DISPLAY_NUM#:}-lock" "/tmp/.X11-unix/X${DISPLAY_NUM#:}" 2>/dev/null || true
 
-# Write borderless maximized Openbox config so Godot 4 fills 100% of the viewport
+# Prepare persistent web root combining noVNC core + NovaForge 1-Click Studio Hub
+WEB_ROOT="/tmp/novaforge_web_vnc"
+rm -rf "$WEB_ROOT"
+mkdir -p "$WEB_ROOT"
+cp -r /usr/share/novnc/* "$WEB_ROOT/"
+cp "$ROOT_DIR/launcher/web_hub_index.html" "$WEB_ROOT/index.html"
+
+# Write borderless maximized Openbox config so Godot 4 fills 100% of the screen
 mkdir -p /tmp/novaforge_ob
 cat > /tmp/novaforge_ob/rc.xml << 'OBEOF'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -70,5 +81,5 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-echo "[NovaForge] Real Godot 4.7.2 Editor streaming live on 0.0.0.0:${PORT}"
-exec websockify --web=/usr/share/novnc "0.0.0.0:${PORT}" 127.0.0.1:5900
+echo "[NovaForge] Real Godot 4.7.2 Editor + 1-Click Studio Hub streaming live on 0.0.0.0:${PORT}"
+exec websockify --web="${WEB_ROOT}" "0.0.0.0:${PORT}" 127.0.0.1:5900

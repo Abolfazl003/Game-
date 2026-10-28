@@ -1,6 +1,7 @@
 #ifndef NOVA_BLUEPRINT_HPP
 #define NOVA_BLUEPRINT_HPP
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <unordered_map>
