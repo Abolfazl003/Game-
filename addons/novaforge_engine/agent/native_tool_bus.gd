@@ -15,8 +15,21 @@ var _registry_cache: Dictionary = {}
 
 
 func _ready() -> void:
+	_apply_persian_fallback_font()
 	_load_library_registry()
 	_register_builtin_native_tools()
+
+
+func _apply_persian_fallback_font() -> void:
+	var font_abs := ProjectSettings.globalize_path("res://fonts/Vazirmatn-Regular.ttf")
+	if FileAccess.file_exists("res://fonts/Vazirmatn-Regular.ttf"):
+		var ff := FontFile.new()
+		if ff.load_dynamic_font(font_abs) == OK:
+			ThemeDB.fallback_font = ff
+			var proj_theme := ThemeDB.get_project_theme()
+			if proj_theme:
+				proj_theme.default_font = ff
+				proj_theme.default_font_size = 14
 
 
 func _load_library_registry() -> void:

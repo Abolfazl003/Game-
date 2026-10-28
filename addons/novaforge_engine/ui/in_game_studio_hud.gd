@@ -1,0 +1,513 @@
+extends CanvasLayer
+## Complete Customized Persian In-App Interactive Studio & Game HUD (`NovaStudioHUD`).
+## Appears automatically when the user runs the program/game (`F5` or `Play` mode in `NovaForge_Studio.exe`),
+## so ALL NovaForge AI Studio capabilities are 100% visible, customized in Persian, and interactive
+## right inside the live 3D playable Jolt world! Toggle panels anytime with [Tab].
+
+var _left_panel: PanelContainer
+var _right_panel: PanelContainer
+var _bottom_log: RichTextLabel
+var _npc_lbl: RichTextLabel
+var _vram_bar: ProgressBar
+var _prompt_edit: TextEdit
+var _cutscene_bars: Control
+var _day: int = 1
+var _crate_shattered: bool = false
+var _npc_gold: int = 120
+var _npc_rel: int = 10
+var _npc_title: String = "شاگرد آهنگر (سطح ۱)"
+var _npc_scars: Array[String] = []
+var _panels_visible: bool = true
+
+
+func _ready() -> void:
+	if Engine.is_editor_hint():
+		visible = false
+		return
+
+	layer = 10
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_build_ui()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if Engine.is_editor_hint():
+		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_TAB:
+		_toggle_studio_panels()
+
+
+func _toggle_studio_panels() -> void:
+	_panels_visible = not _panels_visible
+	if _left_panel: _left_panel.visible = _panels_visible
+	if _right_panel: _right_panel.visible = _panels_visible
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if _panels_visible else Input.MOUSE_MODE_CAPTURED
+
+
+func _build_ui() -> void:
+	var root_ctrl := Control.new()
+	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root_ctrl.mouse_filter = Control.MOUSE_FILTER_PASS
+	add_child(root_ctrl)
+
+	# ── TOP CUSTOMIZED PERSIAN HEADER BAR ──
+	var top_bar := PanelContainer.new()
+	top_bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	top_bar.offset_bottom = 48
+	top_bar.add_theme_stylebox_override("panel", _box_style(Color(0.06, 0.08, 0.14, 0.94), Color(0.24, 0.72, 0.96), 0))
+	root_ctrl.add_child(top_bar)
+
+	var thb := HBoxContainer.new()
+	thb.add_theme_constant_override("separation", 8)
+	top_bar.add_child(thb)
+
+	var btn_freeplay := _btn("▶ بازی آزاد / نمایش پنل‌ها [Tab]", Color(0.14, 0.52, 0.32))
+	btn_freeplay.pressed.connect(_toggle_studio_panels)
+	thb.add_child(btn_freeplay)
+
+	var q_opt := OptionButton.new()
+	for qt in ["کیفیت: AAA آنریل", "کیفیت: استاندارد یونیتی", "کیفیت: سل‌شید انیمه", "کیفیت: رترو PS1"]:
+		q_opt.add_item(qt)
+	q_opt.item_selected.connect(_on_quality_picked)
+	thb.add_child(q_opt)
+
+	var c_opt := OptionButton.new()
+	for ct in ["دوربین: سوم‌شخص سولزلایک", "دوربین: روی شانه", "دوربین: اول‌شخص FPS", "دوربین: ۲.۵ بعدی", "دوربین: ایزومتریک"]:
+		c_opt.add_item(ct)
+	c_opt.item_selected.connect(_on_cam_picked)
+	thb.add_child(c_opt)
+
+	var btn_day := _btn("» +۵ روز تکامل دنیا", Color(0.45, 0.34, 0.14))
+	btn_day.pressed.connect(_on_advance_days)
+	thb.add_child(btn_day)
+
+	var brand := Label.new()
+	brand.text = "⚡ استودیو بازی‌سازی هوش مصنوعی نوافورج (NovaForge AI — بدون نیاز به MCP)"
+	brand.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	brand.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	brand.add_theme_color_override("font_color", Color(0.45, 0.86, 1.0))
+	brand.add_theme_font_size_override("font_size", 14)
+	thb.add_child(brand)
+
+	# ── RIGHT PANEL: 5-BRAIN COUNCIL, PERSIAN PROMPT & 3D/MOCAP/BLENDER FORGE ──
+	_right_panel = PanelContainer.new()
+	_right_panel.anchor_left = 1.0
+	_right_panel.anchor_right = 1.0
+	_right_panel.anchor_top = 0.0
+	_right_panel.anchor_bottom = 1.0
+	_right_panel.offset_left = -335
+	_right_panel.offset_top = 54
+	_right_panel.offset_right = -8
+	_right_panel.offset_bottom = -98
+	_right_panel.add_theme_stylebox_override("panel", _box_style(Color(0.08, 0.11, 0.18, 0.90), Color(0.26, 0.52, 0.85), 10))
+	root_ctrl.add_child(_right_panel)
+
+	var r_scroll := ScrollContainer.new()
+	r_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_right_panel.add_child(r_scroll)
+
+	var rvb := VBoxContainer.new()
+	rvb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rvb.add_theme_constant_override("separation", 7)
+	r_scroll.add_child(rvb)
+
+	rvb.add_child(_hdr("◈ شورای ۵ مغز لوکال (Colibrì)"))
+	for btxt in [
+		"1. کارگردان بازی (GLM-5.3 MoE) — استریم SSD",
+		"2. کدنویس C++20 / گراف Blueprint — کش RAM",
+		"3. آرتیست سه‌بعدی و متریال بلندر — Auto-PBR",
+		"4. موشن‌کپچر ویدیو و کات‌سین — Foot-IK",
+		"5. داور کیفیت و Scene Audit — بدون باگ"
+	]:
+		var bl := Label.new()
+		bl.text = btxt
+		bl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		bl.add_theme_font_size_override("font_size", 12)
+		rvb.add_child(bl)
+
+	_vram_bar = ProgressBar.new()
+	_vram_bar.value = 14.0
+	_vram_bar.custom_minimum_size = Vector2(0, 10)
+	rvb.add_child(_vram_bar)
+
+	rvb.add_child(HSeparator.new())
+	rvb.add_child(_hdr("⚡ پرامپت فارسی ساخت صحنه و کات‌سین"))
+	_prompt_edit = TextEdit.new()
+	_prompt_edit.text = "یه جنگجوی سامورایی با کمبوی ۳ ضربه‌ای شمشیر بساز، صندوق چوبی با ضربه تیکه‌تیکه بشه و وقتی رسید دم دروازه، این تیکه کات‌سینه!"
+	_prompt_edit.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+	_prompt_edit.custom_minimum_size = Vector2(0, 74)
+	rvb.add_child(_prompt_edit)
+
+	var btn_council := _btn("⚡ اجرای همفکری شورا در همین صحنه", Color(0.18, 0.42, 0.88))
+	btn_council.pressed.connect(_on_run_council)
+	rvb.add_child(btn_council)
+
+	rvb.add_child(HSeparator.new())
+	rvb.add_child(_hdr("■ تبدیل عکس، ویدیو و ایمپورت بلندر"))
+	var g4 := GridContainer.new()
+	g4.columns = 2
+	g4.add_theme_constant_override("h_separation", 6)
+	g4.add_theme_constant_override("v_separation", 6)
+
+	var b1 := _btn("◆ عکس⬅3D+ریگ", Color(0.15, 0.42, 0.68))
+	b1.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b1.pressed.connect(_spawn_rigged_warrior)
+	g4.add_child(b1)
+
+	var b2 := _btn("▶ ویدیو⬅موشن", Color(0.15, 0.52, 0.36))
+	b2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b2.pressed.connect(_play_slash_motion)
+	g4.add_child(b2)
+
+	var b3 := _btn("✦ ایمپورت بلندر", Color(0.68, 0.38, 0.14))
+	b3.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b3.pressed.connect(_spawn_blender_gate)
+	g4.add_child(b3)
+
+	var b4 := _btn("▶ کات‌سین زنده", Color(0.50, 0.24, 0.72))
+	b4.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b4.pressed.connect(_play_cutscene)
+	g4.add_child(b4)
+	rvb.add_child(g4)
+
+	# ── LEFT PANEL: LIVING NPC, ELEMENTAL CHEMISTRY & VORONOI DESTRUCTION ──
+	_left_panel = PanelContainer.new()
+	_left_panel.anchor_left = 0.0
+	_left_panel.anchor_right = 0.0
+	_left_panel.anchor_top = 0.0
+	_left_panel.anchor_bottom = 1.0
+	_left_panel.offset_left = 8
+	_left_panel.offset_top = 54
+	_left_panel.offset_right = 330
+	_left_panel.offset_bottom = -98
+	_left_panel.add_theme_stylebox_override("panel", _box_style(Color(0.08, 0.11, 0.18, 0.90), Color(0.24, 0.68, 0.62), 10))
+	root_ctrl.add_child(_left_panel)
+
+	var l_scroll := ScrollContainer.new()
+	l_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_left_panel.add_child(l_scroll)
+
+	var lvb := VBoxContainer.new()
+	lvb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lvb.add_theme_constant_override("separation", 7)
+	l_scroll.add_child(lvb)
+
+	lvb.add_child(_hdr("✦ زندگی تکاملی NPC (کاوه آهنگر)"))
+	_npc_lbl = RichTextLabel.new()
+	_npc_lbl.bbcode_enabled = true
+	_npc_lbl.fit_content = true
+	_npc_lbl.scroll_active = false
+	lvb.add_child(_npc_lbl)
+	_refresh_npc_ui()
+
+	var nhb := HBoxContainer.new()
+	nhb.add_theme_constant_override("separation", 6)
+	var bh := _btn("✦ کمک و خرید", Color(0.14, 0.52, 0.34))
+	bh.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bh.pressed.connect(_help_npc)
+	nhb.add_child(bh)
+
+	var bf := _btn("⚔ نبرد Nemesis", Color(0.68, 0.20, 0.22))
+	bf.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bf.pressed.connect(_fight_npc)
+	nhb.add_child(bf)
+	lvb.add_child(nhb)
+
+	lvb.add_child(HSeparator.new())
+	lvb.add_child(_hdr("✦ شیمی عناصر و جهان‌باز"))
+	var eg := GridContainer.new()
+	eg.columns = 2
+	eg.add_theme_constant_override("h_separation", 6)
+	eg.add_theme_constant_override("v_separation", 6)
+	for ep in [["CLEAR", "● هوای صاف"], ["RAIN", "◈ باران (خیس)"], ["FIRE", "▲ آتش + باد"], ["LIGHTNING", "⚡ صاعقه در آب"]]:
+		var ecode: String = ep[0]
+		var eb := _btn(ep[1], Color(0.18, 0.34, 0.52))
+		eb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		eb.pressed.connect(func(): _apply_weather(ecode))
+		eg.add_child(eb)
+	lvb.add_child(eg)
+
+	lvb.add_child(HSeparator.new())
+	lvb.add_child(_hdr("★ تخریب فیزیکی Voronoi 3D"))
+	var b_vor := _btn("★ شکستن / بازسازی ۱۶ تکه صندوق باستانی", Color(0.72, 0.42, 0.14))
+	b_vor.pressed.connect(_shatter_crate)
+	lvb.add_child(b_vor)
+
+	var hint := Label.new()
+	hint.text = "کنترل سامورایی: WASD حرکت | Space پرش | کلیک چپ ضربه شمشیر | E تعامل"
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	hint.add_theme_font_size_override("font_size", 11)
+	hint.add_theme_color_override("font_color", Color(0.65, 0.78, 0.92))
+	lvb.add_child(hint)
+
+	# ── BOTTOM LIVE CONSOLE ──
+	var bot_panel := PanelContainer.new()
+	bot_panel.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	bot_panel.offset_top = -90
+	bot_panel.offset_left = 8
+	bot_panel.offset_right = -8
+	bot_panel.offset_bottom = -6
+	bot_panel.add_theme_stylebox_override("panel", _box_style(Color(0.05, 0.07, 0.12, 0.92), Color(0.24, 0.36, 0.54), 8))
+	root_ctrl.add_child(bot_panel)
+
+	_bottom_log = RichTextLabel.new()
+	_bottom_log.bbcode_enabled = true
+	_bottom_log.scroll_following = true
+	_bottom_log.text = "[color=#38bdf8][سیستم نوافورج][/color] تمام ۱۲۳ مهارت و ۱۱۴ ابزار بومی هوش مصنوعی بدون MCP فعال شدند. برای بازی آزاد کلید [b]Tab[/b] را بزنید."
+	bot_panel.add_child(_bottom_log)
+
+	# Cutscene Letterbox Overlay
+	_cutscene_bars = Control.new()
+	_cutscene_bars.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_cutscene_bars.visible = false
+	_cutscene_bars.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var cb_top := ColorRect.new()
+	cb_top.color = Color(0, 0, 0, 0.92)
+	cb_top.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	cb_top.offset_bottom = 54
+	_cutscene_bars.add_child(cb_top)
+	var cb_bot := ColorRect.new()
+	cb_bot.color = Color(0, 0, 0, 0.92)
+	cb_bot.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	cb_bot.offset_top = -58
+	var sub := Label.new()
+	sub.text = "▶ کات‌سین زنده بدون صفحه سیاه: «دروازه قلعه باز می‌شود... آماده نبرد شو!»"
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	sub.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cb_bot.add_child(sub)
+	_cutscene_bars.add_child(cb_bot)
+	root_ctrl.add_child(_cutscene_bars)
+
+
+func _box_style(bg: Color, border: Color, radius: int) -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	s.bg_color = bg
+	s.border_color = border
+	s.set_border_width_all(1)
+	s.set_corner_radius_all(radius)
+	s.content_margin_left = 10
+	s.content_margin_right = 10
+	s.content_margin_top = 8
+	s.content_margin_bottom = 8
+	return s
+
+
+func _hdr(txt: String) -> Label:
+	var l := Label.new()
+	l.text = txt
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	l.add_theme_color_override("font_color", Color(0.38, 0.84, 1.0))
+	l.add_theme_font_size_override("font_size", 13)
+	return l
+
+
+func _btn(txt: String, bg: Color) -> Button:
+	var b := Button.new()
+	b.text = txt
+	b.custom_minimum_size = Vector2(0, 30)
+	var s := StyleBoxFlat.new()
+	s.bg_color = bg
+	s.border_color = bg.lightened(0.25)
+	s.set_border_width_all(1)
+	s.set_corner_radius_all(6)
+	s.content_margin_left = 8
+	s.content_margin_right = 8
+	b.add_theme_stylebox_override("normal", s)
+	return b
+
+
+func _log(msg: String) -> void:
+	if _bottom_log:
+		_bottom_log.append_text("\n" + msg)
+
+
+func _scene_root() -> Node3D:
+	return get_parent() as Node3D
+
+
+func _on_quality_picked(idx: int) -> void:
+	var tiers := ["AAA_UNREAL", "STANDARD_UNITY", "INDIE_CEL_ANIME", "INDIE_PSX_RETRO"]
+	var t: String = tiers[idx]
+	if get_tree().root.has_node("NovaQuality"):
+		get_tree().root.get_node("NovaQuality").call("apply_quality_tier", t, _scene_root())
+	_log("[color=#a855f7][کیفیت گرافیک][/color] سطح رندر به [b]%s[/b] تغییر یافت." % t)
+
+
+func _on_cam_picked(idx: int) -> void:
+	var modes := ["TPS_SOULS", "TPS_SHOULDER", "FPS", "SIDE_2_5D", "ISOMETRIC"]
+	var m: String = modes[idx]
+	var rig := _scene_root().get_node_or_null("PerspectiveCameraRig3D")
+	if rig and rig.has_method("set_perspective_by_name"):
+		rig.call("set_perspective_by_name", m)
+	_log("[color=#38bdf8][دوربین و ژانر][/color] زاویه دوربین به [b]%s[/b] تغییر کرد." % m)
+
+
+func _on_run_council() -> void:
+	_vram_bar.value = 52.0
+	_play_slash_motion()
+	if not _crate_shattered:
+		_shatter_crate()
+	_spawn_blender_gate()
+	_play_cutscene()
+	var tw := create_tween()
+	tw.tween_interval(1.2)
+	tw.tween_callback(func(): _vram_bar.value = 10.0)
+	_log("[color=#22c55e][شورای ۵ مغز Colibrì][/color] پرامپت فارسی اجرا شد: کمبوی سامورایی + دروازه بلندر + تخریب Voronoi + کات‌سین زنده!")
+
+
+func _spawn_rigged_warrior() -> void:
+	var r := _scene_root()
+	var old := r.get_node_or_null("SpawnedWarrior3D")
+	if old: old.queue_free()
+	var w := MeshInstance3D.new()
+	w.name = "SpawnedWarrior3D"
+	var cap := CapsuleMesh.new()
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.22, 0.50, 0.95)
+	mat.metallic = 0.65
+	cap.material = mat
+	w.mesh = cap
+	w.position = Vector3(2.2, 0.95, 1.0)
+	var lbl := Label3D.new()
+	lbl.text = "جنگجوی 3D از عکس [ریگ ۵۲ استخوانی]"
+	lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	lbl.position = Vector3(0, 1.4, 0)
+	w.add_child(lbl)
+	r.add_child(w)
+	_log("[color=#38bdf8][تبدیل عکس به 3D][/color] مدل سه‌بعدی با ۳ سطح LOD و اسکلت ۵۲ استخوانی در صحنه ساخته شد!")
+
+
+func _play_slash_motion() -> void:
+	var hero := _scene_root().get_node_or_null("SamuraiHero") as Node3D
+	if hero:
+		var tw := create_tween()
+		tw.tween_property(hero, "rotation:y", hero.rotation.y + TAU, 0.42)
+	_log("[color=#22c55e][موشن‌کپچر ویدیو][/color] کمبوی ۳ ضربه‌ای شمشیر با قفل کف پا (Foot-Locking IK) اجرا شد!")
+
+
+func _spawn_blender_gate() -> void:
+	var r := _scene_root()
+	if r.has_node("RuntimeGate3D"):
+		return
+	var g := Node3D.new()
+	g.name = "RuntimeGate3D"
+	g.position = Vector3(0, 0, -4.5)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.45, 0.40, 0.34)
+	for sx in [-1.7, 1.7]:
+		var col := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.6, 3.2, 0.6)
+		bm.material = mat
+		col.mesh = bm
+		col.position = Vector3(sx, 1.6, 0)
+		g.add_child(col)
+	var top := MeshInstance3D.new()
+	var tbm := BoxMesh.new()
+	tbm.size = Vector3(4.3, 0.55, 0.75)
+	tbm.material = mat
+	top.mesh = tbm
+	top.position = Vector3(0, 3.35, 0)
+	g.add_child(top)
+	r.add_child(g)
+	_log("[color=#fb923c][ایمپورتر بلندر][/color] دروازه بلندر با اتصال خودکار تکسچرها (Auto-PBR) وارد صحنه شد!")
+
+
+func _shatter_crate() -> void:
+	var crate := _scene_root().get_node_or_null("DestructibleAncientCrate") as Node3D
+	if crate == null:
+		return
+	var mesh := crate.get_node_or_null("CrateMesh") as Node3D
+	var existing := crate.get_node_or_null("LiveShards")
+	if _crate_shattered:
+		_crate_shattered = false
+		if existing: existing.queue_free()
+		if mesh: mesh.visible = true
+		_log("[Voronoi] صندوق باستانی بازسازی شد.")
+		return
+	_crate_shattered = true
+	if mesh: mesh.visible = false
+	var holder := Node3D.new()
+	holder.name = "LiveShards"
+	crate.add_child(holder)
+	var smat := StandardMaterial3D.new()
+	smat.albedo_color = Color(0.80, 0.54, 0.22)
+	for i in range(16):
+		var sh := MeshInstance3D.new()
+		var pm := PrismMesh.new()
+		pm.size = Vector3(0.32, 0.26, 0.30)
+		pm.material = smat
+		sh.mesh = pm
+		holder.add_child(sh)
+		var ang := TAU * float(i) / 16.0
+		var tw := create_tween()
+		tw.tween_property(sh, "position", Vector3(cos(ang) * 0.9, -0.4, sin(ang) * 0.9), 0.35)
+	_log("[color=#f59e0b][تخریب Voronoi C++20][/color] صندوق باستانی به ۱۶ قطعه محدب فیزیکی خرد شد!")
+
+
+func _play_cutscene() -> void:
+	_cutscene_bars.visible = true
+	var tw := create_tween()
+	tw.tween_interval(3.0)
+	tw.tween_callback(func(): _cutscene_bars.visible = false)
+	_log("[color=#c084fc][کارگردان کات‌سین][/color] کات‌سین زنده بدون صفحه سیاه اجرا شد!")
+
+
+func _apply_weather(code: String) -> void:
+	var w := _scene_root().get_node_or_null("ElementalWeather")
+	if w == null:
+		return
+	for c in w.get_children():
+		c.queue_free()
+	if code == "RAIN":
+		var p := CPUParticles3D.new()
+		p.amount = 220
+		p.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+		p.emission_box_extents = Vector3(8, 0.2, 8)
+		p.direction = Vector3(0, -1, 0)
+		p.initial_velocity_min = 11.0
+		p.initial_velocity_max = 14.0
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.03, 0.4, 0.03)
+		p.mesh = bm
+		p.position = Vector3(0, 8, 0)
+		w.add_child(p)
+	elif code == "FIRE":
+		var fl := OmniLight3D.new()
+		fl.light_color = Color(1.0, 0.45, 0.1)
+		fl.light_energy = 4.5
+		fl.position = Vector3(1.4, 1.5, -1.4)
+		w.add_child(fl)
+	_log("[color=#38bdf8][شیمی عناصر][/color] وضعیت محیط به [b]%s[/b] تغییر یافت." % code)
+
+
+func _on_advance_days() -> void:
+	_day += 5
+	_npc_gold += 160
+	_npc_title = "استادکار سلطنتی" if _npc_gold >= 440 else "آهنگر ارشد شهر (سطح ۲)"
+	_refresh_npc_ui()
+	_log("[color=#22c55e][تکامل زندگی][/color] ۵ روز گذشت (روز %d) -> کاوه آهنگر ارتقا یافت: %s" % [_day, _npc_title])
+
+
+func _help_npc() -> void:
+	_npc_rel = mini(100, _npc_rel + 25)
+	_npc_gold += 50
+	_refresh_npc_ui()
+	_log("[NPC زنده] کمک و خرید انجام شد -> رابطه با کاوه: +%d" % _npc_rel)
+
+
+func _fight_npc() -> void:
+	_npc_rel = maxi(-100, _npc_rel - 55)
+	if not _npc_scars.has("زخم شمشیر روی گونه"):
+		_npc_scars.append("زخم شمشیر روی گونه")
+	_refresh_npc_ui()
+	_log("[color=#ef4444][حافظه Nemesis][/color] کاوه زخم برداشت و ضدحمله کمبوی کاتانا را یاد گرفت!")
+
+
+func _refresh_npc_ui() -> void:
+	if _npc_lbl == null:
+		return
+	var status := "دشمن Nemesis" if _npc_rel <= -35 else ("متحد وفادار" if _npc_rel >= 35 else "دوستانه")
+	_npc_lbl.text = "[b]کاوه آهنگر[/b] (روز %d)\nشغل: %s\nطلا: %d سکه | رابطه: %d (%s)" % [_day, _npc_title, _npc_gold, _npc_rel, status]

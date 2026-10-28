@@ -8,13 +8,13 @@
 
 بدون نیاز به نصب پایتون، بدون ترمینال/CMD و بدون هیچ تنظیماتی، نسخه آماده سیستم‌عامل خودتان را دانلود، از حالت فشرده خارج (Extract) و اجرا کنید:
 
-- 🪟 **نسخه کامل ویندوز ۶۴ بیتی (شامل لانچر گرافیکی `NovaForge_Studio.exe` + هسته Godot 4.7.2 + هسته C++):**  
-  👉 [**دانلود مستقیم `NovaForge-Engine-v1.0.0-Windows-x64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v1.0.0/NovaForge-Engine-v1.0.0-Windows-x64-ReadyToRun.zip)  
-  *(فقط فایل ZIP را استخراج کنید و روی **`NovaForge_Studio.exe`** دابل‌کلیک کنید تا پنجره گرافیکی باز شود و مستقیم وارد محیط موتور شوید!)*
+- 🪟 **نسخه کامل فارسی و شخصی‌سازی‌شده ویندوز ۶۴ بیتی (`v1.2.0` — شامل لانچر فارسی `NovaForge_Studio.exe` + محیط کامل فارسی Godot 4.7.2 + فونت وزیرمتن + تمام قابلیت‌ها):**  
+  👉 [**دانلود مستقیم `NovaForge-Engine-v1.2.0-Persian-Windows-x64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v1.2.0/NovaForge-Engine-v1.2.0-Persian-Windows-x64-ReadyToRun.zip)  
+  *(فقط فایل ZIP را استخراج کنید و روی **`NovaForge_Studio.exe`** دابل‌کلیک کنید تا مستقیم وارد محیط کاملاً فارسی و شخصی‌سازی‌شده نوافورج همراه با تمام پنل‌ها و میزکار شوید!)*
 
-- 🐧 **نسخه کامل لینوکس ۶۴ بیتی (`x86_64` شامل لانچر گرافیکی + هسته Godot 4.7.2 + هسته C++):**  
-  👉 [**دانلود مستقیم `NovaForge-Engine-v1.0.0-Linux-x86_64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v1.0.0/NovaForge-Engine-v1.0.0-Linux-x86_64-ReadyToRun.zip)  
-  *(فایل `./run.sh` را اجرا کنید تا پنجره گرافیکی لانچر باز شود.)*
+- 🐧 **نسخه کامل فارسی و شخصی‌سازی‌شده لینوکس ۶۴ بیتی (`v1.2.0` — `x86_64`):**  
+  👉 [**دانلود مستقیم `NovaForge-Engine-v1.2.0-Persian-Linux-x86_64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v1.2.0/NovaForge-Engine-v1.2.0-Persian-Linux-x86_64-ReadyToRun.zip)  
+  *(فایل `./run.sh` را اجرا کنید تا پنجره لانچر فارسی باز شود.)*
 
 ---
 

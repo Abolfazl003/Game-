@@ -1,15 +1,17 @@
 @tool
 extends EditorPlugin
-## Main Godot 4 EditorPlugin for NovaForge AI Game Engine.
-## Preserves 100% of Godot 4's native Editor UI while mounting all interactive NovaForge Studio panels:
-## - `NovaEditorController` live scene & viewport orchestrator
-## - Right-Upper Dock (`🧬 NPC و شیمی`): Living NPC Biography, Elemental Chemistry (Clear/Rain/Fire/Lightning), Smart Voronoi Object controls & Blueprint Summary
-## - Right-Lower Dock (`🧠 شورا و ساخت`): 5-Brain Colibrì Council + VRAM Meter + Persian Prompt-to-Scene + 2x2 Image-to-3D/Auto-Rig/Video-Mocap/Blender/Cutscene Forge
-## - 3D Spatial Viewport Toolbar: Quality Tier, Camera/Genre, +5 World Days, Voronoi Shatter, Live Cutscene & Time-Machine Undo
-## - Bottom Panel Tabs: `NovaForge Console`, `Blueprint Graph`, `Cutscene & IK`, `Local AI (Colibrì)`
-## - 3D Viewport `Alt + Left-Click` Smart Context PopupMenu
+## Main Godot 4.7 EditorPlugin for NovaForge AI Game Engine (100% Customized Persian Edition & Cold-Boot Safe).
+## Applies NovaForge's custom Midnight-Cyan theme, Vazirmatn Persian font, and Persian (`fa`) Editor UI,
+## and mounts:
+## - Main Center Workspace (`⚡ میزکار نوافورج`) alongside 2D / 3D / Script
+## - Right Dock (`⚡ استودیو هوش مصنوعی`)
+## - Left Dock (`✦ جهان زنده و شیمی`)
+## - 3D Spatial Viewport Toolbar (`⚡ نوافورج`)
+## - Native Inspector Plugin (`⚡ ماژول هوشمند نوافورج`)
+## - 4 Persian Bottom Panels (`کنسول خروجی نوافورج`, `گراف دیداری بلوپرینت`, `کارگردان کات‌سین و IK`, `مدل‌های لوکال Colibrì`)
 
 var _editor_controller: Node
+var _main_workspace: Control
 var _living_world_dock: Control
 var _ai_council_dock: Control
 var _spatial_toolbar: Control
@@ -19,10 +21,32 @@ var _cutscene_panel: Control
 var _colibri_panel: Control
 var _inspector_plugin: EditorInspectorPlugin
 var _context_popup: PopupMenu
-var _last_clicked_3d_node: Node3D
+
+
+func _has_main_screen() -> bool:
+	return true
+
+
+func _get_plugin_name() -> String:
+	return "⚡ میزکار نوافورج"
+
+
+func _get_plugin_icon() -> Texture2D:
+	if Engine.is_editor_hint():
+		var base := EditorInterface.get_base_control()
+		if base:
+			return base.get_theme_icon("Node", "EditorIcons")
+	return null
+
+
+func _make_visible(visible: bool) -> void:
+	if _main_workspace:
+		_main_workspace.visible = visible
 
 
 func _enter_tree() -> void:
+	_apply_novaforge_persian_theme_and_fonts()
+
 	# 0. Central Live Scene & Viewport Controller
 	var ctrl_script = load("res://addons/novaforge_engine/editor/editor_scene_controller.gd")
 	if ctrl_script:
@@ -30,69 +54,101 @@ func _enter_tree() -> void:
 		_editor_controller.name = "NovaEditorController"
 		get_tree().root.call_deferred("add_child", _editor_controller)
 
-	# 1. Right-Bottom Unified NovaForge Studio Dock (`⚡ استودیو NovaForge`)
+	# 1. Center Full-Screen Main Workspace (`⚡ میزکار نوافورج`)
+	var ws_script = load("res://addons/novaforge_engine/editor/novaforge_main_workspace.gd")
+	if ws_script and Engine.is_editor_hint():
+		_main_workspace = ws_script.new()
+		_main_workspace.name = "NovaForgeMainWorkspace"
+		EditorInterface.get_editor_main_screen().add_child(_main_workspace)
+		_make_visible(false)
+
+	# 2. Right-Bottom Unified NovaForge Studio Dock (`⚡ استودیو هوش مصنوعی`)
 	var dock_script = load("res://addons/novaforge_engine/editor/novaforge_main_dock.gd")
 	if dock_script:
 		_ai_council_dock = dock_script.new()
-		_ai_council_dock.name = "⚡ استودیو NovaForge"
+		_ai_council_dock.name = "⚡ استودیو هوش مصنوعی"
 		add_control_to_dock(DOCK_SLOT_RIGHT_BL, _ai_council_dock)
 
-	# 2. Dedicated Living World & Chemistry Dock Tab beside FileSystem (`🧬 NPC و شیمی`)
+	# 3. Left-Bottom Living World & Chemistry Dock (`✦ جهان زنده و شیمی`)
 	var lw_script = load("res://addons/novaforge_engine/editor/living_world_dock.gd")
 	if lw_script:
 		_living_world_dock = lw_script.new()
-		_living_world_dock.name = "🧬 NPC و شیمی"
+		_living_world_dock.name = "✦ جهان زنده و شیمی"
 		add_control_to_dock(DOCK_SLOT_LEFT_BR, _living_world_dock)
 
-	# 3. Native 3D Viewport Top Toolbar
+	# 4. Native 3D Viewport Top Toolbar
 	var tb_script = load("res://addons/novaforge_engine/editor/spatial_viewport_toolbar.gd")
 	if tb_script:
 		_spatial_toolbar = tb_script.new()
 		add_control_to_container(CONTAINER_SPATIAL_EDITOR_MENU, _spatial_toolbar)
 
-	# 4. Native Godot 4 Inspector Extension
+	# 5. Native Godot 4 Inspector Extension
 	var insp_script = load("res://addons/novaforge_engine/editor/smart_inspector_plugin.gd")
 	if insp_script:
 		_inspector_plugin = insp_script.new()
 		add_inspector_plugin(_inspector_plugin)
 
-	# 5. Native Bottom Panel Modules
+	# 6. Native Bottom Panel Modules (100% Persian)
 	var con_script = load("res://addons/novaforge_engine/editor/novaforge_console_panel.gd")
 	if con_script:
 		_console_panel = con_script.new()
-		add_control_to_bottom_panel(_console_panel, "NovaForge Console")
+		add_control_to_bottom_panel(_console_panel, "کنسول خروجی نوافورج")
 
 	var bp_script = load("res://addons/novaforge_engine/editor/blueprint_graph_editor.gd")
 	if bp_script:
 		_blueprint_panel = bp_script.new()
-		add_control_to_bottom_panel(_blueprint_panel, "Blueprint Graph")
+		add_control_to_bottom_panel(_blueprint_panel, "گراف دیداری بلوپرینت")
 
 	var cs_script = load("res://addons/novaforge_engine/editor/cutscene_sequencer_panel.gd")
 	if cs_script:
 		_cutscene_panel = cs_script.new()
-		add_control_to_bottom_panel(_cutscene_panel, "Cutscene & IK")
+		add_control_to_bottom_panel(_cutscene_panel, "کارگردان کات‌سین و IK")
 
 	var col_script = load("res://addons/novaforge_engine/editor/colibri_model_manager_panel.gd")
 	if col_script:
 		_colibri_panel = col_script.new()
-		add_control_to_bottom_panel(_colibri_panel, "Local AI (Colibrì)")
+		add_control_to_bottom_panel(_colibri_panel, "مدل‌های لوکال (Colibrì)")
 
-	# 6. Viewport Alt+Click Smart Context Popup
+	# 7. Viewport Alt+Click Smart Context Popup
 	_build_3d_context_popup()
-
-	# Focus the Living World dock tab and open Hybrid Console cleanly after layout loads
 	call_deferred("_focus_novaforge_panels")
 
 
+func _apply_novaforge_persian_theme_and_fonts() -> void:
+	if not Engine.is_editor_hint():
+		return
+	var es := EditorInterface.get_editor_settings()
+	if es == null:
+		return
+
+	var reg_font := ProjectSettings.globalize_path("res://fonts/Vazirmatn-Regular.ttf")
+	var bold_font := ProjectSettings.globalize_path("res://fonts/Vazirmatn-Bold.ttf")
+
+	if FileAccess.file_exists("res://fonts/Vazirmatn-Regular.ttf"):
+		es.set_setting("interface/editor/fonts/main_font", reg_font)
+	if FileAccess.file_exists("res://fonts/Vazirmatn-Bold.ttf"):
+		es.set_setting("interface/editor/fonts/main_font_bold", bold_font)
+
+	es.set_setting("interface/editor/localization/editor_language", "fa")
+	es.set_setting("interface/theme/color_preset", "Custom")
+	es.set_setting("interface/theme/base_color", Color(0.085, 0.11, 0.175, 1.0))
+	es.set_setting("interface/theme/accent_color", Color(0.22, 0.78, 0.98, 1.0))
+	es.set_setting("interface/theme/contrast", 0.28)
+	es.set_setting("interface/theme/corner_radius", 6)
+	es.set_setting("interface/theme/border_size", 1)
+	es.set_setting("interface/theme/draw_extra_borders", true)
+
+
 func _focus_novaforge_panels() -> void:
-	if _living_world_dock and _living_world_dock.get_parent() is TabContainer:
-		var tc := _living_world_dock.get_parent() as TabContainer
-		tc.current_tab = _living_world_dock.get_index()
 	if _console_panel:
 		make_bottom_panel_item_visible(_console_panel)
+	if Engine.is_editor_hint():
+		EditorInterface.set_main_screen_editor("⚡ میزکار نوافورج")
 
 
 func _exit_tree() -> void:
+	if _main_workspace:
+		_main_workspace.queue_free()
 	if _living_world_dock:
 		remove_control_from_docks(_living_world_dock)
 		_living_world_dock.queue_free()
@@ -129,11 +185,11 @@ func _handles(object: Object) -> bool:
 func _build_3d_context_popup() -> void:
 	_context_popup = PopupMenu.new()
 	_context_popup.name = "NovaSmartObjectPopup"
-	_context_popup.add_item("💥 تست ضربه شمشیر / تخریب یا بازسازی Voronoi", 1)
-	_context_popup.add_item("🤝 تعامل دوستانه و خرید از NPC (+رابطه)", 2)
-	_context_popup.add_item("⚔️ درگیری با NPC و فعال‌سازی حافظه Nemesis", 3)
-	_context_popup.add_item("🎬 اجرای کات‌سین زنده در همین نقطه (این تیکه کات‌سینه)", 4)
-	_context_popup.add_item("🌧️ فعال‌سازی باران و شیمی سطح خیس", 5)
+	_context_popup.add_item("★ تست ضربه شمشیر / تخریب یا بازسازی Voronoi", 1)
+	_context_popup.add_item("✦ تعامل دوستانه و خرید از NPC (+رابطه)", 2)
+	_context_popup.add_item("⚔ درگیری با NPC و فعال‌سازی حافظه Nemesis", 3)
+	_context_popup.add_item("▶ اجرای کات‌سین زنده در همین نقطه (این تیکه کات‌سینه)", 4)
+	_context_popup.add_item("◈ فعال‌سازی باران و شیمی سطح خیس", 5)
 	_context_popup.id_pressed.connect(_on_context_menu_id_pressed)
 	add_child(_context_popup)
 
@@ -142,13 +198,6 @@ func _forward_3d_gui_input(viewport_camera: Camera3D, event: InputEvent) -> int:
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT and mb.alt_pressed:
-			var from := viewport_camera.project_ray_origin(mb.position)
-			var to := from + viewport_camera.project_ray_normal(mb.position) * 500.0
-			var hit := viewport_camera.get_world_3d().direct_space_state.intersect_ray(
-				PhysicsRayQueryParameters3D.create(from, to)
-			)
-			if not hit.is_empty() and hit.get("collider") is Node3D:
-				_last_clicked_3d_node = hit["collider"]
 			_context_popup.position = Vector2i(DisplayServer.mouse_get_position())
 			_context_popup.popup()
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
@@ -158,15 +207,9 @@ func _forward_3d_gui_input(viewport_camera: Camera3D, event: InputEvent) -> int:
 func _on_context_menu_id_pressed(id: int) -> void:
 	if _editor_controller == null or not is_instance_valid(_editor_controller):
 		return
-	var ctrl := _editor_controller as NovaEditorSceneController
 	match id:
-		1:
-			ctrl.shatter_or_reset_crate()
-		2:
-			ctrl.help_npc()
-		3:
-			ctrl.fight_npc()
-		4:
-			ctrl.trigger_live_cutscene()
-		5:
-			ctrl.apply_elemental_weather("RAIN")
+		1: _editor_controller.call("shatter_or_reset_crate")
+		2: _editor_controller.call("help_npc")
+		3: _editor_controller.call("fight_npc")
+		4: _editor_controller.call("trigger_live_cutscene")
+		5: _editor_controller.call("apply_elemental_weather", "RAIN")

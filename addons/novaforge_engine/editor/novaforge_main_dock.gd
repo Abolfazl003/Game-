@@ -41,7 +41,7 @@ func _ready() -> void:
 	)
 	filter_bar.add_child(b_all)
 
-	var b_ai := _small_btn("🧠 شورا و 3D")
+	var b_ai := _small_btn("◈ شورا و 3D")
 	b_ai.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b_ai.pressed.connect(func():
 		_sec_council.visible = true
@@ -49,7 +49,7 @@ func _ready() -> void:
 	)
 	filter_bar.add_child(b_ai)
 
-	var b_npc := _small_btn("🧬 NPC و شیمی")
+	var b_npc := _small_btn("✦ NPC و شیمی")
 	b_npc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b_npc.pressed.connect(func():
 		_sec_council.visible = false
@@ -79,7 +79,7 @@ func _ready() -> void:
 	# Card 1: 5-Brain Colibrì Council
 	var c1 := _make_card(_sec_council)
 	var hdr1 := HBoxContainer.new()
-	var t1 := _title_lbl("🧠 شورای ۵ مغز لوکال (Colibrì)")
+	var t1 := _title_lbl("◈ شورای ۵ مغز لوکال (Colibrì)")
 	hdr1.add_child(t1)
 	_relay_badge = _small_lbl("آماده ✓")
 	_relay_badge.add_theme_color_override("font_color", Color(0.20, 0.85, 0.45))
@@ -121,49 +121,49 @@ func _ready() -> void:
 	_prompt_input.add_theme_font_size_override("font_size", 11)
 	c2.add_child(_prompt_input)
 
-	var btn_run := _small_btn("🚀 اجرای همفکری شورا در صحنه")
+	var btn_run := _small_btn("⚡ اجرای همفکری شورا در صحنه")
 	btn_run.custom_minimum_size = Vector2(0, 30)
 	btn_run.pressed.connect(_on_run_council_pressed)
 	c2.add_child(btn_run)
 
 	# Card 3: 2x2 Asset Forge, Blender, Mocap & Cutscene
 	var c3 := _make_card(_sec_council)
-	c3.add_child(_title_lbl("📦 بلندر، Auto-Rig و ویدیو موشن"))
+	c3.add_child(_title_lbl("■ بلندر، Auto-Rig و ویدیو موشن"))
 
 	var grid3 := GridContainer.new()
 	grid3.columns = 2
 	grid3.add_theme_constant_override("h_separation", 4)
 	grid3.add_theme_constant_override("v_separation", 4)
 
-	var b_img3d := _small_btn("🖼️ عکس⬅️3D+ریگ")
+	var b_img3d := _small_btn("◆ عکس⬅3D+ریگ")
 	b_img3d.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b_img3d.pressed.connect(func():
 		var ctrl := _get_ctrl()
-		if ctrl: ctrl.spawn_image_to_3d_rigged_character()
+		if ctrl: ctrl.call("spawn_image_to_3d_rigged_character")
 	)
 	grid3.add_child(b_img3d)
 
-	var b_mocap := _small_btn("🎥 ویدیو⬅️موشن")
+	var b_mocap := _small_btn("▶ ویدیو⬅موشن")
 	b_mocap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b_mocap.pressed.connect(func():
 		var ctrl := _get_ctrl()
-		if ctrl: ctrl.run_video_to_motion_combo()
+		if ctrl: ctrl.call("run_video_to_motion_combo")
 	)
 	grid3.add_child(b_mocap)
 
-	var b_blend := _small_btn("🟠 ایمپورت .blend")
+	var b_blend := _small_btn("✦ ایمپورت .blend")
 	b_blend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b_blend.pressed.connect(func():
 		var ctrl := _get_ctrl()
-		if ctrl: ctrl.import_blender_auto_pbr_gate()
+		if ctrl: ctrl.call("import_blender_auto_pbr_gate")
 	)
 	grid3.add_child(b_blend)
 
-	var b_cut := _small_btn("🎬 کات‌سین زنده")
+	var b_cut := _small_btn("▶ کات‌سین زنده")
 	b_cut.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b_cut.pressed.connect(func():
 		var ctrl := _get_ctrl()
-		if ctrl: ctrl.trigger_live_cutscene()
+		if ctrl: ctrl.call("trigger_live_cutscene")
 	)
 	grid3.add_child(b_cut)
 	c3.add_child(grid3)
@@ -176,7 +176,7 @@ func _ready() -> void:
 
 	# Card 4: Living NPC Biography
 	var c4 := _make_card(_sec_world)
-	c4.add_child(_title_lbl("🧬 NPC زنده (Evolving Life AI)"))
+	c4.add_child(_title_lbl("✦ NPC زنده (Evolving Life AI)"))
 
 	_npc_bio = RichTextLabel.new()
 	_npc_bio.bbcode_enabled = true
@@ -189,33 +189,33 @@ func _ready() -> void:
 	var npc_hb := HBoxContainer.new()
 	npc_hb.add_theme_constant_override("separation", 4)
 
-	var b_help := _small_btn("🤝 کمک و خرید")
+	var b_help := _small_btn("✦ کمک و خرید")
 	b_help.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b_help.pressed.connect(func():
 		var ctrl := _get_ctrl()
-		if ctrl: ctrl.help_npc()
+		if ctrl: ctrl.call("help_npc")
 	)
 	npc_hb.add_child(b_help)
 
-	var b_fight := _small_btn("⚔️ درگیری و فرار")
+	var b_fight := _small_btn("⚔ درگیری و فرار")
 	b_fight.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b_fight.pressed.connect(func():
 		var ctrl := _get_ctrl()
-		if ctrl: ctrl.fight_npc()
+		if ctrl: ctrl.call("fight_npc")
 	)
 	npc_hb.add_child(b_fight)
 	c4.add_child(npc_hb)
 
-	var b_days := _small_btn("⏩ +۵ روز تکامل زندگی NPCها")
+	var b_days := _small_btn("» +۵ روز تکامل زندگی NPCها")
 	b_days.pressed.connect(func():
 		var ctrl := _get_ctrl()
-		if ctrl: ctrl.advance_world_days(5)
+		if ctrl: ctrl.call("advance_world_days", 5)
 	)
 	c4.add_child(b_days)
 
 	# Card 5: Elemental Chemistry
 	var c5 := _make_card(_sec_world)
-	c5.add_child(_title_lbl("🌦️ شیمی عناصر و جهان‌باز"))
+	c5.add_child(_title_lbl("✦ شیمی عناصر و جهان‌باز"))
 
 	var egrid := GridContainer.new()
 	egrid.columns = 2
@@ -223,9 +223,9 @@ func _ready() -> void:
 	egrid.add_theme_constant_override("v_separation", 4)
 
 	var elems := [
-		["CLEAR", "☀️ صاف"],
-		["RAIN", "🌧️ باران (خیس)"],
-		["FIRE", "🔥 آتش + باد"],
+		["CLEAR", "● صاف"],
+		["RAIN", "◈ باران (خیس)"],
+		["FIRE", "▲ آتش + باد"],
 		["LIGHTNING", "⚡ صاعقه در آب"]
 	]
 	for item in elems:
@@ -235,7 +235,7 @@ func _ready() -> void:
 		eb.pressed.connect(func():
 			var ctrl := _get_ctrl()
 			if ctrl:
-				_elem_status.text = ctrl.apply_elemental_weather(code)
+				_elem_status.text = str(ctrl.call("apply_elemental_weather", code))
 		)
 		egrid.add_child(eb)
 	c5.add_child(egrid)
@@ -246,7 +246,7 @@ func _ready() -> void:
 
 	# Card 6: Smart Voronoi Object Controls
 	var c6 := _make_card(_sec_world)
-	c6.add_child(_title_lbl("📦 منوی هوشمند آبجکت و Voronoi"))
+	c6.add_child(_title_lbl("■ منوی هوشمند آبجکت و Voronoi"))
 
 	for chk_txt in [
 		"قابل تعامل ([E] لولای خودکار)",
@@ -265,10 +265,10 @@ func _ready() -> void:
 	obj_in.add_theme_font_size_override("font_size", 11)
 	c6.add_child(obj_in)
 
-	var b_shatter := _small_btn("💥 تست شمشیر / تخریب Voronoi")
+	var b_shatter := _small_btn("★ تست شمشیر / تخریب Voronoi")
 	b_shatter.pressed.connect(func():
 		var ctrl := _get_ctrl()
-		if ctrl: ctrl.shatter_or_reset_crate()
+		if ctrl: ctrl.call("shatter_or_reset_crate")
 	)
 	c6.add_child(b_shatter)
 
@@ -313,15 +313,15 @@ func _make_card(parent: VBoxContainer) -> VBoxContainer:
 
 func _bind_ctrl() -> void:
 	var ctrl := _get_ctrl()
-	if ctrl:
-		if not ctrl.state_updated.is_connected(_on_state_updated):
-			ctrl.state_updated.connect(_on_state_updated)
-		_on_state_updated(ctrl.get_snapshot_dict())
+	if ctrl and ctrl.has_signal("state_updated"):
+		if not ctrl.is_connected("state_updated", _on_state_updated):
+			ctrl.connect("state_updated", _on_state_updated)
+		_on_state_updated(ctrl.call("get_snapshot_dict"))
 
 
-func _get_ctrl() -> NovaEditorSceneController:
+func _get_ctrl() -> Node:
 	if get_tree() and get_tree().root.has_node("NovaEditorController"):
-		return get_tree().root.get_node("NovaEditorController") as NovaEditorSceneController
+		return get_tree().root.get_node("NovaEditorController")
 	return null
 
 
@@ -394,16 +394,16 @@ func _execute_council_scene_actions(prompt_txt: String) -> void:
 		matched = res.get("matched_skills", [])
 
 	if ctrl:
-		ctrl.save_snapshot("Pre-Council Prompt")
-		ctrl.run_video_to_motion_combo()
+		ctrl.call("save_snapshot", "Pre-Council Prompt")
+		ctrl.call("run_video_to_motion_combo")
 		if prompt_txt.contains("دروازه") or prompt_txt.contains("قلعه") or prompt_txt.contains("blend"):
-			ctrl.import_blender_auto_pbr_gate()
+			ctrl.call("import_blender_auto_pbr_gate")
 		if prompt_txt.contains("عکس") or prompt_txt.contains("ریگ"):
-			ctrl.spawn_image_to_3d_rigged_character()
+			ctrl.call("spawn_image_to_3d_rigged_character")
 		if prompt_txt.contains("تیکه") or prompt_txt.contains("بشکن") or prompt_txt.contains("صندوق"):
-			if not ctrl.crate_shattered:
-				ctrl.shatter_or_reset_crate(false)
+			if not bool(ctrl.get("crate_shattered")):
+				ctrl.call("shatter_or_reset_crate", false)
 		if prompt_txt.contains("کات‌سین") or prompt_txt.contains("کات سین") or prompt_txt.to_lower().contains("cutscene"):
-			ctrl.trigger_live_cutscene("«دروازه قلعه باز می‌شود... آماده نبرد شو!»")
+			ctrl.call("trigger_live_cutscene", "«دروازه قلعه باز می‌شود... آماده نبرد شو!»")
 
-		ctrl.emit_log("[b][color=#22c55e][MultiBrainCouncil][/color][/b] خروجی واحد شورا روی صحنه اعمال شد -> مهارت‌ها: %s | Scene Audit: 0 Errors!" % JSON.stringify(matched))
+		ctrl.call("emit_log", "[b][color=#22c55e][شورای ۵ مغز][/color][/b] خروجی واحد شورا روی صحنه اعمال شد -> مهارت‌ها: %s | بدون باگ!" % JSON.stringify(matched))

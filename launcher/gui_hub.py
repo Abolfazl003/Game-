@@ -21,6 +21,7 @@ def launch_mode(mode: str, root_win=None) -> None:
     if root_win is not None:
         root_win.destroy()
     nf.ensure_native_core()
+    subprocess.run([sys.executable, str(ROOT / "launcher" / "generate_persian_editor_settings.py")], check=False)
     godot_bin = nf.find_or_download_godot(auto_download=True)
     if not godot_bin:
         sys.exit(1)
@@ -45,65 +46,65 @@ def main() -> int:
         return 0
 
     win = tk.Tk()
-    win.title("NovaForge AI Game Engine — Studio Hub (Godot 4.7.2)")
-    win.geometry("540x330")
-    win.configure(bg="#181c26")
+    win.title("استودیو بازی‌سازی هوش مصنوعی نوافورج — نسخه فارسی")
+    win.geometry("560x330")
+    win.configure(bg="#101522")
     win.resizable(False, False)
 
     tk.Label(
         win,
-        text="NovaForge AI Game Engine (Godot 4.7.2)",
+        text="🚀 موتور بازی‌سازی هوش مصنوعی نوافورج (نسخه فارسی)",
         fg="#f8fafc",
-        bg="#181c26",
-        font=("Sans", 15, "bold"),
+        bg="#101522",
+        font=("Sans", 14, "bold"),
     ).pack(pady=(22, 6))
 
     tk.Label(
         win,
-        text="موتور رسمی گادوت ۴.۷ + هوش مصنوعی لوکال Colibrì و Blueprint/C++",
-        fg="#94a3b8",
-        bg="#181c26",
+        text="محیط کاملاً فارسی و شخصی‌سازی‌شده + شورای ۵ مغز Colibrì + گراف بلوپرینت و تخریب Voronoi",
+        fg="#7dd3fc",
+        bg="#101522",
         font=("Sans", 10),
     ).pack(pady=(0, 18))
 
     tk.Button(
         win,
-        text="🚀  ورود مستقیم به محیط ادیتور گادوت ۴.۷  (Open Editor)",
-        bg="#2563eb",
+        text="🛠️  ورود به ویرایشگر فارسی موتور بازی‌سازی (همه پنل‌ها و میزکار نوافورج)",
+        bg="#0284c7",
         fg="#ffffff",
-        activebackground="#1d4ed8",
+        activebackground="#0369a1",
         activeforeground="#ffffff",
         relief="flat",
         font=("Sans", 11, "bold"),
-        width=46,
+        width=48,
         height=2,
         command=lambda: launch_mode("editor", win),
     ).pack(pady=6)
 
     tk.Button(
         win,
-        text="🎮  اجرای مستقیم بازی سه‌بعدی آماده  (Play 3D Showcase)",
+        text="🎮  اجرای محیط تعاملی سه‌بعدی و بازی (همراه تمام ابزارهای فارسی روی صحنه)",
         bg="#15803d",
         fg="#ffffff",
         activebackground="#166534",
         activeforeground="#ffffff",
         relief="flat",
         font=("Sans", 11, "bold"),
-        width=46,
+        width=48,
         height=2,
         command=lambda: launch_mode("play", win),
     ).pack(pady=6)
 
     tk.Button(
         win,
-        text="📁  ساخت بازی جدید / مدیریت پروژه‌ها  (Project Manager)",
+        text="📁  ساخت بازی جدید / مدیریت پروژه‌ها",
         bg="#334155",
         fg="#e2e8f0",
         activebackground="#475569",
         activeforeground="#ffffff",
         relief="flat",
         font=("Sans", 10),
-        width=46,
+        width=48,
         height=1,
         command=lambda: launch_mode("pm", win),
     ).pack(pady=6)

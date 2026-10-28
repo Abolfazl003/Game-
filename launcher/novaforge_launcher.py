@@ -105,6 +105,7 @@ def main() -> int:
     args = parser.parse_args()
 
     ensure_native_core()
+    subprocess.run([sys.executable, str(ROOT / "launcher" / "generate_persian_editor_settings.py")], check=False)
     godot_bin = find_or_download_godot(auto_download=True)
     if not godot_bin:
         print("[NovaForge] ERROR: Could not locate or download official Godot 4.7.2 binary.", file=sys.stderr)

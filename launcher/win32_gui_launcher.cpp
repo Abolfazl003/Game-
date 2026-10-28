@@ -1,7 +1,8 @@
 /*
- * NovaForge AI Game Engine — Native Windows Graphical Studio Launcher (Win32 GUI)
+ * NovaForge AI Game Engine — Native Windows Customized Persian Studio Launcher (Win32 GUI)
  * Zero Python dependency, zero console window (-mwindows -municode).
- * Detects or auto-downloads official Godot 4.7.2 (MIT) and launches Editor, Game, or Project Manager with 1 click.
+ * Pre-configures Godot 4.7.2 Portable Self-Contained Mode (`_sc_` + `editor_data/editor_settings-4.7.tres`)
+ * with Persian (`fa`) UI, bundled Vazirmatn font, and custom Midnight-Cyan NovaForge theme BEFORE first launch!
  */
 #ifndef UNICODE
 #define UNICODE
@@ -15,24 +16,18 @@
 #include <urlmon.h>
 #include <string>
 
-#pragma comment(lib, "urlmon.lib")
-#pragma comment(lib, "shell32.lib")
-
 static const wchar_t* kGodotWinUrl =
     L"https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_win64.exe.zip";
 
 enum ButtonIds {
     ID_BTN_EDITOR = 101,
-    ID_BTN_PLAY   = 102,
-    ID_BTN_PM     = 103
+    ID_BTN_PLAY   = 102
 };
 
 static HWND g_hwndStatus = nullptr;
 static HWND g_btnEditor  = nullptr;
 static HWND g_btnPlay    = nullptr;
-static HWND g_btnPM      = nullptr;
 static HBRUSH g_bgBrush  = nullptr;
-static HBRUSH g_cardBrush = nullptr;
 static HFONT g_titleFont = nullptr;
 static HFONT g_subFont   = nullptr;
 static HFONT g_btnFont   = nullptr;
@@ -55,9 +50,69 @@ static bool FileExistsW(const std::wstring& p) {
     return (attr != INVALID_FILE_ATTRIBUTES && !(attr & FILE_ATTRIBUTE_DIRECTORY));
 }
 
+static std::string WideToUtf8(const std::wstring& w) {
+    if (w.empty()) return "";
+    int sz = WideCharToMultiByte(CP_UTF8, 0, w.c_str(), (int)w.size(), nullptr, 0, nullptr, nullptr);
+    std::string out(sz, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, w.c_str(), (int)w.size(), &out[0], sz, nullptr, nullptr);
+    for (char& c : out) {
+        if (c == '\\') c = '/';
+    }
+    return out;
+}
+
+static void WriteUtf8File(const std::wstring& path, const std::string& content) {
+    HANDLE hf = CreateFileW(path.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (hf != INVALID_HANDLE_VALUE) {
+        DWORD written = 0;
+        if (!content.empty()) {
+            WriteFile(hf, content.data(), (DWORD)content.size(), &written, nullptr);
+        }
+        CloseHandle(hf);
+    }
+}
+
+static void EnsurePersianPortableSettings(const std::wstring& root) {
+    std::wstring binDir = root + L"\\engine_bin";
+    std::wstring edData = binDir + L"\\editor_data";
+    CreateDirectoryW(binDir.c_str(), nullptr);
+    CreateDirectoryW(edData.c_str(), nullptr);
+
+    std::wstring scFile = binDir + L"\\_sc_";
+    if (!FileExistsW(scFile)) {
+        WriteUtf8File(scFile, "\n");
+    }
+
+    std::wstring settingsFile = edData + L"\\editor_settings-4.7.tres";
+    if (!FileExistsW(settingsFile)) {
+        std::string regFont = WideToUtf8(root + L"\\fonts\\Vazirmatn-Regular.ttf");
+        std::string boldFont = WideToUtf8(root + L"\\fonts\\Vazirmatn-Bold.ttf");
+        std::string tres =
+            "[gd_resource type=\"EditorSettings\" format=3]\n\n"
+            "[resource]\n"
+            "interface/editor/localization/editor_language = \"fa\"\n"
+            "interface/editor/localization/localize_settings = true\n"
+            "interface/editor/fonts/main_font_size = 14\n"
+            "interface/editor/fonts/main_font = \"" + regFont + "\"\n"
+            "interface/editor/fonts/main_font_bold = \"" + boldFont + "\"\n"
+            "interface/theme/style = \"Modern\"\n"
+            "interface/theme/color_preset = \"Custom\"\n"
+            "interface/theme/follow_system_theme = false\n"
+            "interface/theme/use_system_accent_color = false\n"
+            "interface/theme/base_color = Color(0.085, 0.11, 0.175, 1)\n"
+            "interface/theme/accent_color = Color(0.22, 0.78, 0.98, 1)\n"
+            "interface/theme/contrast = 0.28\n"
+            "interface/theme/corner_radius = 6\n"
+            "interface/theme/border_size = 1\n"
+            "interface/theme/draw_extra_borders = true\n"
+            "interface/editor/behavior/show_internal_errors_in_toast_notifications = 0\n";
+        WriteUtf8File(settingsFile, tres);
+    }
+}
+
 struct LaunchRequest {
     HWND hwnd;
-    int mode; // 1 = editor, 2 = play, 3 = project manager
+    int mode; // 1 = editor, 2 = interactive 3D program/game
 };
 
 static DWORD WINAPI DownloadAndLaunchThread(LPVOID param) {
@@ -71,19 +126,18 @@ static DWORD WINAPI DownloadAndLaunchThread(LPVOID param) {
     if (!FileExistsW(godotExe)) {
         CreateDirectoryW(binDir.c_str(), nullptr);
         std::wstring zipPath = binDir + L"\\godot_4_7_2.zip";
-        SetWindowTextW(g_hwndStatus, L"⏳ در حال دانلود خودکار هسته گادوت ۴.۷.۲ (فقط بار اول)... لطفاً چند لحظه صبر کنید");
+        SetWindowTextW(g_hwndStatus, L"⏳ در حال دریافت خودکار هسته موتور (فقط بار اول)... لطفاً صبر کنید");
 
         HRESULT hr = URLDownloadToFileW(nullptr, kGodotWinUrl, zipPath.c_str(), 0, nullptr);
         if (FAILED(hr) || !FileExistsW(zipPath)) {
             SetWindowTextW(g_hwndStatus, L"❌ خطا در دانلود خودکار. اتصال اینترنت را بررسی کنید.");
             EnableWindow(g_btnEditor, TRUE);
             EnableWindow(g_btnPlay, TRUE);
-            EnableWindow(g_btnPM, TRUE);
             g_busy = false;
             return 1;
         }
 
-        SetWindowTextW(g_hwndStatus, L"📦 در حال استخراج فایل اجرایی موتور گادوت ۴.۷.۲...");
+        SetWindowTextW(g_hwndStatus, L"📦 در حال آماده‌سازی فایل اجرایی...");
         std::wstring psCmd = L"-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command \"Expand-Archive -Force -LiteralPath '" +
                              zipPath + L"' -DestinationPath '" + binDir + L"'\"";
         SHELLEXECUTEINFOW sei = { sizeof(sei) };
@@ -99,25 +153,16 @@ static DWORD WINAPI DownloadAndLaunchThread(LPVOID param) {
         DeleteFileW(zipPath.c_str());
     }
 
-    if (!FileExistsW(godotExe)) {
-        SetWindowTextW(g_hwndStatus, L"❌ فایل اجرایی Godot پیدا نشد.");
-        EnableWindow(g_btnEditor, TRUE);
-        EnableWindow(g_btnPlay, TRUE);
-        EnableWindow(g_btnPM, TRUE);
-        g_busy = false;
-        return 1;
-    }
+    EnsurePersianPortableSettings(root);
 
     std::wstring args;
     if (req.mode == 1) {
         args = L"-e --path \"" + root + L"\" scenes/showcase/novaforge_sandbox.tscn";
-    } else if (req.mode == 2) {
-        args = L"--path \"" + root + L"\" res://scenes/showcase/novaforge_sandbox.tscn";
     } else {
-        args = L"--project-manager";
+        args = L"--path \"" + root + L"\" res://scenes/showcase/novaforge_sandbox.tscn";
     }
 
-    SetWindowTextW(g_hwndStatus, L"✅ در حال باز کردن محیط اصلی برنامه...");
+    SetWindowTextW(g_hwndStatus, L"✅ در حال ورود به محیط فارسی نوافورج...");
     ShellExecuteW(nullptr, L"open", godotExe.c_str(), args.c_str(), root.c_str(), SW_SHOWNORMAL);
     Sleep(700);
     PostMessageW(req.hwnd, WM_CLOSE, 0, 0);
@@ -129,8 +174,6 @@ static void TriggerLaunch(HWND hwnd, int mode) {
     g_busy = true;
     EnableWindow(g_btnEditor, FALSE);
     EnableWindow(g_btnPlay, FALSE);
-    EnableWindow(g_btnPM, FALSE);
-
     LaunchRequest* req = new LaunchRequest{ hwnd, mode };
     HANDLE hThread = CreateThread(nullptr, 0, DownloadAndLaunchThread, req, 0, nullptr);
     if (hThread) CloseHandle(hThread);
@@ -139,7 +182,7 @@ static void TriggerLaunch(HWND hwnd, int mode) {
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_CREATE: {
-            g_titleFont = CreateFontW(24, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+            g_titleFont = CreateFontW(23, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
                                       OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
                                       DEFAULT_PITCH | FF_SWISS, L"Segoe UI");
             g_subFont   = CreateFontW(15, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
@@ -149,53 +192,46 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
                                       OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
                                       DEFAULT_PITCH | FF_SWISS, L"Segoe UI");
 
-            HWND hTitle = CreateWindowW(L"STATIC", L"NovaForge AI Game Engine (Godot 4.7.2)",
-                                        WS_VISIBLE | WS_CHILD | SS_CENTER, 25, 22, 510, 32, hwnd, nullptr, nullptr, nullptr);
+            HWND hTitle = CreateWindowW(L"STATIC", L"🚀 موتور بازی‌سازی هوش مصنوعی نوافورج (نسخه فارسی)",
+                                        WS_VISIBLE | WS_CHILD | SS_CENTER, 25, 22, 520, 32, hwnd, nullptr, nullptr, nullptr);
             SendMessageW(hTitle, WM_SETFONT, (WPARAM)g_titleFont, TRUE);
 
             HWND hSub = CreateWindowW(L"STATIC",
-                L"رابط کاربری رسمی گادوت ۴ + ماژول‌های هوش مصنوعی لوکال Colibrì و Blueprint/C++",
-                WS_VISIBLE | WS_CHILD | SS_CENTER, 25, 58, 510, 24, hwnd, nullptr, nullptr, nullptr);
+                L"مجهز به شورای ۵ مغز Colibrì، گراف بلوپرینت/C++، تبدیل عکس و ویدیو به 3D، تخریب Voronoi و زندگی NPC",
+                WS_VISIBLE | WS_CHILD | SS_CENTER, 20, 58, 530, 36, hwnd, nullptr, nullptr, nullptr);
             SendMessageW(hSub, WM_SETFONT, (WPARAM)g_subFont, TRUE);
 
             g_btnEditor = CreateWindowW(L"BUTTON",
-                L"🚀  ورود مستقیم به ادیتور موتور بازی‌سازی  (Open Godot 4 Editor)",
-                WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 45, 102, 470, 54,
+                L"🛠️  ورود به ویرایشگر فارسی موتور بازی‌سازی (همه پنل‌ها و میزکار نوافورج)",
+                WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 38, 108, 494, 56,
                 hwnd, (HMENU)ID_BTN_EDITOR, nullptr, nullptr);
             SendMessageW(g_btnEditor, WM_SETFONT, (WPARAM)g_btnFont, TRUE);
 
             g_btnPlay = CreateWindowW(L"BUTTON",
-                L"🎮  اجرای مستقیم بازی سه‌بعدی آماده  (Play 3D Showcase)",
-                WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 45, 168, 470, 48,
+                L"🎮  اجرای محیط تعاملی سه‌بعدی و بازی (همراه تمام ابزارهای فارسی روی صحنه)",
+                WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 38, 178, 494, 54,
                 hwnd, (HMENU)ID_BTN_PLAY, nullptr, nullptr);
             SendMessageW(g_btnPlay, WM_SETFONT, (WPARAM)g_btnFont, TRUE);
 
-            g_btnPM = CreateWindowW(L"BUTTON",
-                L"📁  ساخت بازی جدید / مدیریت پروژه‌ها  (Project Manager)",
-                WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 45, 228, 470, 44,
-                hwnd, (HMENU)ID_BTN_PM, nullptr, nullptr);
-            SendMessageW(g_btnPM, WM_SETFONT, (WPARAM)g_subFont, TRUE);
-
             const wchar_t* initStatus = FileExistsW(GetGodotExePath())
-                ? L"✅ آماده اجرا بدون نیاز به نصب — روی دکمه بالا کلیک کنید"
-                : L"⚡ آماده — با کلیک روی دکمه، هسته گادوت ۴.۷.۲ خودکار دریافت و اجرا می‌شود";
+                ? L"✅ کاملاً آماده اجرا (بدون نیاز به اینترنت، پایتون یا نصب) — یک گزینه را انتخاب کنید"
+                : L"⚡ آماده — با کلیک روی هر دکمه، هسته موتور خودکار دریافت و به فارسی باز می‌شود";
 
             g_hwndStatus = CreateWindowW(L"STATIC", initStatus,
-                WS_VISIBLE | WS_CHILD | SS_CENTER, 25, 294, 510, 40, hwnd, nullptr, nullptr, nullptr);
+                WS_VISIBLE | WS_CHILD | SS_CENTER, 25, 252, 520, 38, hwnd, nullptr, nullptr, nullptr);
             SendMessageW(g_hwndStatus, WM_SETFONT, (WPARAM)g_subFont, TRUE);
             return 0;
         }
         case WM_CTLCOLORSTATIC: {
             HDC hdc = (HDC)wParam;
-            SetTextColor(hdc, RGB(230, 236, 248));
-            SetBkColor(hdc, RGB(24, 28, 38));
+            SetTextColor(hdc, RGB(224, 238, 255));
+            SetBkColor(hdc, RGB(16, 21, 34));
             return (INT_PTR)g_bgBrush;
         }
         case WM_COMMAND: {
             int id = LOWORD(wParam);
             if (id == ID_BTN_EDITOR) TriggerLaunch(hwnd, 1);
             else if (id == ID_BTN_PLAY) TriggerLaunch(hwnd, 2);
-            else if (id == ID_BTN_PM) TriggerLaunch(hwnd, 3);
             return 0;
         }
         case WM_DESTROY:
@@ -208,33 +244,24 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
     return DefWindowProcW(hwnd, msg, wParam, lParam);
 }
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR lpCmdLine, int nCmdShow) {
-    std::wstring cmd(lpCmdLine ? lpCmdLine : L"");
-    if (cmd.find(L"--direct") != std::wstring::npos && FileExistsW(GetGodotExePath())) {
-        std::wstring root = GetAppRootDir();
-        std::wstring args = L"-e --path \"" + root + L"\" scenes/showcase/novaforge_sandbox.tscn";
-        ShellExecuteW(nullptr, L"open", GetGodotExePath().c_str(), args.c_str(), root.c_str(), SW_SHOWNORMAL);
-        return 0;
-    }
-
-    g_bgBrush = CreateSolidBrush(RGB(24, 28, 38));
-    g_cardBrush = CreateSolidBrush(RGB(36, 42, 56));
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow) {
+    g_bgBrush = CreateSolidBrush(RGB(16, 21, 34));
 
     WNDCLASSEXW wc = { sizeof(WNDCLASSEXW) };
     wc.lpfnWndProc   = WndProc;
     wc.hInstance     = hInstance;
     wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
     wc.hbrBackground = g_bgBrush;
-    wc.lpszClassName = L"NovaForgeStudioLauncherWnd";
+    wc.lpszClassName = L"NovaForgePersianLauncherWnd";
     RegisterClassExW(&wc);
 
-    int w = 576, h = 385;
+    int w = 586, h = 345;
     int sx = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
     int sy = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
 
     HWND hwnd = CreateWindowExW(
         0, wc.lpszClassName,
-        L"NovaForge AI Game Engine — Studio Launcher",
+        L"استودیو بازی‌سازی هوش مصنوعی نوافورج — NovaForge AI Studio",
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         sx, sy, w, h, nullptr, nullptr, hInstance, nullptr
     );
@@ -249,6 +276,5 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR lpCmdLine, int nCmdSho
     }
 
     DeleteObject(g_bgBrush);
-    DeleteObject(g_cardBrush);
     return 0;
 }

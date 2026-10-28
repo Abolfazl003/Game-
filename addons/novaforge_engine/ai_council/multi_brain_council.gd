@@ -10,9 +10,15 @@ signal council_stage_started(brain_role: String, model_id: String)
 signal blackboard_updated(brain_role: String, entry: String)
 signal council_completed(unified_plan: Dictionary)
 
-var model_hub := NovaLocalModelHub.new()
+var model_hub: RefCounted = null
 var shared_blackboard: Array[Dictionary] = []
 var active_quality_tier: String = "AAA_UNREAL"
+
+
+func _init() -> void:
+	var hub_scr = load("res://addons/novaforge_engine/ai_council/local_model_hub.gd")
+	if hub_scr:
+		model_hub = hub_scr.new()
 
 
 func clear_blackboard() -> void:
@@ -73,10 +79,11 @@ func execute_prompt_with_council(prompt: String, options: Dictionary = {}) -> Di
 			"label": "Pre-Council: " + prompt.left(40)
 		})
 
-	var profile := model_hub.recommend_council_profile(
+	var profile: Dictionary = model_hub.call(
+		"recommend_council_profile",
 		int(options.get("ram_mb", 16384)),
 		int(options.get("vram_mb", 8192))
-	)
+	) if model_hub else {"director": "qwen3.6-35b-a3b", "coder": "qwen2.5-coder-14b-int4", "mesh_3d": "trellis-hunyuan3d-2"}
 	var skills := match_skills_for_prompt(prompt)
 
 	# 1. Director Brain (Game Architecture & Mechanics)

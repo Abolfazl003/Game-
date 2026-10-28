@@ -1,25 +1,22 @@
 @tool
 extends VBoxContainer
-class_name NovaForgeConsolePanel
-## Hybrid Output Console Bottom Panel (`NovaForge Console`) matching the live studio console:
-## Displays Zero-MCP tool calls, Colibrì VRAM relay logs, Voronoi C++20 shard telemetry,
-## Elemental Chemistry reactions, and compiled Blueprint -> C++20 / GDScript source code.
+## Persian Hybrid Output Console Bottom Panel (`کنسول خروجی نوافورج`).
 
 var _console: RichTextLabel
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(0, 210)
+	custom_minimum_size = Vector2(0, 195)
 
 	var top := HBoxContainer.new()
 	var title := Label.new()
-	title.text = "⚡ NovaForge Hybrid Output Console (Blueprint + C++20 + GDScript + Scene Audit)"
+	title.text = "⚡ کنسول زنده نوافورج (گراف بلوپرینت + هسته C++20 + GDScript + ممیزی صحنه)"
 	title.clip_text = true
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(title)
 
 	var btn_clear := Button.new()
-	btn_clear.text = "پاک کردن (Clear)"
+	btn_clear.text = "پاک کردن گزارش‌ها"
 	btn_clear.pressed.connect(func(): _console.clear())
 	top.add_child(btn_clear)
 	add_child(top)
@@ -36,14 +33,14 @@ func _ready() -> void:
 
 func _bind_controller() -> void:
 	var ctrl := _get_ctrl()
-	if ctrl and not ctrl.log_emitted.is_connected(_on_log_emitted):
-		ctrl.log_emitted.connect(_on_log_emitted)
-	_on_log_emitted("[color=#94a3b8]// NovaForge Hybrid Output Console Ready (Zero-MCP | 123 Skills | 114 Tools)[/color]")
+	if ctrl and ctrl.has_signal("log_emitted") and not ctrl.is_connected("log_emitted", _on_log_emitted):
+		ctrl.connect("log_emitted", _on_log_emitted)
+	_on_log_emitted("[color=#94a3b8]// کنسول ترکیبی نوافورج آماده است (بدون نیاز به MCP | ۱۲۳ مهارت | ۱۱۴ ابزار بومی)[/color]")
 
 
-func _get_ctrl() -> NovaEditorSceneController:
+func _get_ctrl() -> Node:
 	if get_tree() and get_tree().root.has_node("NovaEditorController"):
-		return get_tree().root.get_node("NovaEditorController") as NovaEditorSceneController
+		return get_tree().root.get_node("NovaEditorController")
 	return null
 
 

@@ -1,10 +1,11 @@
-[gd_scene load_steps=23 format=3 uid="uid://novaforge_sandbox_001"]
+[gd_scene load_steps=24 format=3 uid="uid://novaforge_sandbox_001"]
 
 [ext_resource type="Script" path="res://addons/novaforge_engine/genres/perspective_camera_rig_3d.gd" id="1_cam"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/smart_objects/smart_object_behavior_3d.gd" id="2_obj"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/living_npcs/living_npc_brain_3d.gd" id="3_npc"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/world/elemental_weather_system.gd" id="4_weather"]
 [ext_resource type="Script" path="res://addons/novaforge_engine/genres/playable_samurai_controller_3d.gd" id="5_hero"]
+[ext_resource type="Script" path="res://addons/novaforge_engine/ui/in_game_studio_hud.gd" id="6_hud"]
 
 [sub_resource type="Environment" id="Environment_nova"]
 background_mode = 1
@@ -132,7 +133,7 @@ mesh = SubResource("BoxMesh_katana")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, 0)
 billboard = 1
 modulate = Color(0.45, 0.85, 1, 1)
-text = "⚔️ سامورایی (Player)"
+text = "⚔ سامورایی (Player)"
 font_size = 26
 
 [node name="HeroCollision" type="CollisionShape3D" parent="SamuraiHero"]
@@ -153,7 +154,7 @@ mesh = SubResource("BoxMesh_crate")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0)
 billboard = 1
 modulate = Color(1, 0.82, 0.45, 1)
-text = "📦 صندوق باستانی [قابل تخریب Voronoi]"
+text = "■ صندوق باستانی [قابل تخریب Voronoi]"
 font_size = 24
 
 [node name="CrateCollision" type="CollisionShape3D" parent="DestructibleAncientCrate"]
@@ -190,3 +191,7 @@ shape = SubResource("CapsuleShape_hero")
 [node name="LivingNPCBrain3D" type="Node3D" parent="KavehBlacksmithNPC"]
 script = ExtResource("3_npc")
 enable_evolving_life = true
+
+[node name="NovaStudioHUD" type="CanvasLayer" parent="."]
+script = ExtResource("6_hud")
+

@@ -34,6 +34,9 @@ mkdir -p "$WEB_ROOT"
 cp -r /usr/share/novnc/* "$WEB_ROOT/"
 cp "$ROOT_DIR/launcher/web_hub_index.html" "$WEB_ROOT/index.html"
 
+# Write Persian ('fa') + Custom Midnight-Cyan NovaForge EditorSettings before launching Godot 4.7.2
+python3 "$ROOT_DIR/launcher/generate_persian_editor_settings.py"
+
 # Write borderless maximized Openbox config so Godot 4 fills 100% of the screen
 mkdir -p /tmp/novaforge_ob
 cat > /tmp/novaforge_ob/rc.xml << 'OBEOF'

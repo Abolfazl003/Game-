@@ -2,7 +2,7 @@ extends CharacterBody3D
 class_name PlayableSamuraiController3D
 ## Out-of-the-box Playable Character Controller (`WASD` Move, `Space` Jump, `Shift` Dodge,
 ## `Left Click` 3-Hit Katana Combo w/ Voronoi Fracture Hit Detection, `E` Smart Interact,
-## and `1..5` Live Camera Perspective & Quality Tier Switching!).
+## and `1..5` Live Camera Perspective & Quality Tier Switching — Cold-Boot Safe).
 
 @export var move_speed: float = 6.2
 @export var dodge_impulse: float = 13.5
@@ -31,15 +31,12 @@ func _physics_process(delta: float) -> void:
 	else:
 		stamina = minf(100.0, stamina + 14.0 * delta)
 
-	# Jump
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
 
-	# Movement Vector (WASD)
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
 
-	# Dodge Roll (Shift)
 	if Input.is_action_just_pressed("dodge") and stamina >= 20.0 and _dodge_timer <= 0.0:
 		stamina -= 20.0
 		_dodge_timer = 0.28
@@ -56,11 +53,9 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-	# 3-Hit Melee Attack (Left Mouse Button)
 	if Input.is_action_just_pressed("attack_light"):
 		_perform_melee_combo()
 
-	# Smart Object / Living NPC Interaction ([E])
 	if Input.is_action_just_pressed("interact"):
 		_perform_smart_interact()
 
@@ -68,21 +63,22 @@ func _physics_process(delta: float) -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not (event is InputEventKey) or not event.pressed or event.echo:
 		return
-	var rig := get_parent().get_node_or_null("PerspectiveCameraRig3D") as PerspectiveCameraRig3D
+	var rig := get_parent().get_node_or_null("PerspectiveCameraRig3D")
 	match (event as InputEventKey).keycode:
 		KEY_1:
-			if rig: rig.set_perspective_by_name("TPS_SOULS")
+			if rig and rig.has_method("set_perspective_by_name"): rig.call("set_perspective_by_name", "TPS_SOULS")
 		KEY_2:
-			if rig: rig.set_perspective_by_name("FPS")
+			if rig and rig.has_method("set_perspective_by_name"): rig.call("set_perspective_by_name", "FPS")
 		KEY_3:
-			if rig: rig.set_perspective_by_name("SIDE_2_5D")
+			if rig and rig.has_method("set_perspective_by_name"): rig.call("set_perspective_by_name", "SIDE_2_5D")
 		KEY_4:
-			if rig: rig.set_perspective_by_name("ISOMETRIC")
+			if rig and rig.has_method("set_perspective_by_name"): rig.call("set_perspective_by_name", "ISOMETRIC")
 		KEY_5:
 			if get_tree().root.has_node("NovaQuality"):
 				var q = get_tree().root.get_node("NovaQuality")
-				var next_t := "INDIE_CEL_ANIME" if q.current_tier == "AAA_UNREAL" else ("INDIE_PSX_RETRO" if q.current_tier == "INDIE_CEL_ANIME" else "AAA_UNREAL")
-				q.apply_quality_tier(next_t)
+				var cur := str(q.get("current_tier"))
+				var next_t := "INDIE_CEL_ANIME" if cur == "AAA_UNREAL" else ("INDIE_PSX_RETRO" if cur == "INDIE_CEL_ANIME" else "AAA_UNREAL")
+				q.call("apply_quality_tier", next_t)
 
 
 func _perform_melee_combo() -> void:
@@ -93,7 +89,6 @@ func _perform_melee_combo() -> void:
 	_combo_reset_timer = 1.15
 	var dmg := melee_damage * (1.45 if combo_step == 3 else 1.0)
 
-	# Sphere/Distance scan for Smart Destructible Objects & Enemy NPCs in front of player
 	var root := get_tree().current_scene
 	if root == null:
 		return
@@ -101,12 +96,12 @@ func _perform_melee_combo() -> void:
 		if node is Node3D and node != self:
 			var dist := global_position.distance_to((node as Node3D).global_position)
 			if dist <= melee_range:
-				var smart := node.get_node_or_null("SmartObjectBehavior3D") as SmartObjectBehavior3D
-				if smart:
-					smart.apply_weapon_hit(dmg, "MELEE_SWORD", global_position)
-				var npc := node.get_node_or_null("LivingNPCBrain3D") as LivingNPCBrain3D
-				if npc:
-					npc.record_player_interaction("attacked_and_escaped", "Katana_Combo_" + str(combo_step))
+				var smart := node.get_node_or_null("SmartObjectBehavior3D")
+				if smart and smart.has_method("apply_weapon_hit"):
+					smart.call("apply_weapon_hit", dmg, "MELEE_SWORD", global_position)
+				var npc := node.get_node_or_null("LivingNPCBrain3D")
+				if npc and npc.has_method("record_player_interaction"):
+					npc.call("record_player_interaction", "attacked_and_escaped", "Katana_Combo_" + str(combo_step))
 
 
 func _perform_smart_interact() -> void:
@@ -116,10 +111,10 @@ func _perform_smart_interact() -> void:
 	for node in root.get_children():
 		if node is Node3D and node != self:
 			if global_position.distance_to((node as Node3D).global_position) <= 3.0:
-				var smart := node.get_node_or_null("SmartObjectBehavior3D") as SmartObjectBehavior3D
-				if smart:
-					smart.interact(self)
-				var npc := node.get_node_or_null("LivingNPCBrain3D") as LivingNPCBrain3D
-				if npc:
-					npc.record_player_interaction("traded_fairly")
-					npc.advance_life_chapter(1)
+				var smart := node.get_node_or_null("SmartObjectBehavior3D")
+				if smart and smart.has_method("interact"):
+					smart.call("interact", self)
+				var npc := node.get_node_or_null("LivingNPCBrain3D")
+				if npc and npc.has_method("record_player_interaction"):
+					npc.call("record_player_interaction", "traded_fairly")
+					npc.call("advance_life_chapter", 1)
