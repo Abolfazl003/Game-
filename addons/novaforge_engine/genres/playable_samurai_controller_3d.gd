@@ -39,7 +39,7 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
-		_set_hero_anim("Jump", false)
+		_set_hero_anim_candidates(["Jump", "Run"], false)
 
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction := Vector3(input_dir.x, 0.0, input_dir.y).normalized()
@@ -50,7 +50,7 @@ func _physics_process(delta: float) -> void:
 		var dodge_dir := direction if direction.length() > 0.1 else Vector3.FORWARD
 		velocity.x = dodge_dir.x * dodge_impulse
 		velocity.z = dodge_dir.z * dodge_impulse
-		_set_hero_anim("Roll", false)
+		_set_hero_anim_candidates(["Roll", "Run"], false)
 	elif _dodge_timer <= 0.0:
 		if direction.length() > 0.05:
 			velocity.x = direction.x * move_speed
@@ -83,12 +83,17 @@ func _get_visual_model() -> Node3D:
 
 
 func _set_hero_anim(anim_key: String, loop_flag: bool) -> void:
-	if _current_anim_state == anim_key and loop_flag:
+	_set_hero_anim_candidates([anim_key], loop_flag)
+
+
+func _set_hero_anim_candidates(candidates: Array, loop_flag: bool) -> void:
+	var primary := str(candidates[0]) if not candidates.is_empty() else "Idle"
+	if _current_anim_state == primary and loop_flag:
 		return
 	var m := _get_visual_model()
 	if m:
-		LoaderScript.play_character_anim(m, [anim_key], loop_flag)
-		_current_anim_state = anim_key
+		LoaderScript.play_character_anim(m, candidates, loop_flag)
+		_current_anim_state = primary
 
 
 func _unhandled_key_input(event: InputEvent) -> void:

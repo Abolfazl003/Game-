@@ -11,13 +11,16 @@ func _ready() -> void:
 
 
 func _mount_real_3d_world() -> void:
-	# 1. Samurai / Ninja Playable Hero (Real Rigged 3D Character w/ 17 Skeletal Animations)
+	# 1. Playable Hero: True 360° Neural AI Sculpted & 19-Bone Auto-Rigged Cyberpunk Samurai (.GLB)
 	var hero := get_node_or_null("SamuraiHero") as Node3D
 	if hero and hero.get_node_or_null("RealHeroModel3D") == null:
-		var m_hero := LoaderScript.load_model_scene("res://assets/models/characters/ninja_samurai.glb", 1.85)
+		var hero_path := "res://assets/models/characters/ai_cyber_hero_360.glb"
+		if not FileAccess.file_exists(hero_path):
+			hero_path = "res://assets/models/characters/ninja_samurai.glb"
+		var m_hero := LoaderScript.load_model_scene(hero_path, 1.88)
 		if m_hero:
 			m_hero.name = "RealHeroModel3D"
-			m_hero.rotation_degrees.y = 180.0
+			m_hero.rotation_degrees.y = 0.0
 			hero.add_child(m_hero)
 			LoaderScript.play_character_anim(m_hero, ["Idle"], true)
 

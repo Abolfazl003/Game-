@@ -27,9 +27,18 @@ var _history: Array[Dictionary] = []
 var _cutscene_overlay: Control = null
 var _cutscene_sub_label: Label = null
 var _cutscene_running: bool = false
+var _neural_client: Node = null
 
 
 func _ready() -> void:
+	var nscr = load("res://addons/novaforge_engine/forge/neural_3d_cloud_client.gd")
+	if nscr:
+		_neural_client = nscr.new()
+		_neural_client.name = "ControllerNeural3DClient"
+		_neural_client.progress_updated.connect(func(pct: int, msg: String):
+			emit_log("[color=#38bdf8][هوش مصنوعی ۳۶۰ درجه %d%%][/color] %s" % [pct, msg])
+		)
+		add_child(_neural_client)
 	call_deferred("_initial_setup")
 
 
@@ -329,38 +338,37 @@ func _play_hero_katana_slash_vfx() -> void:
 
 func spawn_image_to_3d_rigged_character(img_path: String = "res://assets/sample_images/cyber_samurai_concept.png") -> void:
 	var root := get_edited_root()
+	if root == null or _neural_client == null:
+		return
+	if _neural_client.call("is_busy"):
+		emit_log("[color=#f59e0b]یک مدل ۳۶۰ درجه در حال ساخت است؛ لطفاً چند ثانیه صبر کنید...[/color]")
+		return
+	save_snapshot("360 Neural Image-to-3D + Auto-Rig")
+	emit_log("[b][color=#38bdf8][تبدیل عکس به مش ۳۶۰ درجه][/color][/b] ارسال «%s» به موتور دوربری و Hunyuan3D-2..." % img_path.get_file())
+
+	var res: Dictionary = await _neural_client.call("generate_from_image_async", img_path, true, 176)
+	if not res.get("ok", false):
+		emit_log("[color=#ef4444][خطا][/color] " + str(res.get("error", "")))
+		return
+
+	root = get_edited_root()
 	if root == null:
 		return
-	save_snapshot("Image-to-3D + Auto-Rig")
-
-	var conv = load("res://addons/novaforge_engine/forge/real_image_to_3d_converter.gd")
-	var rigger = load("res://addons/novaforge_engine/rigging/real_mesh_autorigger.gd")
-	if conv == null or rigger == null:
-		return
-
-	var mres: Dictionary = conv.reconstruct_3d_mesh_from_image(img_path, 84, 0.55, 1.88)
-	if not mres.get("ok", false):
-		emit_log("[color=#ef4444][خطا][/color] " + str(mres.get("error", "")))
-		return
-
-	var mesh_node: Node3D = mres["node"]
-	var out_glb := "res://generated/rigged/" + str(mres["name"]) + "_rigged.glb"
-	var rres: Dictionary = rigger.autorig_node3d(mesh_node, true, "Walk", out_glb)
-	mesh_node.free()
-	if not rres.get("ok", false):
-		return
-
-	var old := root.get_node_or_null(NodePath(rres["node"].name))
+	var char_root: Node3D = res["node"]
+	var old := root.get_node_or_null(NodePath(char_root.name))
 	if old:
 		old.free()
-	var char_root: Node3D = rres["node"]
-	char_root.position = Vector3(1.8, 0.0, 0.4)
+	var markers := char_root.find_child("BoneDebugMarkers", true, false) as Node3D
+	if markers:
+		markers.visible = false
+	char_root.position = Vector3(1.8, 0.0, 0.5)
 	root.add_child(char_root)
 	char_root.owner = root
+	switch_to_3d_viewport()
 
 	emit_log(
-		"[b][color=#38bdf8][تبدیل عکس به مش 3D + ریگ خودکار][/color][/b] تصویر «%s» -> مش سه‌بعدی (%d مثلث) -> ریگ %d استخوانی + انیمیشن راه رفتن -> ذخیره شد: [b]%s[/b]" %
-		[img_path.get_file(), int(mres["triangles"]), int(rres["bones_count"]), out_glb]
+		"[b][color=#22c55e][عکس -> مش ۳۶۰ درجه + ریگ ۱۹ استخوانی][/color][/b] ✓ تصویر «%s» با [b]%s[/b] به مش ۳۶۰ درجه (%d مثلث) و ریگ %d استخوانی تبدیل شد -> [b]%s[/b]" %
+		[img_path.get_file(), str(res.get("backend", "Hunyuan3D-2")), int(res["triangles"]), int(res["bones_count"]), str(res["saved_glb"])]
 	)
 
 
@@ -673,31 +681,73 @@ func _refresh_3d_labels() -> void:
 			clbl.text = "★ صندوق متلاشی شد (۱۶ قطعه Voronoi)" if crate_shattered else "■ صندوق باستانی [قابل تخریب Voronoi]"
 
 
-func run_prompt_council_build(prompt_txt: String) -> Dictionary:
-	save_snapshot("Prompt Build: " + prompt_txt.left(24))
-	emit_log("[b][color=#38bdf8][شورای ۵ مغز Colibrì][/color][/b] تحلیل معنایی و ساخت مدل‌های سه‌بعدی واقعی از پرامپت: «%s»" % prompt_txt)
-	if get_tree() and get_tree().root.has_node("NovaBrainCouncil"):
-		get_tree().root.get_node("NovaBrainCouncil").call("execute_prompt_with_council", prompt_txt)
+func run_prompt_council_build(prompt_txt: String) -> void:
+	if _neural_client == null:
+		return
+	if _neural_client.call("is_busy"):
+		emit_log("[color=#f59e0b]یک مدل ۳۶۰ درجه در حال ساخت است؛ لطفاً چند ثانیه صبر کنید...[/color]")
+		return
 
-	var root := get_edited_root()
-	var spawned_list: Array = []
-	var builder = load("res://addons/novaforge_engine/ai_council/semantic_world_builder.gd")
-	if builder and root:
-		var bres: Dictionary = builder.build_from_prompt(root, prompt_txt, false)
-		spawned_list = bres.get("spawned", [])
+	save_snapshot("360 Neural Prompt Build: " + prompt_txt.left(24))
+	emit_log("[b][color=#38bdf8][تولید مش ۳۶۰ درجه هوش مصنوعی][/color][/b] شروع ساخت مدل سه‌بعدی واقعی از پرامپت: «%s»..." % prompt_txt)
 
 	if prompt_txt.contains("باران") or prompt_txt.contains("خیس") or prompt_txt.to_lower().contains("rain"):
 		apply_elemental_weather("RAIN", true)
-	elif prompt_txt.contains("آتش") and not prompt_txt.contains("آتش کمپ"):
-		apply_elemental_weather("FIRE", true)
 	elif prompt_txt.contains("صاعقه") or prompt_txt.to_lower().contains("lightning"):
 		apply_elemental_weather("LIGHTNING", true)
 
-	if prompt_txt.contains("کات‌سین") or prompt_txt.contains("کات سین") or prompt_txt.to_lower().contains("cutscene"):
-		trigger_live_cutscene("▶ کات‌سین ساخته‌شده توسط شورای ۵ مغز: «" + prompt_txt.left(48) + "»")
+	var res: Dictionary = await _neural_client.call("generate_from_prompt_async", prompt_txt, true, 0, 176)
+	if not res.get("ok", false):
+		emit_log("[color=#ef4444][خطا در ساخت سه‌بعدی][/color] " + str(res.get("error", "")))
+		return
 
-	emit_log("[b][color=#22c55e][ساخت مدل‌های سه‌بعدی واقعی .GLB][/color][/b] ✓ ساخته شد (%d مدل): [b]%s[/b]" % [spawned_list.size(), ", ".join(PackedStringArray(spawned_list))])
-	return {"ok": true, "prompt": prompt_txt, "spawned": spawned_list}
+	var root := get_edited_root()
+	if root == null:
+		return
+	var holder := root.get_node_or_null("NovaAISpawnedWorld") as Node3D
+	if holder == null:
+		holder = Node3D.new()
+		holder.name = "NovaAISpawnedWorld"
+		root.add_child(holder)
+		holder.owner = root
+
+	var node3d: Node3D = res["node"]
+	var markers := node3d.find_child("BoneDebugMarkers", true, false) as Node3D
+	if markers:
+		markers.visible = false
+
+	var idx := holder.get_child_count()
+	var offset_x := 0.0 if idx == 0 else (2.1 * float((idx + 1) / 2) * (1.0 if idx % 2 == 1 else -1.0))
+	node3d.position = Vector3(offset_x, 0.0, 0.6)
+	holder.add_child(node3d)
+	node3d.owner = root
+
+	var tag := Label3D.new()
+	tag.text = "✦ " + prompt_txt.left(34)
+	tag.font_size = 24
+	tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	tag.modulate = Color(0.45, 0.92, 1.0)
+	tag.position = Vector3(0.0, 2.05, 0.0)
+	node3d.add_child(tag)
+
+	if prompt_txt.contains("کات‌سین") or prompt_txt.contains("کات سین") or prompt_txt.to_lower().contains("cutscene"):
+		trigger_live_cutscene("▶ کات‌سین زنده: «" + prompt_txt.left(48) + "»")
+
+	switch_to_3d_viewport()
+	emit_log(
+		"[b][color=#22c55e][تولید مش سه‌بعدی ۳۶۰ درجه کامل شد ✓][/color][/b] با [b]%s[/b]: %d مثلث | %d استخوان ریگ‌شده | ذخیره شد: [b]%s[/b]" %
+		[str(res.get("backend", "Hunyuan3D-2")), int(res["triangles"]), int(res["bones_count"]), str(res["saved_glb"])]
+	)
+
+
+func run_library_world_layout(prompt_txt: String) -> void:
+	var root := get_edited_root()
+	var builder = load("res://addons/novaforge_engine/ai_council/semantic_world_builder.gd")
+	if builder and root:
+		var bres: Dictionary = builder.build_from_prompt(root, prompt_txt, false)
+		var sp: Array = bres.get("spawned", [])
+		switch_to_3d_viewport()
+		emit_log("[color=#22c55e][چیدمان سریع محیط][/color] ✓ %d مدل محیطی اضافه شد: %s" % [sp.size(), ", ".join(PackedStringArray(sp))])
 
 
 func clear_ai_spawned_world() -> void:

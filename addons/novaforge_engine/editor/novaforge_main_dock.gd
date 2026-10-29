@@ -135,17 +135,17 @@ func _ready() -> void:
 	grid3.add_theme_constant_override("h_separation", 4)
 	grid3.add_theme_constant_override("v_separation", 4)
 
+	var use_os_native := OS.get_name() in ["Windows", "macOS"]
 	var dock_img_dlg := FileDialog.new()
-	dock_img_dlg.title = "انتخاب عکس از سیستم برای تبدیل به مش سه‌بعدی و ریگ خودکار"
+	dock_img_dlg.title = "انتخاب عکس از سیستم برای تبدیل به مش سه‌بعدی ۳۶۰ درجه و ریگ خودکار"
 	dock_img_dlg.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	dock_img_dlg.access = FileDialog.ACCESS_FILESYSTEM
-	dock_img_dlg.use_native_dialog = false
+	dock_img_dlg.use_native_dialog = use_os_native
 	dock_img_dlg.filters = PackedStringArray(["*.png, *.jpg, *.jpeg, *.webp, *.bmp ; تصاویر"])
 	dock_img_dlg.file_selected.connect(func(p: String):
 		var ctrl := _get_ctrl()
 		if ctrl:
 			ctrl.call("spawn_image_to_3d_rigged_character", p)
-			if ctrl.has_method("switch_to_3d_viewport"): ctrl.call("switch_to_3d_viewport")
 	)
 	add_child(dock_img_dlg)
 
@@ -153,7 +153,7 @@ func _ready() -> void:
 	dock_mesh_dlg.title = "انتخاب مدل سه‌بعدی (.glb / .gltf / .obj) برای ایمپورت"
 	dock_mesh_dlg.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	dock_mesh_dlg.access = FileDialog.ACCESS_FILESYSTEM
-	dock_mesh_dlg.use_native_dialog = false
+	dock_mesh_dlg.use_native_dialog = use_os_native
 	dock_mesh_dlg.filters = PackedStringArray(["*.glb, *.gltf, *.obj ; مدل‌های سه‌بعدی"])
 	dock_mesh_dlg.file_selected.connect(func(p: String):
 		var ctrl := _get_ctrl()

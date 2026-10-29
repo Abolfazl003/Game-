@@ -43,8 +43,9 @@ static func load_model_scene(path: String, target_height: float = -1.0, tint_col
 	# Normalize height & ground alignment if requested
 	if target_height > 0.0:
 		var bounds := compute_hierarchy_aabb(loaded_root)
-		if bounds.size.y > 0.001:
-			var s := target_height / bounds.size.y
+		var max_span := maxf(bounds.size.y, 0.55 * maxf(bounds.size.x, bounds.size.z))
+		if max_span > 0.001:
+			var s := target_height / max_span
 			loaded_root.scale = Vector3.ONE * s
 			loaded_root.position.y = -bounds.position.y * s
 

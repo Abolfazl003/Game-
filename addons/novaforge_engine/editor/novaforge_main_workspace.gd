@@ -62,21 +62,21 @@ func _ready() -> void:
 
 	var p_card := _styled_card(Color(0.09, 0.13, 0.22), Color(0.22, 0.78, 0.98))
 	p_card.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	p_card.add_child(_sec_title("⚡ ساخت صحنه و مدل‌های سه‌بعدی واقعی با پرامپت فارسی و انگلیسی (۳۹ مدل متحرک و تکسچردار .GLB)"))
+	p_card.add_child(_sec_title("⚡ ساخت مش سه‌بعدی ۳۶۰ درجه واقعی از هر پرامپت فارسی و انگلیسی با هوش مصنوعی (Flux + Hunyuan3D-2 + ریگ خودکار)"))
 
 	_prompt_box = TextEdit.new()
-	_prompt_box.custom_minimum_size = Vector2(0, 68)
+	_prompt_box.custom_minimum_size = Vector2(0, 62)
 	_prompt_box.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
-	_prompt_box.text = "یه ماشین اسپرت قرمز، دو تا شوالیه طلایی با شمشیر، سه تا زامبی، قلعه سنگی و درخت کاج بساز!"
+	_prompt_box.text = "یه ربات سامورایی سیاه و طلایی با زره سنگین بساز"
 	p_card.add_child(_prompt_box)
 
 	var preset_hb := HBoxContainer.new()
 	preset_hb.add_theme_constant_override("separation", 6)
 	for pr in [
-		["ماشین اسپرت + شهر", "یه ماشین اسپرت قرمز، ماشین پلیس، ساختمان شهری و خانه ویلایی بساز"],
-		["شوالیه + زامبی + قلعه", "یه شوالیه طلایی، وایکینگ جنگجو، سه تا زامبی، دروازه قلعه و صندوقچه گنج بساز"],
-		["جنگل + پل + گرگ + آتش", "یه جنگل با درخت کاج، صخره، پل سنگی، چادر کمپ، آتش کمپ و گرگ همراه بساز"],
-		["سرباز + تفنگ + کامیون", "دو تا سرباز کماندو، تفنگ تهاجمی، اسنایپر، کامیون سنگین و بشکه بساز"],
+		["ربات سامورایی طلایی", "یه ربات سامورایی سیاه و طلایی با زره سنگین بساز"],
+		["اژدهای آتشین بال‌دار", "یه اژدهای آتشین قرمز و سیاه با بال‌های باز بساز"],
+		["ماشین لامبورگینی آبی", "یه ماشین سوپراسپرت آینده‌نگر آبی متالیک بساز"],
+		["شمشیر افسانه‌ای نوری", "یه شمشیر افسانه‌ای سلطنتی طلایی و یاقوتی بساز"],
 	]:
 		var p_txt: String = pr[1]
 		var pb := Button.new()
@@ -91,12 +91,20 @@ func _ready() -> void:
 
 	var act_hb := HBoxContainer.new()
 	act_hb.add_theme_constant_override("separation", 8)
-	var btn_build := _action_btn("⚡ ساخت مدل‌های سه‌بعدی واقعی از این پرامپت در صحنه 3D", Color(0.10, 0.48, 0.84))
+	var btn_build := _action_btn("⚡ ساخت مدل ۳۶۰ درجه واقعی با هوش مصنوعی + ریگ خودکار (.GLB)", Color(0.10, 0.48, 0.86))
 	btn_build.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_build.pressed.connect(_on_run_prompt)
 	act_hb.add_child(btn_build)
 
-	var btn_clear := _action_btn("↺ پاک کردن اشیاء پرامپت", Color(0.32, 0.36, 0.46))
+	var btn_env := _action_btn("✦ چیدمان سریع محیط صحنه", Color(0.14, 0.48, 0.36))
+	btn_env.pressed.connect(func():
+		var c := _get_ctrl()
+		if c and c.has_method("run_library_world_layout"):
+			c.call("run_library_world_layout", _prompt_box.text)
+	)
+	act_hb.add_child(btn_env)
+
+	var btn_clear := _action_btn("↺ پاک کردن", Color(0.32, 0.36, 0.46))
 	btn_clear.pressed.connect(func():
 		var c := _get_ctrl()
 		if c: c.call("clear_ai_spawned_world")
@@ -204,7 +212,7 @@ func _ready() -> void:
 	_blender_file_dialog.title = "انتخاب مدل سه‌بعدی برای ایمپورت خودکار در صحنه"
 	_blender_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	_blender_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
-	_blender_file_dialog.use_native_dialog = false
+	_blender_file_dialog.use_native_dialog = OS.get_name() in ["Windows", "macOS"]
 	_blender_file_dialog.filters = PackedStringArray(["*.glb, *.gltf, *.obj ; مدل‌های سه‌بعدی"])
 	_blender_file_dialog.file_selected.connect(func(p: String):
 		var c := _get_ctrl()
@@ -325,4 +333,3 @@ func _on_run_prompt() -> void:
 	var ctrl := _get_ctrl()
 	if ctrl and ctrl.has_method("run_prompt_council_build"):
 		ctrl.call("run_prompt_council_build", p)
-	_goto_3d_screen()

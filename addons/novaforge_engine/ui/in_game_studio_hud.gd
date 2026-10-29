@@ -18,6 +18,7 @@ var _npc_rel: int = 10
 var _npc_title: String = "شاگرد آهنگر (سطح ۱)"
 var _npc_scars: Array[String] = []
 var _panels_visible: bool = true
+var _neural_client: Node = null
 
 
 func _ready() -> void:
@@ -27,7 +28,20 @@ func _ready() -> void:
 
 	layer = 10
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var nscr = load("res://addons/novaforge_engine/forge/neural_3d_cloud_client.gd")
+	if nscr:
+		_neural_client = nscr.new()
+		_neural_client.name = "RuntimeNeural3DClient"
+		_neural_client.progress_updated.connect(func(pct: int, msg: String):
+			if _vram_bar:
+				_vram_bar.value = float(pct)
+			_log("[color=#38bdf8][هوش مصنوعی ۳۶۰ درجه %d%%][/color] %s" % [pct, msg])
+		)
+		add_child(_neural_client)
 	_build_ui()
+	var w := get_window()
+	if w and not w.files_dropped.is_connected(_on_runtime_files_dropped):
+		w.files_dropped.connect(_on_runtime_files_dropped)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -131,25 +145,29 @@ func _build_ui() -> void:
 	rvb.add_child(_vram_bar)
 
 	rvb.add_child(HSeparator.new())
-	rvb.add_child(_hdr("⚡ پرامپت فارسی ساخت صحنه و کات‌سین"))
+	rvb.add_child(_hdr("⚡ ساخت مش ۳۶۰ درجه با پرامپت هوش مصنوعی"))
 	_prompt_edit = TextEdit.new()
-	_prompt_edit.text = "یه جنگجوی سامورایی با کمبوی ۳ ضربه‌ای شمشیر بساز، صندوق چوبی با ضربه تیکه‌تیکه بشه و وقتی رسید دم دروازه، این تیکه کات‌سینه!"
+	_prompt_edit.text = "یه جنگجوی سامورایی سیاه و طلایی با زره سنگین بساز"
 	_prompt_edit.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
-	_prompt_edit.custom_minimum_size = Vector2(0, 74)
+	_prompt_edit.custom_minimum_size = Vector2(0, 68)
 	rvb.add_child(_prompt_edit)
 
-	var btn_council := _btn("⚡ اجرای همفکری شورا در همین صحنه", Color(0.18, 0.42, 0.88))
+	var btn_council := _btn("⚡ ساخت مدل ۳۶۰ درجه واقعی + ریگ خودکار", Color(0.14, 0.46, 0.88))
 	btn_council.pressed.connect(_on_run_council)
 	rvb.add_child(btn_council)
 
 	rvb.add_child(HSeparator.new())
-	rvb.add_child(_hdr("■ تبدیل عکس به مش 3D و ریگ‌گذاری خودکار"))
+	rvb.add_child(_hdr("■ تبدیل هر عکس به مش ۳۶۰ درجه و ریگ خودکار"))
 
+	var use_os_native := OS.get_name() in ["Windows", "macOS"]
 	var runtime_img_dlg := FileDialog.new()
-	runtime_img_dlg.title = "انتخاب عکس برای ساخت مش سه‌بعدی و ریگ خودکار"
+	runtime_img_dlg.title = "انتخاب عکس برای ساخت مش سه‌بعدی ۳۶۰ درجه و ریگ خودکار"
 	runtime_img_dlg.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	runtime_img_dlg.access = FileDialog.ACCESS_FILESYSTEM
-	runtime_img_dlg.use_native_dialog = false
+	runtime_img_dlg.use_native_dialog = use_os_native
+	var pic_dir := OS.get_system_dir(OS.SYSTEM_DIR_PICTURES)
+	if not pic_dir.is_empty() and DirAccess.dir_exists_absolute(pic_dir):
+		runtime_img_dlg.current_dir = pic_dir
 	runtime_img_dlg.filters = PackedStringArray(["*.png, *.jpg, *.jpeg, *.webp, *.bmp ; تصاویر"])
 	runtime_img_dlg.file_selected.connect(_spawn_rigged_from_image_path)
 	add_child(runtime_img_dlg)
@@ -158,17 +176,34 @@ func _build_ui() -> void:
 	runtime_mesh_dlg.title = "انتخاب فایل مدل سه‌بعدی (.glb / .gltf / .obj) برای ریگ خودکار"
 	runtime_mesh_dlg.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	runtime_mesh_dlg.access = FileDialog.ACCESS_FILESYSTEM
-	runtime_mesh_dlg.use_native_dialog = false
+	runtime_mesh_dlg.use_native_dialog = use_os_native
+	var dl_dir := OS.get_system_dir(OS.SYSTEM_DIR_DOWNLOADS)
+	if not dl_dir.is_empty() and DirAccess.dir_exists_absolute(dl_dir):
+		runtime_mesh_dlg.current_dir = dl_dir
 	runtime_mesh_dlg.filters = PackedStringArray(["*.glb, *.gltf, *.obj ; مدل‌های سه‌بعدی"])
 	runtime_mesh_dlg.file_selected.connect(_autorig_external_model_path)
 	add_child(runtime_mesh_dlg)
 
-	var b_pick_photo := _btn("◆ انتخاب عکس از سیستم ⬅ مش 3D + ریگ", Color(0.10, 0.48, 0.80))
-	b_pick_photo.pressed.connect(func(): runtime_img_dlg.popup_centered(Vector2i(760, 480)))
+	var b_pick_photo := _btn("◆ انتخاب عکس از ویندوز ⬅ مش ۳۶۰ درجه + ریگ", Color(0.10, 0.48, 0.80))
+	b_pick_photo.pressed.connect(func():
+		if use_os_native:
+			runtime_img_dlg.popup()
+		else:
+			runtime_img_dlg.popup_centered(Vector2i(820, 520))
+	)
 	rvb.add_child(b_pick_photo)
 
+	var b_paste_photo := _btn("✦ چسباندن عکس از کلیپ‌بورد (Ctrl+V)", Color(0.12, 0.56, 0.44))
+	b_paste_photo.pressed.connect(_paste_clipboard_image_runtime)
+	rvb.add_child(b_paste_photo)
+
 	var b_pick_mesh := _btn("✦ انتخاب مدل (.GLB/.OBJ) ⬅ ریگ خودکار", Color(0.52, 0.30, 0.72))
-	b_pick_mesh.pressed.connect(func(): runtime_mesh_dlg.popup_centered(Vector2i(760, 480)))
+	b_pick_mesh.pressed.connect(func():
+		if use_os_native:
+			runtime_mesh_dlg.popup()
+		else:
+			runtime_mesh_dlg.popup_centered(Vector2i(820, 520))
+	)
 	rvb.add_child(b_pick_mesh)
 
 	var g4 := GridContainer.new()
@@ -387,43 +422,63 @@ func _on_cam_picked(idx: int) -> void:
 
 
 func _on_run_council() -> void:
-	_vram_bar.value = 52.0
 	var p := _prompt_edit.text.strip_edges()
-	var builder = load("res://addons/novaforge_engine/ai_council/semantic_world_builder.gd")
-	var spawned: Array = []
-	if builder:
-		var res: Dictionary = builder.build_from_prompt(_scene_root(), p, false)
-		spawned = res.get("spawned", [])
+	if p.is_empty() or _neural_client == null:
+		return
+	if _neural_client.call("is_busy"):
+		_log("[color=#f59e0b]مدل ۳۶۰ درجه قبلی در حال ساخت است؛ لطفاً چند ثانیه صبر کنید...[/color]")
+		return
+	_log("[color=#38bdf8][شروع تولید مش ۳۶۰ درجه][/color] ارسال پرامپت به هوش مصنوعی سه‌بعدی: «%s»..." % p)
+	var res: Dictionary = await _neural_client.call("generate_from_prompt_async", p, true, 0, 176)
+	if not res.get("ok", false):
+		_log("[color=#ef4444]%s[/color]" % str(res.get("error", "خطا")))
+		return
+	var r := _scene_root()
+	var n3d: Node3D = res["node"]
+	var markers := n3d.find_child("BoneDebugMarkers", true, false) as Node3D
+	if markers:
+		markers.visible = false
+	n3d.position = Vector3(1.9, 0.0, 0.3)
+	r.add_child(n3d)
 	if p.contains("کات‌سین") or p.contains("کات سین"):
 		_play_cutscene()
-	var tw := create_tween()
-	tw.tween_interval(0.9)
-	tw.tween_callback(func(): _vram_bar.value = 10.0)
-	_log("[color=#22c55e][ساخت مدل‌های سه‌بعدی واقعی .GLB][/color] ✓ ساخته شد: [b]%s[/b]" % ", ".join(PackedStringArray(spawned)))
+	_log("[color=#22c55e][مش ۳۶۰ درجه هوش مصنوعی ساخته شد ✓][/color] با [b]%s[/b]: %d مثلث | %d استخوان ریگ‌شده -> [b]%s[/b]" % [str(res.get("backend", "Hunyuan3D-2")), int(res["triangles"]), int(res["bones_count"]), str(res["saved_glb"])])
 
 
 func _spawn_rigged_from_image_path(img_path: String) -> void:
-	var conv = load("res://addons/novaforge_engine/forge/real_image_to_3d_converter.gd")
-	var rigger = load("res://addons/novaforge_engine/rigging/real_mesh_autorigger.gd")
-	if conv == null or rigger == null:
+	if _neural_client == null:
 		return
-	var mres: Dictionary = conv.reconstruct_3d_mesh_from_image(img_path, 84, 0.55, 1.88)
-	if not mres.get("ok", false):
-		_log("[color=#ef4444]%s[/color]" % str(mres.get("error", "خطا")))
+	if _neural_client.call("is_busy"):
+		_log("[color=#f59e0b]یک مدل ۳۶۰ درجه در حال ساخت است؛ لطفاً صبر کنید...[/color]")
 		return
-	var mnode: Node3D = mres["node"]
-	var out_glb := "res://generated/rigged/" + str(mres["name"]) + "_rigged.glb"
-	var rres: Dictionary = rigger.autorig_node3d(mnode, true, "Walk", out_glb)
-	mnode.free()
-	if not rres.get("ok", false):
+	_log("[color=#38bdf8][تبدیل عکس به مش ۳۶۰ درجه][/color] دوربری عصبی و ساخت مش حجمی از «%s»..." % img_path.get_file())
+	var res: Dictionary = await _neural_client.call("generate_from_image_async", img_path, true, 176)
+	if not res.get("ok", false):
+		_log("[color=#ef4444]%s[/color]" % str(res.get("error", "خطا")))
 		return
 	var r := _scene_root()
-	var old := r.get_node_or_null(NodePath(rres["node"].name))
+	var old := r.get_node_or_null(NodePath(res["node"].name))
 	if old: old.free()
-	var rigged_node: Node3D = rres["node"]
-	rigged_node.position = Vector3(1.6, 0.0, 0.2)
+	var rigged_node: Node3D = res["node"]
+	var markers := rigged_node.find_child("BoneDebugMarkers", true, false) as Node3D
+	if markers:
+		markers.visible = false
+	rigged_node.position = Vector3(1.8, 0.0, 0.25)
 	r.add_child(rigged_node)
-	_log("[color=#38bdf8][عکس -> مش 3D + ریگ][/color] ✓ «%s» به مش سه‌بعدی (%d مثلث) و اسکلت %d استخوانی تبدیل شد -> [b]%s[/b]" % [img_path.get_file(), int(mres["triangles"]), int(rres["bones_count"]), out_glb])
+	_log("[color=#22c55e][عکس -> مش ۳۶۰ درجه + ریگ ۱۹ استخوانی][/color] ✓ «%s» با [b]%s[/b] (%d مثلث، %d استخوان) ساخته شد -> [b]%s[/b]" % [img_path.get_file(), str(res.get("backend", "Hunyuan3D-2")), int(res["triangles"]), int(res["bones_count"]), str(res["saved_glb"])])
+
+
+func _paste_clipboard_image_runtime() -> void:
+	if not DisplayServer.clipboard_has_image():
+		_log("[color=#f59e0b]هیچ عکسی در کلیپ‌بورد ویندوز نیست! ابتدا یک تصویر را Copy یا Screenshot کنید.[/color]")
+		return
+	var img := DisplayServer.clipboard_get_image()
+	if img == null or img.is_empty():
+		return
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://generated/concepts"))
+	var saved_path := ProjectSettings.globalize_path("res://generated/concepts/clipboard_runtime_%d.png" % (Time.get_ticks_msec() % 100000))
+	img.save_png(saved_path)
+	_spawn_rigged_from_image_path(saved_path)
 
 
 func _autorig_external_model_path(mesh_path: String) -> void:

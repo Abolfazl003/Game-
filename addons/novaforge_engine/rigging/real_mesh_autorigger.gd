@@ -85,12 +85,13 @@ static func autorig_node3d(
 	var h := maxf(0.25, all_max.y - all_min.y)
 	var half_w := maxf(0.10, 0.5 * (all_max.x - all_min.x))
 
-	# Measure arm span in upper body (0.56H .. 0.84H) & leg width in lower body (0.06H .. 0.44H)
-	var arm_max_x := 0.0
-	var arm_avg_y := 0.74 * h
-	var arm_cnt := 0.0
-	var leg_avg_x := 0.0
-	var leg_cnt := 0.0
+	# Pose-Adaptive 3D Slice Scanning (accurately fits T-pose, A-pose, relaxed A-pose & wide heroic stances!)
+	var sh_sum_x := 0.0; var sh_cnt := 0.0
+	var el_max_x := 0.0; var el_sum_y := 0.0; var el_cnt := 0.0
+	var hd_max_x := 0.0; var hd_sum_y := 0.0; var hd_cnt := 0.0
+	var hip_sum_x := 0.0; var hip_cnt := 0.0
+	var knee_sum_x := 0.0; var knee_cnt := 0.0
+	var foot_sum_x := 0.0; var foot_cnt := 0.0
 
 	for surf in raw_surfaces:
 		var bv: PackedVector3Array = surf["verts"]
@@ -98,76 +99,87 @@ static func autorig_node3d(
 			var p := bv[i] - center_xz
 			bv[i] = p
 			var yn := p.y / h
-			if yn >= 0.56 and yn <= 0.84 and absf(p.x) > 0.14 * h:
-				if absf(p.x) > arm_max_x:
-					arm_max_x = absf(p.x)
-				if absf(p.x) > 0.25 * half_w:
-					arm_avg_y += p.y
-					arm_cnt += 1.0
-			if yn >= 0.08 and yn <= 0.44 and absf(p.x) > 0.02 * h:
-				leg_avg_x += absf(p.x)
-				leg_cnt += 1.0
+			var ax := absf(p.x)
+			if yn >= 0.72 and yn <= 0.82 and ax > 0.10 * h:
+				sh_sum_x += ax; sh_cnt += 1.0
+			if yn >= 0.58 and yn <= 0.72 and ax > 0.16 * h:
+				if ax > el_max_x: el_max_x = ax
+				el_sum_y += p.y; el_cnt += 1.0
+			if yn >= 0.42 and yn <= 0.84 and ax > 0.20 * h:
+				if ax > hd_max_x: hd_max_x = ax
+				if ax > 0.68 * half_w:
+					hd_sum_y += p.y; hd_cnt += 1.0
+			if yn >= 0.42 and yn <= 0.50 and ax > 0.02 * h and ax < 0.22 * h:
+				hip_sum_x += ax; hip_cnt += 1.0
+			if yn >= 0.22 and yn <= 0.32 and ax > 0.02 * h:
+				knee_sum_x += ax; knee_cnt += 1.0
+			if yn >= 0.03 and yn <= 0.13 and ax > 0.02 * h:
+				foot_sum_x += ax; foot_cnt += 1.0
 		surf["verts"] = bv
 
-	var shoulder_y := 0.75 * h
-	var hand_y := (arm_avg_y / (arm_cnt + 1.0)) if arm_cnt > 8.0 else 0.52 * h
-	hand_y = clampf(hand_y, 0.42 * h, 0.80 * h)
-	var arm_reach := clampf(arm_max_x if arm_max_x > 0.18 * h else half_w * 0.92, 0.18 * h, 0.95 * h)
-	var shoulder_x := clampf(arm_reach * 0.30, 0.08 * h, 0.22 * h)
-	var elbow_x := lerp(shoulder_x, arm_reach, 0.54)
-	var elbow_y := lerp(shoulder_y, hand_y, 0.52)
-	var hip_x := clampf((leg_avg_x / leg_cnt) if leg_cnt > 8.0 else 0.10 * h, 0.06 * h, 0.18 * h)
+	var shoulder_y := 0.76 * h
+	var shoulder_x := clampf((sh_sum_x / sh_cnt) * 0.82 if sh_cnt > 8.0 else 0.15 * h, 0.09 * h, 0.23 * h)
+	var arm_reach := clampf(hd_max_x if hd_max_x > 0.20 * h else half_w * 0.92, shoulder_x + 0.08 * h, 0.96 * h)
+	var hand_y := clampf((hd_sum_y / hd_cnt) if hd_cnt > 6.0 else 0.50 * h, 0.42 * h, 0.80 * h)
+	var elbow_x := clampf(lerpf(shoulder_x, arm_reach * 0.92, 0.55), shoulder_x + 0.04 * h, arm_reach)
+	var elbow_y := lerpf(shoulder_y, hand_y, 0.52)
+
+	var hip_x := clampf((hip_sum_x / hip_cnt) if hip_cnt > 6.0 else 0.09 * h, 0.06 * h, 0.16 * h)
+	var knee_x := clampf((knee_sum_x / knee_cnt) if knee_cnt > 6.0 else hip_x * 1.15, 0.06 * h, 0.26 * h)
+	var foot_x := clampf((foot_sum_x / foot_cnt) if foot_cnt > 6.0 else knee_x * 1.10, 0.06 * h, 0.30 * h)
+	var arm_torso_split_x := lerpf(hip_x, arm_reach * 0.92, 0.58)
 
 	# 19-Bone Anatomical Hierarchy: [name, parent_idx, global_pos]
 	var bone_defs := [
 		["Hips", -1, Vector3(0.0, 0.50 * h, 0.0)],
 		["Spine", 0, Vector3(0.0, 0.61 * h, 0.0)],
 		["Chest", 1, Vector3(0.0, 0.73 * h, 0.0)],
-		["Neck", 2, Vector3(0.0, 0.82 * h, 0.0)],
-		["Head", 3, Vector3(0.0, 0.90 * h, 0.0)],
+		["Neck", 2, Vector3(0.0, 0.83 * h, 0.0)],
+		["Head", 3, Vector3(0.0, 0.91 * h, 0.0)],
 
-		["LeftShoulder", 2, Vector3(shoulder_x * 0.65, shoulder_y, 0.0)],
+		["LeftShoulder", 2, Vector3(shoulder_x * 0.62, shoulder_y, 0.0)],
 		["LeftUpperArm", 5, Vector3(shoulder_x, shoulder_y, 0.0)],
 		["LeftLowerArm", 6, Vector3(elbow_x, elbow_y, 0.0)],
-		["LeftHand", 7, Vector3(arm_reach * 0.92, hand_y, 0.0)],
+		["LeftHand", 7, Vector3(arm_reach * 0.90, hand_y, 0.0)],
 
-		["RightShoulder", 2, Vector3(-shoulder_x * 0.65, shoulder_y, 0.0)],
+		["RightShoulder", 2, Vector3(-shoulder_x * 0.62, shoulder_y, 0.0)],
 		["RightUpperArm", 9, Vector3(-shoulder_x, shoulder_y, 0.0)],
 		["RightLowerArm", 10, Vector3(-elbow_x, elbow_y, 0.0)],
-		["RightHand", 11, Vector3(-arm_reach * 0.92, hand_y, 0.0)],
+		["RightHand", 11, Vector3(-arm_reach * 0.90, hand_y, 0.0)],
 
 		["LeftUpperLeg", 0, Vector3(hip_x, 0.47 * h, 0.0)],
-		["LeftLowerLeg", 13, Vector3(hip_x, 0.25 * h, 0.0)],
-		["LeftFoot", 14, Vector3(hip_x, 0.05 * h, 0.02 * h)],
+		["LeftLowerLeg", 13, Vector3(knee_x, 0.26 * h, 0.0)],
+		["LeftFoot", 14, Vector3(foot_x, 0.05 * h, 0.02 * h)],
 
 		["RightUpperLeg", 0, Vector3(-hip_x, 0.47 * h, 0.0)],
-		["RightLowerLeg", 16, Vector3(-hip_x, 0.25 * h, 0.0)],
-		["RightFoot", 17, Vector3(-hip_x, 0.05 * h, 0.02 * h)],
+		["RightLowerLeg", 16, Vector3(-knee_x, 0.26 * h, 0.0)],
+		["RightFoot", 17, Vector3(-foot_x, 0.05 * h, 0.02 * h)],
 	]
 
-	# Bone segments [start_pos, end_pos, side_sign (-1 right, 0 center, +1 left)] for smooth envelope weights
+	# Bone segments [start_pos, end_pos] for smooth envelope weights
 	var seg_ends: Array[Vector3] = [
-		Vector3(0.0, 0.61 * h, 0.0),          # 0 Hips
-		Vector3(0.0, 0.73 * h, 0.0),          # 1 Spine
-		Vector3(0.0, 0.82 * h, 0.0),          # 2 Chest
-		Vector3(0.0, 0.89 * h, 0.0),          # 3 Neck
-		Vector3(0.0, 1.00 * h, 0.0),          # 4 Head
-		Vector3(shoulder_x, shoulder_y, 0.0), # 5 LShoulder
-		Vector3(elbow_x, elbow_y, 0.0),       # 6 LUpperArm
-		Vector3(arm_reach * 0.92, hand_y, 0.0), # 7 LLowerArm
-		Vector3(arm_reach * 1.02, hand_y, 0.0), # 8 LHand
+		Vector3(0.0, 0.61 * h, 0.0),            # 0 Hips
+		Vector3(0.0, 0.73 * h, 0.0),            # 1 Spine
+		Vector3(0.0, 0.83 * h, 0.0),            # 2 Chest
+		Vector3(0.0, 0.90 * h, 0.0),            # 3 Neck
+		Vector3(0.0, 1.00 * h, 0.0),            # 4 Head
+		Vector3(shoulder_x, shoulder_y, 0.0),   # 5 LShoulder
+		Vector3(elbow_x, elbow_y, 0.0),         # 6 LUpperArm
+		Vector3(arm_reach * 0.90, hand_y, 0.0), # 7 LLowerArm
+		Vector3(arm_reach * 1.00, hand_y - 0.03 * h, 0.0), # 8 LHand
 		Vector3(-shoulder_x, shoulder_y, 0.0),  # 9 RShoulder
 		Vector3(-elbow_x, elbow_y, 0.0),        # 10 RUpperArm
-		Vector3(-arm_reach * 0.92, hand_y, 0.0),# 11 RLowerArm
-		Vector3(-arm_reach * 1.02, hand_y, 0.0),# 12 RHand
-		Vector3(hip_x, 0.25 * h, 0.0),        # 13 LUpperLeg
-		Vector3(hip_x, 0.05 * h, 0.0),        # 14 LLowerLeg
-		Vector3(hip_x, 0.0, 0.08 * h),        # 15 LFoot
-		Vector3(-hip_x, 0.25 * h, 0.0),       # 16 RUpperLeg
-		Vector3(-hip_x, 0.05 * h, 0.0),       # 17 RLowerLeg
-		Vector3(-hip_x, 0.0, 0.08 * h),       # 18 RFoot
+		Vector3(-arm_reach * 0.90, hand_y, 0.0),# 11 RLowerArm
+		Vector3(-arm_reach * 1.00, hand_y - 0.03 * h, 0.0),# 12 RHand
+		Vector3(knee_x, 0.26 * h, 0.0),         # 13 LUpperLeg
+		Vector3(foot_x, 0.05 * h, 0.0),         # 14 LLowerLeg
+		Vector3(foot_x, 0.01 * h, 0.09 * h),    # 15 LFoot
+		Vector3(-knee_x, 0.26 * h, 0.0),        # 16 RUpperLeg
+		Vector3(-foot_x, 0.05 * h, 0.0),        # 17 RLowerLeg
+		Vector3(-foot_x, 0.01 * h, 0.09 * h),   # 18 RFoot
 	]
-	var bone_sides := [0, 0, 0, 0, 0, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1]
+	var bone_sides := PackedInt32Array([0, 0, 0, 0, 0, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1])
+	var bone_is_arm := PackedInt32Array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0])
 
 	var skel := Skeleton3D.new()
 	skel.name = "HumanoidAutoSkeleton"
@@ -186,10 +198,23 @@ static func autorig_node3d(
 	skel.reset_bone_poses()
 	var skin := skel.create_skin_from_rest_transforms()
 
-	# Build skinned ArrayMesh with 4-bone smooth capsule weights per vertex
+	# Precompute bone segment vectors for ultra-fast skinning on 50,000-vertex 360° neural meshes
+	var nb := bone_defs.size()
+	var seg_a := PackedVector3Array(); seg_a.resize(nb)
+	var seg_ab := PackedVector3Array(); seg_ab.resize(nb)
+	var seg_len2 := PackedFloat32Array(); seg_len2.resize(nb)
+	for bi in range(nb):
+		var pa: Vector3 = bone_defs[bi][2]
+		var pb: Vector3 = seg_ends[bi]
+		var ab := pb - pa
+		seg_a[bi] = pa
+		seg_ab[bi] = ab
+		seg_len2[bi] = maxf(1e-7, ab.length_squared())
+
+	# Build skinned ArrayMesh with 4-bone region-aware smooth capsule weights per vertex
 	var skinned_mesh := ArrayMesh.new()
 	var total_skinned_verts := 0
-	var eps := 0.025 * h
+	var eps := 0.024 * h
 
 	for s_idx in range(raw_surfaces.size()):
 		var surf: Dictionary = raw_surfaces[s_idx]
@@ -204,40 +229,58 @@ static func autorig_node3d(
 
 		for vi in range(v_len):
 			var vp := verts[vi]
-			var top_b := [0, 0, 0, 0]
-			var top_w := [0.0, 0.0, 0.0, 0.0]
+			var ax := absf(vp.x)
+			var yn := vp.y / h
+			var in_outer_arm_zone := (yn >= 0.38 and yn <= 0.78 and ax > arm_torso_split_x)
+			var in_inner_body_zone := (yn < 0.70 and ax < arm_torso_split_x * 0.82)
 
-			for bi in range(bone_defs.size()):
+			var b0 := 0; var b1 := 0; var b2 := 0; var b3 := 0
+			var w0 := 0.0; var w1 := 0.0; var w2 := 0.0; var w3 := 0.0
+
+			for bi in range(nb):
 				var side: int = bone_sides[bi]
-				# Prevent cross-leg / cross-arm bleed across X=0 midline
-				if side == 1 and vp.x < -0.02 * h:
+				if side == 1 and vp.x < -0.018 * h:
 					continue
-				if side == -1 and vp.x > 0.02 * h:
+				if side == -1 and vp.x > 0.018 * h:
 					continue
 
-				var a: Vector3 = bone_defs[bi][2]
-				var b: Vector3 = seg_ends[bi]
-				var d := _point_to_segment_dist(vp, a, b)
-				var w := 1.0 / pow(maxf(d, eps), 3.1)
+				var pa := seg_a[bi]
+				var ab := seg_ab[bi]
+				var t := clampf((vp - pa).dot(ab) / seg_len2[bi], 0.0, 1.0)
+				var d := vp.distance_to(pa + ab * t)
 
-				if w > top_w[3]:
-					top_w[3] = w
-					top_b[3] = bi
-					for k in [2, 1, 0]:
-						if top_w[k + 1] > top_w[k]:
-							var tw: float = top_w[k]; top_w[k] = top_w[k + 1]; top_w[k + 1] = tw
-							var tb: int = top_b[k]; top_b[k] = top_b[k + 1]; top_b[k + 1] = tb
+				# Prevent A-pose arm-to-pelvis / forearm-to-ribcage bleed
+				var is_arm := (bone_is_arm[bi] == 1)
+				if in_outer_arm_zone and not is_arm:
+					d *= 2.8
+				elif in_inner_body_zone and is_arm and bi != 5 and bi != 9:
+					d *= 2.8
 
-			var w_sum: float = top_w[0] + top_w[1] + top_w[2] + top_w[3]
-			if w_sum <= 1e-7:
-				top_b = [0, 0, 0, 0]
-				top_w = [1.0, 0.0, 0.0, 0.0]
-				w_sum = 1.0
+				var de := maxf(d, eps)
+				var w := 1.0 / (de * de * de)
 
+				if w > w3:
+					if w > w0:
+						w3 = w2; b3 = b2; w2 = w1; b2 = b1; w1 = w0; b1 = b0; w0 = w; b0 = bi
+					elif w > w1:
+						w3 = w2; b3 = b2; w2 = w1; b2 = b1; w1 = w; b1 = bi
+					elif w > w2:
+						w3 = w2; b3 = b2; w2 = w; b2 = bi
+					else:
+						w3 = w; b3 = bi
+
+			var w_sum := w0 + w1 + w2 + w3
 			var base4 := vi * 4
-			for k in range(4):
-				bones_arr[base4 + k] = top_b[k]
-				weights_arr[base4 + k] = top_w[k] / w_sum
+			if w_sum <= 1e-8:
+				bones_arr[base4] = 0; weights_arr[base4] = 1.0
+				bones_arr[base4 + 1] = 0; weights_arr[base4 + 1] = 0.0
+				bones_arr[base4 + 2] = 0; weights_arr[base4 + 2] = 0.0
+				bones_arr[base4 + 3] = 0; weights_arr[base4 + 3] = 0.0
+			else:
+				bones_arr[base4] = b0; weights_arr[base4] = w0 / w_sum
+				bones_arr[base4 + 1] = b1; weights_arr[base4 + 1] = w1 / w_sum
+				bones_arr[base4 + 2] = b2; weights_arr[base4 + 2] = w2 / w_sum
+				bones_arr[base4 + 3] = b3; weights_arr[base4 + 3] = w3 / w_sum
 
 		var mesh_arr := []
 		mesh_arr.resize(Mesh.ARRAY_MAX)
@@ -308,12 +351,13 @@ static func autorig_node3d(
 	if not export_glb_path.is_empty():
 		var abs_out := ProjectSettings.globalize_path(export_glb_path) if export_glb_path.begins_with("res://") else export_glb_path
 		DirAccess.make_dir_recursive_absolute(abs_out.get_base_dir())
-		markers_holder.visible = false
+		skel.remove_child(markers_holder)
 		var gdoc := GLTFDocument.new()
 		var gstate := GLTFState.new()
 		if gdoc.append_from_scene(rig_root, gstate) == OK:
 			if gdoc.write_to_filesystem(gstate, abs_out) == OK:
 				saved_glb = export_glb_path
+		skel.add_child(markers_holder)
 		markers_holder.visible = show_bone_markers
 
 	return {
