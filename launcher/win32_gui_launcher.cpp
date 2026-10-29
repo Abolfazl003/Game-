@@ -84,7 +84,7 @@ static void EnsurePersianPortableSettings(const std::wstring& root) {
     }
 
     std::wstring settingsFile = edData + L"\\editor_settings-4.7.tres";
-    if (!FileExistsW(settingsFile)) {
+    {
         std::string regFont = WideToUtf8(root + L"\\fonts\\Vazirmatn-Regular.ttf");
         std::string boldFont = WideToUtf8(root + L"\\fonts\\Vazirmatn-Bold.ttf");
         std::string tres =
@@ -192,29 +192,29 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
                                       OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
                                       DEFAULT_PITCH | FF_SWISS, L"Segoe UI");
 
-            HWND hTitle = CreateWindowW(L"STATIC", L"🚀 موتور بازی‌سازی هوش مصنوعی نوافورج (نسخه فارسی)",
+            HWND hTitle = CreateWindowW(L"STATIC", L"🚀 موتور بازی‌سازی هوش مصنوعی نوافورج — نسخه ۳.۰ (فارسی)",
                                         WS_VISIBLE | WS_CHILD | SS_CENTER, 25, 22, 520, 32, hwnd, nullptr, nullptr, nullptr);
             SendMessageW(hTitle, WM_SETFONT, (WPARAM)g_titleFont, TRUE);
 
             HWND hSub = CreateWindowW(L"STATIC",
-                L"مجهز به شورای ۵ مغز Colibrì، گراف بلوپرینت/C++، تبدیل عکس و ویدیو به 3D، تخریب Voronoi و زندگی NPC",
+                L"تولید مش سه‌بعدی ۳۶۰ درجه واقعی از هر پرامپت و عکس (Hunyuan3D-2 + Flux) + ریگ خودکار ۱۹ استخوانی",
                 WS_VISIBLE | WS_CHILD | SS_CENTER, 20, 58, 530, 36, hwnd, nullptr, nullptr, nullptr);
             SendMessageW(hSub, WM_SETFONT, (WPARAM)g_subFont, TRUE);
 
             g_btnEditor = CreateWindowW(L"BUTTON",
-                L"🛠️  ورود به ویرایشگر فارسی موتور بازی‌سازی (همه پنل‌ها و میزکار نوافورج)",
+                L"🛠️  ورود به ویرایشگر فارسی گادوت ۴.۷.۲ (میزکار نوافورج + ساخت مش ۳۶۰ درجه)",
                 WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 38, 108, 494, 56,
                 hwnd, (HMENU)ID_BTN_EDITOR, nullptr, nullptr);
             SendMessageW(g_btnEditor, WM_SETFONT, (WPARAM)g_btnFont, TRUE);
 
             g_btnPlay = CreateWindowW(L"BUTTON",
-                L"🎮  اجرای محیط تعاملی سه‌بعدی و بازی (همراه تمام ابزارهای فارسی روی صحنه)",
+                L"🎮  اجرای محیط تعاملی سه‌بعدی و بازی (همراه پنل ساخت مش ۳۶۰ درجه و ریگ زنده)",
                 WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 38, 178, 494, 54,
                 hwnd, (HMENU)ID_BTN_PLAY, nullptr, nullptr);
             SendMessageW(g_btnPlay, WM_SETFONT, (WPARAM)g_btnFont, TRUE);
 
             const wchar_t* initStatus = FileExistsW(GetGodotExePath())
-                ? L"✅ کاملاً آماده اجرا (بدون نیاز به اینترنت، پایتون یا نصب) — یک گزینه را انتخاب کنید"
+                ? L"✅ آماده اجرا روی ویندوز (بدون نیاز به پایتون یا نصب؛ اینترنت برای هوش مصنوعی ابری ۳۶۰ درجه)"
                 : L"⚡ آماده — با کلیک روی هر دکمه، هسته موتور خودکار دریافت و به فارسی باز می‌شود";
 
             g_hwndStatus = CreateWindowW(L"STATIC", initStatus,
