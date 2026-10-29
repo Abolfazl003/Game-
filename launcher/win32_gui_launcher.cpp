@@ -192,12 +192,12 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
                                       OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
                                       DEFAULT_PITCH | FF_SWISS, L"Segoe UI");
 
-            HWND hTitle = CreateWindowW(L"STATIC", L"🚀 موتور بازی‌سازی هوش مصنوعی نوافورج — نسخه ۳.۰ (فارسی)",
+            HWND hTitle = CreateWindowW(L"STATIC", L"🚀 موتور بازی‌سازی هوش مصنوعی نوافورج — نسخه ۳.۱ (فارسی)",
                                         WS_VISIBLE | WS_CHILD | SS_CENTER, 25, 22, 520, 32, hwnd, nullptr, nullptr, nullptr);
             SendMessageW(hTitle, WM_SETFONT, (WPARAM)g_titleFont, TRUE);
 
             HWND hSub = CreateWindowW(L"STATIC",
-                L"تولید مش سه‌بعدی ۳۶۰ درجه واقعی از هر پرامپت و عکس (Hunyuan3D-2 + Flux) + ریگ خودکار ۱۹ استخوانی",
+                L"چت و کدنویسی زنده با هوش مصنوعی 111B + ساخت مش ۳۶۰ درجه واقعی (Hunyuan3D-2) + ریگ خودکار ۱۹ استخوانی",
                 WS_VISIBLE | WS_CHILD | SS_CENTER, 20, 58, 530, 36, hwnd, nullptr, nullptr, nullptr);
             SendMessageW(hSub, WM_SETFONT, (WPARAM)g_subFont, TRUE);
 

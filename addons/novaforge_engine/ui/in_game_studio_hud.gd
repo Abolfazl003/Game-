@@ -19,6 +19,8 @@ var _npc_title: String = "شاگرد آهنگر (سطح ۱)"
 var _npc_scars: Array[String] = []
 var _panels_visible: bool = true
 var _neural_client: Node = null
+var _llm_brain: Node = null
+var _hud_ai_reply: RichTextLabel = null
 
 
 func _ready() -> void:
@@ -38,6 +40,18 @@ func _ready() -> void:
 			_log("[color=#38bdf8][هوش مصنوعی ۳۶۰ درجه %d%%][/color] %s" % [pct, msg])
 		)
 		add_child(_neural_client)
+
+	var lscr = load("res://addons/novaforge_engine/ai_council/neural_llm_brain_client.gd")
+	if lscr:
+		_llm_brain = lscr.new()
+		_llm_brain.name = "RuntimeNeuralLLMBrain"
+		_llm_brain.thinking_progress.connect(func(pct: int, msg: String):
+			if _vram_bar:
+				_vram_bar.value = float(pct)
+			_log("[color=#a855f7][مغز هوش مصنوعی %d%%][/color] %s" % [pct, msg])
+		)
+		add_child(_llm_brain)
+
 	_build_ui()
 	var w := get_window()
 	if w and not w.files_dropped.is_connected(_on_runtime_files_dropped):
@@ -125,36 +139,47 @@ func _build_ui() -> void:
 	rvb.add_theme_constant_override("separation", 7)
 	r_scroll.add_child(rvb)
 
-	rvb.add_child(_hdr("◈ شورای ۵ مغز لوکال (Colibrì)"))
-	for btxt in [
-		"1. کارگردان بازی (GLM-5.3 MoE) — استریم SSD",
-		"2. کدنویس C++20 / گراف Blueprint — کش RAM",
-		"3. آرتیست سه‌بعدی و متریال بلندر — Auto-PBR",
-		"4. موشن‌کپچر ویدیو و کات‌سین — Foot-IK",
-		"5. داور کیفیت و Scene Audit — بدون باگ"
+	rvb.add_child(_hdr("⚡ شورای ۵ مغز زنده (کلیک کنید)"))
+	for bpair in [
+		["1. کارگردان بازی (Command-A 111B)", "کارگردان ارشد گیم‌پلی"],
+		["2. کدنویس GDScript / C++20", "برنامه‌نویس گادوت ۴.۷"],
+		["3. آرتیست مش ۳۶۰ (Hunyuan3D-2)", "آرتیست مدل سه‌بعدی و متریال PBR"],
+		["4. موشن‌کپچر و کات‌سین — Foot-IK", "کارگردان انیمیشن و کات‌سین"],
+		["5. داور کیفیت و Scene Audit", "داور بررسی و رفع باگ صحنه"]
 	]:
-		var bl := Label.new()
-		bl.text = btxt
-		bl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		bl.add_theme_font_size_override("font_size", 12)
-		rvb.add_child(bl)
+		var role_str: String = bpair[1]
+		var bb := _btn(str(bpair[0]), Color(0.14, 0.22, 0.36))
+		bb.pressed.connect(func(): _on_ask_runtime_ai(role_str))
+		rvb.add_child(bb)
 
 	_vram_bar = ProgressBar.new()
-	_vram_bar.value = 14.0
-	_vram_bar.custom_minimum_size = Vector2(0, 10)
+	_vram_bar.value = 0.0
+	_vram_bar.custom_minimum_size = Vector2(0, 14)
 	rvb.add_child(_vram_bar)
 
 	rvb.add_child(HSeparator.new())
-	rvb.add_child(_hdr("⚡ ساخت مش ۳۶۰ درجه با پرامپت هوش مصنوعی"))
+	rvb.add_child(_hdr("⚡ چت با هوش مصنوعی و ساخت مش ۳۶۰ درجه"))
 	_prompt_edit = TextEdit.new()
-	_prompt_edit.text = "یه جنگجوی سامورایی سیاه و طلایی با زره سنگین بساز"
+	_prompt_edit.text = "سلام! یه کد حرکت و پرش کاراکتر بنویس، یا یه جنگجوی سامورایی سیاه و طلایی بساز"
 	_prompt_edit.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
-	_prompt_edit.custom_minimum_size = Vector2(0, 68)
+	_prompt_edit.custom_minimum_size = Vector2(0, 62)
 	rvb.add_child(_prompt_edit)
 
-	var btn_council := _btn("⚡ ساخت مدل ۳۶۰ درجه واقعی + ریگ خودکار", Color(0.14, 0.46, 0.88))
+	var btn_ask_ai := _btn("⚡ پرسش و گفتگوی زنده با هوش مصنوعی", Color(0.42, 0.22, 0.78))
+	btn_ask_ai.pressed.connect(func(): _on_ask_runtime_ai(""))
+	rvb.add_child(btn_ask_ai)
+
+	var btn_council := _btn("◆ ساخت مدل ۳۶۰ درجه واقعی + ریگ خودکار", Color(0.14, 0.46, 0.88))
 	btn_council.pressed.connect(_on_run_council)
 	rvb.add_child(btn_council)
+
+	_hud_ai_reply = RichTextLabel.new()
+	_hud_ai_reply.bbcode_enabled = true
+	_hud_ai_reply.selection_enabled = true
+	_hud_ai_reply.scroll_following = true
+	_hud_ai_reply.custom_minimum_size = Vector2(0, 105)
+	_hud_ai_reply.text = "[color=#38bdf8]✓ هوش مصنوعی آنلاین است:[/color] سوال بپرسید یا دکمه ساخت مش ۳۶۰ درجه را بزنید!"
+	rvb.add_child(_hud_ai_reply)
 
 	rvb.add_child(HSeparator.new())
 	rvb.add_child(_hdr("■ تبدیل هر عکس به مش ۳۶۰ درجه و ریگ خودکار"))
@@ -419,6 +444,31 @@ func _on_cam_picked(idx: int) -> void:
 	if rig and rig.has_method("set_perspective_by_name"):
 		rig.call("set_perspective_by_name", m)
 	_log("[color=#38bdf8][دوربین و ژانر][/color] زاویه دوربین به [b]%s[/b] تغییر کرد." % m)
+
+
+func _on_ask_runtime_ai(persona_role: String = "") -> void:
+	if _llm_brain == null:
+		return
+	var p := _prompt_edit.text.strip_edges()
+	if p.is_empty():
+		p = "سلام! چه کارهایی می‌توانی در این صحنه سه‌بعدی انجام دهی؟"
+	if _hud_ai_reply:
+		_hud_ai_reply.text = "[color=#fde047][b]▶ پیام شما:[/b][/color] %s\n[color=#94a3b8]در حال دریافت پاسخ از هوش مصنوعی (Command-A 111B)...[/color]" % p
+	var res: Dictionary = await _llm_brain.call("ask_brain_async", p, persona_role)
+	if res.get("ok", false):
+		if _hud_ai_reply:
+			_hud_ai_reply.text = "[b][color=#22c55e]✓ پاسخ (%s):[/color][/b]\n%s" % [str(res.get("model", "")), str(res.get("reply", ""))]
+		var acts: Array = res.get("actions", [])
+		for a in acts:
+			if a in ["RAIN", "FIRE", "CLEAR"]:
+				_apply_weather(str(a))
+			elif a == "SHATTER" and not _crate_shattered:
+				_shatter_crate()
+			elif a == "CUTSCENE":
+				_play_cutscene()
+	else:
+		if _hud_ai_reply:
+			_hud_ai_reply.text = "[color=#ef4444]%s[/color]" % str(res.get("error", "خطا"))
 
 
 func _on_run_council() -> void:

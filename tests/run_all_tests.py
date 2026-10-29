@@ -287,11 +287,14 @@ def test_v30_neural_360_cloud_client_and_windows_ux() -> None:
             """extends SceneTree
 func _initialize() -> void:
 \tvar nscr = load("res://addons/novaforge_engine/forge/neural_3d_cloud_client.gd")
+\tvar lscr = load("res://addons/novaforge_engine/ai_council/neural_llm_brain_client.gd")
 \tvar loader = load("res://addons/novaforge_engine/forge/glb_asset_loader.gd")
-\tif nscr == null or loader == null:
+\tif nscr == null or lscr == null or loader == null:
 \t\tquit(2); return
 \tvar client = nscr.new()
+\tvar brain = lscr.new()
 \troot.add_child(client)
+\troot.add_child(brain)
 \tvar hero: Node3D = loader.load_model_scene("res://assets/models/characters/ai_cyber_hero_360.glb", 1.88)
 \tif hero == null:
 \t\tquit(3); return

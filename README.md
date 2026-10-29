@@ -8,12 +8,12 @@
 
 بدون نیاز به نصب پایتون، بدون ترمینال/CMD و بدون هیچ تنظیماتی، نسخه آماده سیستم‌عامل خودتان را دانلود، از حالت فشرده خارج (Extract) و اجرا کنید:
 
-- 🪟 **نسخه ۳.۰ کامل فارسی و شخصی‌سازی‌شده ویندوز ۶۴ بیتی (`v3.0.0` — تولید مش سه‌بعدی ۳۶۰ درجه واقعی با هوش مصنوعی `Hunyuan3D-2` + `Flux` از روی هر پرامپت و هر عکس + ریگ خودکار ۱۹ استخوانی + پنجره انتخاب فایل بومی ویندوز و کلیپ‌بورد):**  
-  👉 [**دانلود مستقیم `NovaForge-Engine-v3.0.0-Persian-Windows-x64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v3.0.0/NovaForge-Engine-v3.0.0-Persian-Windows-x64-ReadyToRun.zip)  
-  *(فقط فایل ZIP را استخراج کنید و روی **`NovaForge_Studio.exe`** دابل‌کلیک کنید! بدون نیاز به پایتون و بدون هیچ شکل ساده/بیضی: هر پرامپت فارسی یا انگلیسی و هر عکس `.png/.jpg/.webp` که از **Windows Explorer**، **کلیپ‌بورد (`Paste`)** یا **Drag & Drop** بدهید، مستقیماً به مدل سه‌بعدی حجمی ۳۶۰ درجه واقعی `.GLB` با تکسچر PBR و اسکلت ۱۹ استخوانی متحرک تبدیل می‌شود!)*
+- 🪟 **نسخه ۳.۱ کامل فارسی و شخصی‌سازی‌شده ویندوز ۶۴ بیتی (`v3.1.0` — هوش مصنوعی زنده و پاسخگوی `Command-A 111B` + `Cohere Aya` + `Ollama` + تولید مش سه‌بعدی ۳۶۰ درجه واقعی `Hunyuan3D-2` + ریگ خودکار ۱۹ استخوانی):**  
+  👉 [**دانلود مستقیم `NovaForge-Engine-v3.1.0-Persian-Windows-x64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v3.1.0/NovaForge-Engine-v3.1.0-Persian-Windows-x64-ReadyToRun.zip)  
+  *(فقط فایل ZIP را استخراج کنید و روی **`NovaForge_Studio.exe`** دابل‌کلیک کنید! بدون نیاز به کلید API یا پایتون: شامل گفتگوی زنده فارسی و تولید کد `GDScript` با مغز `111B` در تمام پنل‌ها + تبدیل هر پرامپت و هر عکس از **Windows Explorer / کلیپ‌بورد / Drag & Drop** به مدل سه‌بعدی ۳۶۰ درجه واقعی `.GLB` و اسکلت ۱۹ استخوانی متحرک!)*
 
-- 🐧 **نسخه ۳.۰ کامل فارسی و شخصی‌سازی‌شده لینوکس ۶۴ بیتی (`v3.0.0` — `x86_64`):**  
-  👉 [**دانلود مستقیم `NovaForge-Engine-v3.0.0-Persian-Linux-x86_64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v3.0.0/NovaForge-Engine-v3.0.0-Persian-Linux-x86_64-ReadyToRun.zip)  
+- 🐧 **نسخه ۳.۱ کامل فارسی و شخصی‌سازی‌شده لینوکس ۶۴ بیتی (`v3.1.0` — `x86_64`):**  
+  👉 [**دانلود مستقیم `NovaForge-Engine-v3.1.0-Persian-Linux-x86_64-ReadyToRun.zip`**](https://github.com/Abolfazl003/Game-/releases/download/v3.1.0/NovaForge-Engine-v3.1.0-Persian-Linux-x86_64-ReadyToRun.zip)  
   *(فایل `./run.sh` را اجرا کنید تا پنجره لانچر فارسی باز شود.)*
 
 ---

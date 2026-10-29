@@ -15,13 +15,15 @@ var _sec_council: VBoxContainer
 var _sec_world: VBoxContainer
 
 var _relay_badge: Label
-var _brain_labels: Array[Label] = []
+var _brain_buttons: Array[Button] = []
 var _vram_label: Label
 var _vram_bar: ProgressBar
 var _prompt_input: TextEdit
+var _dock_ai_reply: RichTextLabel
 var _npc_bio: RichTextLabel
 var _elem_status: Label
 var _council_busy: bool = false
+var _selected_persona: String = "کارگردان ارشد بازی‌سازی (Command-A 111B)"
 
 
 func _ready() -> void:
@@ -76,55 +78,83 @@ func _ready() -> void:
 	_sec_council.add_theme_constant_override("separation", 8)
 	content.add_child(_sec_council)
 
-	# Card 1: 5-Brain Colibrì Council
+	# Card 1: 5-Brain Colibrì Council (Clickable Live Specialists!)
 	var c1 := _make_card(_sec_council)
 	var hdr1 := HBoxContainer.new()
-	var t1 := _title_lbl("◈ شورای ۵ مغز لوکال (Colibrì)")
+	var t1 := _title_lbl("⚡ شورای ۵ مغز زنده (کلیک کنید)")
 	hdr1.add_child(t1)
-	_relay_badge = _small_lbl("آماده ✓")
+	_relay_badge = _small_lbl("آنلاین ✓")
 	_relay_badge.add_theme_color_override("font_color", Color(0.20, 0.85, 0.45))
 	hdr1.add_child(_relay_badge)
 	c1.add_child(hdr1)
 
 	var brains_list := [
-		"1. کارگردان (GLM-5.3 MoE) [NVMe]",
-		"2. کدنویس C++ / Blueprint [RAM]",
-		"3. سه‌بعدی و متریال بلندر [PBR]",
-		"4. موشن‌کپچر و کات‌سین [Foot-IK]",
-		"5. داور و Scene Audit [Zero-Bug]"
+		["1. کارگردان بازی (Command-A 111B)", "کارگردان ارشد طراحی مکانیک و گیم‌پلی"],
+		["2. کدنویس GDScript / C++", "برنامه‌نویس ارشد GDScript و C++ در Godot 4.7"],
+		["3. آرتیست مش ۳۶۰ (Hunyuan3D-2)", "متخصص ساخت مش سه‌بعدی ۳۶۰ درجه و متریال PBR"],
+		["4. موشن‌کپچر و کارگردان کات‌سین", "کارگردان انیمیشن اسکلتی، IK و کات‌سین سینمایی"],
+		["5. داور QA و رفع باگ صحنه", "داور بررسی خطا، فیزیک Jolt و بهینه‌سازی فریم"]
 	]
-	for btxt in brains_list:
-		var bl := _small_lbl(btxt)
-		bl.clip_text = true
-		c1.add_child(bl)
-		_brain_labels.append(bl)
+	for b_idx in range(brains_list.size()):
+		var b_entry: Array = brains_list[b_idx]
+		var bb := _small_btn(str(b_entry[0]))
+		bb.alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		var role_txt := str(b_entry[1])
+		var my_i := b_idx
+		bb.pressed.connect(func():
+			_selected_persona = role_txt
+			for k in range(_brain_buttons.size()):
+				_brain_buttons[k].modulate = Color(0.55, 1.0, 0.72) if k == my_i else Color(1, 1, 1)
+			_ask_specialist_brain(_prompt_input.text, role_txt)
+		)
+		c1.add_child(bb)
+		_brain_buttons.append(bb)
 
-	_vram_label = _small_lbl("VRAM: 0.4 GB / 5.0 GB")
+	_vram_label = _small_lbl("وضعیت هوش مصنوعی: آماده پاسخگویی")
 	c1.add_child(_vram_label)
 
 	_vram_bar = ProgressBar.new()
 	_vram_bar.min_value = 0.0
 	_vram_bar.max_value = 100.0
-	_vram_bar.value = 12.0
-	_vram_bar.show_percentage = false
-	_vram_bar.custom_minimum_size = Vector2(0, 8)
+	_vram_bar.value = 0.0
+	_vram_bar.show_percentage = true
+	_vram_bar.custom_minimum_size = Vector2(0, 14)
 	c1.add_child(_vram_bar)
 
-	# Card 2: Prompt-to-Scene
+	# Card 2: Live AI Chat + 360° Scene Builder
 	var c2 := _make_card(_sec_council)
-	c2.add_child(_title_lbl("⚡ پرامپت ساخت بازی و کات‌سین"))
+	c2.add_child(_title_lbl("⚡ گفتگو، کدنویسی و ساخت با هوش مصنوعی"))
 
 	_prompt_input = TextEdit.new()
-	_prompt_input.text = "یه جنگجوی سامورایی با کمبوی ۳ ضربه‌ای شمشیر بساز، صندوق چوبی با ضربه تیکه‌تیکه بشه و وقتی رسید دم دروازه، این تیکه کات‌سینه!"
+	_prompt_input.text = "سلام! یه کد پرش و حرکت برای کاراکتر بنویس و بگو چطور بازی رو جذاب‌تر کنم."
 	_prompt_input.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
-	_prompt_input.custom_minimum_size = Vector2(0, 74)
+	_prompt_input.custom_minimum_size = Vector2(0, 66)
 	_prompt_input.add_theme_font_size_override("font_size", 11)
 	c2.add_child(_prompt_input)
 
-	var btn_run := _small_btn("⚡ اجرای همفکری شورا در صحنه")
-	btn_run.custom_minimum_size = Vector2(0, 30)
+	var btn_run := _small_btn("⚡ ارسال به هوش مصنوعی (پاسخ زنده)")
+	btn_run.custom_minimum_size = Vector2(0, 29)
 	btn_run.pressed.connect(_on_run_council_pressed)
 	c2.add_child(btn_run)
+
+	var btn_run_3d := _small_btn("◆ ساخت مش ۳۶۰ درجه از این متن")
+	btn_run_3d.custom_minimum_size = Vector2(0, 28)
+	btn_run_3d.pressed.connect(func():
+		var p := _prompt_input.text.strip_edges()
+		if p.is_empty(): return
+		_dock_ai_reply.text = "[color=#38bdf8]در حال ساخت مش ۳۶۰ درجه واقعی از: «%s»...[/color]" % p
+		var ctrl := _get_ctrl()
+		if ctrl: ctrl.call("run_prompt_council_build", p)
+	)
+	c2.add_child(btn_run_3d)
+
+	_dock_ai_reply = RichTextLabel.new()
+	_dock_ai_reply.bbcode_enabled = true
+	_dock_ai_reply.selection_enabled = true
+	_dock_ai_reply.scroll_following = true
+	_dock_ai_reply.custom_minimum_size = Vector2(0, 120)
+	_dock_ai_reply.text = "[color=#38bdf8]✓ آماده پاسخگویی:[/color] پیام خود را بالا بنویسید و دکمه ارسال را بزنید، یا روی یکی از ۵ مغز بالا کلیک کنید!"
+	c2.add_child(_dock_ai_reply)
 
 	# Card 3: 2x2 Asset Forge, Blender, Mocap & Cutscene
 	var c3 := _make_card(_sec_council)
@@ -335,10 +365,30 @@ func _make_card(parent: VBoxContainer) -> VBoxContainer:
 
 func _bind_ctrl() -> void:
 	var ctrl := _get_ctrl()
-	if ctrl and ctrl.has_signal("state_updated"):
-		if not ctrl.is_connected("state_updated", _on_state_updated):
+	if ctrl:
+		if ctrl.has_signal("state_updated") and not ctrl.is_connected("state_updated", _on_state_updated):
 			ctrl.connect("state_updated", _on_state_updated)
-		_on_state_updated(ctrl.call("get_snapshot_dict"))
+			_on_state_updated(ctrl.call("get_snapshot_dict"))
+		if ctrl.has_signal("ai_progress_updated") and not ctrl.is_connected("ai_progress_updated", _on_dock_progress):
+			ctrl.connect("ai_progress_updated", _on_dock_progress)
+		if ctrl.has_signal("ai_chat_replied") and not ctrl.is_connected("ai_chat_replied", _on_dock_chat_reply):
+			ctrl.connect("ai_chat_replied", _on_dock_chat_reply)
+
+
+func _on_dock_progress(pct: int, msg: String) -> void:
+	if _vram_bar:
+		_vram_bar.value = float(pct)
+	if _vram_label:
+		_vram_label.text = msg
+
+
+func _on_dock_chat_reply(res: Dictionary) -> void:
+	if _dock_ai_reply == null:
+		return
+	if res.get("ok", false):
+		_dock_ai_reply.text = "[b][color=#22c55e]✓ %s:[/color][/b]\n%s" % [str(res.get("model", "")), str(res.get("reply", ""))]
+	else:
+		_dock_ai_reply.text = "[color=#ef4444]%s[/color]" % str(res.get("error", "خطا"))
 
 
 func _get_ctrl() -> Node:
@@ -372,45 +422,26 @@ func _on_state_updated(st: Dictionary) -> void:
 
 
 func _on_run_council_pressed() -> void:
+	_ask_specialist_brain(_prompt_input.text, _selected_persona)
+
+
+func _ask_specialist_brain(raw_txt: String, persona_role: String) -> void:
 	if _council_busy:
 		return
-	var prompt_txt := _prompt_input.text.strip_edges()
+	var prompt_txt := raw_txt.strip_edges()
 	if prompt_txt.is_empty():
-		return
+		prompt_txt = "سلام! وضعیت صحنه را بررسی کن و بگو چه کمکی می‌کنی؟"
 
 	_council_busy = true
-	_relay_badge.text = "همفکری..."
+	_relay_badge.text = "در حال تفکر..."
 	_relay_badge.add_theme_color_override("font_color", Color(0.98, 0.72, 0.20))
+	if _dock_ai_reply:
+		_dock_ai_reply.text = "[color=#fde047][b]▶ پیام به (%s):[/b][/color]\n%s\n[color=#94a3b8]در حال دریافت پاسخ از هوش مصنوعی...[/color]" % [persona_role, prompt_txt]
 
-	var vram_steps := ["2.1 GB / 5.0 GB", "1.8 GB / 5.0 GB", "2.6 GB / 5.0 GB", "1.9 GB / 5.0 GB", "1.4 GB / 5.0 GB"]
-	var vram_vals := [44.0, 36.0, 52.0, 38.0, 28.0]
-
-	var tw := create_tween()
-	for i in range(5):
-		var idx := i
-		tw.tween_callback(func():
-			for j in range(5):
-				_brain_labels[j].add_theme_color_override("font_color", Color(0.25, 0.95, 0.50) if j == idx else Color(0.88, 0.91, 0.96))
-			_vram_bar.value = vram_vals[idx]
-			_vram_label.text = "VRAM شورا: " + vram_steps[idx]
-		)
-		tw.tween_interval(0.24)
-
-	tw.tween_callback(func():
-		for j in range(5):
-			_brain_labels[j].add_theme_color_override("font_color", Color(0.88, 0.91, 0.96))
-		_vram_bar.value = 8.0
-		_vram_label.text = "VRAM: 0.3 GB / 5.0 GB (تخلیه برای رندر)"
-		_relay_badge.text = "تایید شد ✓"
-		_relay_badge.add_theme_color_override("font_color", Color(0.20, 0.85, 0.45))
-		_execute_council_scene_actions(prompt_txt)
-		_council_busy = false
-	)
-
-
-func _execute_council_scene_actions(prompt_txt: String) -> void:
 	var ctrl := _get_ctrl()
-	if ctrl:
-		ctrl.call("run_prompt_council_build", prompt_txt)
-		if ctrl.has_method("switch_to_3d_viewport"):
-			ctrl.call("switch_to_3d_viewport")
+	if ctrl and ctrl.has_method("ask_ai_council_async"):
+		await ctrl.call("ask_ai_council_async", prompt_txt, false, persona_role)
+
+	_relay_badge.text = "آنلاین ✓"
+	_relay_badge.add_theme_color_override("font_color", Color(0.20, 0.85, 0.45))
+	_council_busy = false

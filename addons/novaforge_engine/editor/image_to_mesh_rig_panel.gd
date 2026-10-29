@@ -361,11 +361,10 @@ func _switch_editor_to_3d() -> void:
 		var icon_3d := base.get_theme_icon("Node3D", "EditorIcons")
 		for b in base.find_children("*", "Button", true, false):
 			var btn := b as Button
-			if btn and btn.icon == icon_3d and not btn.text.is_empty():
+			if btn and btn.toggle_mode and btn.button_group != null and btn.icon == icon_3d and not btn.text.is_empty():
 				EditorInterface.set_main_screen_editor(btn.text)
 				return
-	var loc := TranslationServer.translate("3D")
-	EditorInterface.set_main_screen_editor(loc if not loc.is_empty() else "3D")
+	EditorInterface.set_main_screen_editor("3D")
 
 
 func _set_buttons_disabled(dis: bool) -> void:

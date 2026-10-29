@@ -7,6 +7,8 @@ extends Node
 
 signal log_emitted(bbcode_line: String)
 signal state_updated(state: Dictionary)
+signal ai_progress_updated(percent: int, status_text: String)
+signal ai_chat_replied(reply_dict: Dictionary)
 
 var quality_tier: String = "AAA_UNREAL"
 var camera_mode: String = "TPS_SOULS"
@@ -28,6 +30,8 @@ var _cutscene_overlay: Control = null
 var _cutscene_sub_label: Label = null
 var _cutscene_running: bool = false
 var _neural_client: Node = null
+var _llm_brain: Node = null
+var last_generated_script_path: String = ""
 
 
 func _ready() -> void:
@@ -36,9 +40,21 @@ func _ready() -> void:
 		_neural_client = nscr.new()
 		_neural_client.name = "ControllerNeural3DClient"
 		_neural_client.progress_updated.connect(func(pct: int, msg: String):
+			ai_progress_updated.emit(pct, msg)
 			emit_log("[color=#38bdf8][هوش مصنوعی ۳۶۰ درجه %d%%][/color] %s" % [pct, msg])
 		)
 		add_child(_neural_client)
+
+	var lscr = load("res://addons/novaforge_engine/ai_council/neural_llm_brain_client.gd")
+	if lscr:
+		_llm_brain = lscr.new()
+		_llm_brain.name = "ControllerNeuralLLMBrain"
+		_llm_brain.thinking_progress.connect(func(pct: int, msg: String):
+			ai_progress_updated.emit(pct, msg)
+			emit_log("[color=#a855f7][مغز هوش مصنوعی %d%%][/color] %s" % [pct, msg])
+		)
+		add_child(_llm_brain)
+
 	call_deferred("_initial_setup")
 
 
@@ -69,11 +85,29 @@ func switch_to_3d_viewport() -> void:
 		var icon_3d := base.get_theme_icon("Node3D", "EditorIcons")
 		for b in base.find_children("*", "Button", true, false):
 			var btn := b as Button
-			if btn and btn.icon == icon_3d and not btn.text.is_empty():
+			if btn and btn.toggle_mode and btn.button_group != null and btn.icon == icon_3d and not btn.text.is_empty():
 				EditorInterface.set_main_screen_editor(btn.text)
 				return
-	var loc_name := TranslationServer.translate("3D")
-	EditorInterface.set_main_screen_editor(loc_name if not loc_name.is_empty() else "3D")
+	EditorInterface.set_main_screen_editor("3D")
+
+
+func open_last_ai_script_in_editor() -> void:
+	if last_generated_script_path.is_empty() or not FileAccess.file_exists(last_generated_script_path):
+		emit_log("[color=#f59e0b]هنوز اسکریپتی توسط هوش مصنوعی ساخته نشده است؛ ابتدا از چت هوش مصنوعی کد بخواهید![/color]")
+		return
+	if Engine.is_editor_hint():
+		var scr := load(last_generated_script_path) as Script
+		if scr:
+			var base := EditorInterface.get_base_control()
+			if base:
+				var icon_scr := base.get_theme_icon("Script", "EditorIcons")
+				for b in base.find_children("*", "Button", true, false):
+					var btn := b as Button
+					if btn and btn.toggle_mode and btn.button_group != null and btn.icon == icon_scr and not btn.text.is_empty():
+						EditorInterface.set_main_screen_editor(btn.text)
+						break
+			EditorInterface.edit_script(scr)
+			emit_log("[color=#22c55e][ویرایشگر اسکریپت][/color] فایل [b]%s[/b] در بخش کدنویسی باز شد!" % last_generated_script_path)
 
 
 func get_editor_cam() -> Camera3D:
@@ -748,6 +782,54 @@ func run_library_world_layout(prompt_txt: String) -> void:
 		var sp: Array = bres.get("spawned", [])
 		switch_to_3d_viewport()
 		emit_log("[color=#22c55e][چیدمان سریع محیط][/color] ✓ %d مدل محیطی اضافه شد: %s" % [sp.size(), ", ".join(PackedStringArray(sp))])
+
+
+func get_llm_brain() -> Node:
+	return _llm_brain
+
+
+func ask_ai_council_async(user_msg: String, force_build_3d: bool = false, persona: String = "") -> Dictionary:
+	if _llm_brain == null:
+		return {"ok": false, "error": "مغز هوش مصنوعی بارگذاری نشده است."}
+	var res: Dictionary = await _llm_brain.call("ask_brain_async", user_msg, persona)
+	if not res.get("ok", false):
+		ai_chat_replied.emit({"ok": false, "user_msg": user_msg, "error": str(res.get("error", "خطا"))})
+		return res
+
+	# Save generated GDScript automatically if present
+	var gd_code := str(res.get("gdscript_code", ""))
+	var saved_script_path := ""
+	if not gd_code.is_empty():
+		var abs_dir := ProjectSettings.globalize_path("res://generated/scripts")
+		DirAccess.make_dir_recursive_absolute(abs_dir)
+		saved_script_path = "res://generated/scripts/ai_script_%d.gd" % (Time.get_ticks_msec() % 100000)
+		var fa := FileAccess.open(saved_script_path, FileAccess.WRITE)
+		if fa:
+			fa.store_string(gd_code + "\n")
+			fa.close()
+			last_generated_script_path = saved_script_path
+		res["saved_script_path"] = saved_script_path
+
+	# Execute Zero-MCP scene actions requested by user / AI
+	var actions: Array = res.get("actions", [])
+	for act in actions:
+		var a := str(act)
+		if a in ["RAIN", "FIRE", "LIGHTNING", "CLEAR"]:
+			apply_elemental_weather(a, true)
+		elif a == "SHATTER":
+			shatter_or_reset_crate()
+		elif a == "CUTSCENE":
+			trigger_live_cutscene("▶ کات‌سین هوشمند: «" + user_msg.left(45) + "»")
+		elif a in ["FPS", "TPS", "ISOMETRIC"]:
+			apply_camera_perspective("TPS_SOULS" if a == "TPS" else a)
+
+	res["user_msg"] = user_msg
+	ai_chat_replied.emit(res)
+
+	if force_build_3d:
+		await run_prompt_council_build(user_msg)
+
+	return res
 
 
 func clear_ai_spawned_world() -> void:
