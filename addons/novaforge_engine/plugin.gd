@@ -121,11 +121,14 @@ func _enter_tree() -> void:
 
 
 func _apply_novaforge_persian_theme_and_fonts() -> void:
+	OS.low_processor_usage_mode = false
 	if not Engine.is_editor_hint():
 		return
 	var es := EditorInterface.get_editor_settings()
 	if es == null:
 		return
+
+	es.set_setting("interface/editor/update_continuously", true)
 
 	var reg_font := ProjectSettings.globalize_path("res://fonts/Vazirmatn-Regular.ttf")
 	var bold_font := ProjectSettings.globalize_path("res://fonts/Vazirmatn-Bold.ttf")

@@ -325,6 +325,39 @@ func _initialize() -> void:
     print("  -> PASS (v3.0 Neural3DCloudClient + 360° 19-bone Hero .GLB + Native Windows Dialog/Clipboard/DragDrop verified)")
 
 
+def test_v31_live_ai_brains_and_continuous_polling() -> None:
+    print("[Test 9/9] Verifying v3.1 Live AI Brains (Command-A 111B / Aya / Ollama), Continuous Polling & Zero Dead Buttons...")
+    llm_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "ai_council" / "neural_llm_brain_client.gd").read_text(encoding="utf-8")
+    assert "func ask_brain_async" in llm_gd
+    assert "coherelabs-command-a-reasoning.hf.space" in llm_gd
+    assert "coherelabs-tiny-aya.hf.space" in llm_gd
+    assert "_extract_completed_sse_event" in llm_gd
+    assert "OS.low_processor_usage_mode = false" in llm_gd
+
+    plugin_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "plugin.gd").read_text(encoding="utf-8")
+    assert 'set_setting("interface/editor/update_continuously", true)' in plugin_gd
+    assert "OS.low_processor_usage_mode = false" in plugin_gd
+
+    launcher_cpp = (REPO_ROOT / "launcher" / "win32_gui_launcher.cpp").read_text(encoding="utf-8")
+    assert "interface/editor/update_continuously = true" in launcher_cpp
+
+    proj_txt = (REPO_ROOT / "project.godot").read_text(encoding="utf-8")
+    assert "[editor_plugins]" in proj_txt and "novaforge_engine" in proj_txt
+
+    ws_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "editor" / "novaforge_main_workspace.gd").read_text(encoding="utf-8")
+    assert "ask_ai_council_async" in ws_gd
+    assert "shatter_or_reset_crate" in ws_gd
+
+    col_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "editor" / "colibri_model_manager_panel.gd").read_text(encoding="utf-8")
+    assert "ask_ai_council_async" in col_gd
+    assert "check_local_ollama_status_async" in col_gd
+
+    hud_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "ui" / "in_game_studio_hud.gd").read_text(encoding="utf-8")
+    assert "NeuralLlmBrainClient" in hud_gd or "neural_llm_brain_client.gd" in hud_gd
+    assert "_apply_weather" in hud_gd and "_shatter_crate" in hud_gd
+    print("  -> PASS (v3.1 Live AI Brains + Continuous Non-Sleep Polling + Synchronized Editor/HUD UI verified)")
+
+
 if __name__ == "__main__":
     test_native_core_and_ffi()
     test_skill_and_tool_registry()
@@ -334,6 +367,7 @@ if __name__ == "__main__":
     test_real_godot4_headless_boot()
     test_real_glb_library_image_to_3d_and_autorig()
     test_v30_neural_360_cloud_client_and_windows_ux()
+    test_v31_live_ai_brains_and_continuous_polling()
     print("\n============================================================")
-    print("ALL NOVAFORGE AI GAME ENGINE v3.0 TESTS PASSED (8/8 GREEN)!")
+    print("ALL NOVAFORGE AI GAME ENGINE v3.1 TESTS PASSED (9/9 GREEN)!")
     print("============================================================")

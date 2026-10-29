@@ -15,9 +15,8 @@ signal response_completed(result: Dictionary)
 
 const SYSTEM_PROMPT_FA := (
 	"تو مغز اصلی و دستیار هوشمند «موتور بازی‌سازی نوافورج (NovaForge AI Studio v3.1)» بر پایه Godot 4.7 و فیزیک Jolt هستی.\n"
-	+ "همیشه به زبان فارسی روان، دقیق، صمیمی و کاربردی پاسخ بده.\n"
-	+ "اگر کاربر کد یا مکانیک بازی خواست، کد کامل و استاندارد GDScript گادوت ۴ (با تایپ صریح متغیرها) بنویس.\n"
-	+ "اگر کاربر تغییر در صحنه سه‌بعدی خواست (مثل باران، آتش، صاعقه، شب/روز، شکستن جعبه Voronoi، کات‌سین، تغییر دوربین اول‌شخص/سوم‌شخص/ایزومتریک، یا ساخت مدل سه‌بعدی)، هم توضیح فارسی بده و هم در انتهای پاسخ یک خط تگ دستوری به شکل [NOVA_ACTION:RAIN] یا [NOVA_ACTION:FIRE] یا [NOVA_ACTION:LIGHTNING] یا [NOVA_ACTION:CLEAR] یا [NOVA_ACTION:SHATTER] یا [NOVA_ACTION:CUTSCENE] یا [NOVA_ACTION:FPS] یا [NOVA_ACTION:TPS] یا [NOVA_ACTION:ISOMETRIC] قرار بده."
+	+ "همیشه به زبان فارسی روان، دقیق، صمیمی و خوش‌ساخت پاسخ بده (توضیحات مفید و مختصر در حد ۸ تا ۱۴ خط به همراه یک بلوک کد کامل و تمیز GDScript گادوت ۴ با تایپ صریح متغیرها).\n"
+	+ "اگر کاربر تغییر در صحنه سه‌بعدی خواست (مثل باران، آتش، صاعقه، شب/روز، شکستن جعبه Voronoi، کات‌سین، تغییر دوربین اول‌شخص/سوم‌شخص/ایزومتریک)، علاوه بر پاسخ فارسی در انتهای پیام یک تگ دستوری مثل [NOVA_ACTION:RAIN] یا [NOVA_ACTION:FIRE] یا [NOVA_ACTION:LIGHTNING] یا [NOVA_ACTION:CLEAR] یا [NOVA_ACTION:SHATTER] یا [NOVA_ACTION:CUTSCENE] یا [NOVA_ACTION:FPS] یا [NOVA_ACTION:TPS] یا [NOVA_ACTION:ISOMETRIC] قرار بده."
 )
 
 var preferred_backend: String = "AUTO_CLOUD" # AUTO_CLOUD | AYA_FAST | OLLAMA_LOCAL | CUSTOM_OPENAI
@@ -52,6 +51,7 @@ func ask_brain_async(user_message: String, persona_override: String = "") -> Dic
 		return {"ok": false, "error": "هوش مصنوعی در حال پاسخ به پیام قبلی است؛ چند ثانیه صبر کنید..."}
 
 	_busy = true
+	OS.low_processor_usage_mode = false
 	var role_str := persona_override if not persona_override.is_empty() else active_persona_role
 	var full_sys := SYSTEM_PROMPT_FA + "\nنقش تخصصی فعلی تو: " + role_str
 
@@ -77,14 +77,14 @@ func ask_brain_async(user_message: String, persona_override: String = "") -> Dic
 			answer_text = str(loc_res["reply"])
 			used_model = str(loc_res.get("model", "Ollama Local"))
 
-	# 3. Primary Free Cloud Brain: Cohere Command-A Reasoning 111B (Zero Key, ~2.5s)
+	# 3. Primary Free Cloud Brain: Cohere Command-A Reasoning 111B (Zero Key, ~3s)
 	if answer_text.is_empty() and preferred_backend != "AYA_FAST":
 		thinking_progress.emit(32, "در حال تفکر در مغز ابری Command-A Reasoning 111B (بدون نیاز به کلید)...")
 		var r111 := await _call_gradio_queue_llm_async(
 			"coherelabs-command-a-reasoning.hf.space",
 			7,
-			[full_sys + "\n\nپیام کاربر:\n" + clean_msg, [], 120],
-			18.0
+			[full_sys + "\n\nپیام کاربر:\n" + clean_msg, [], 40],
+			28.0
 		)
 		if r111.get("ok", false):
 			answer_text = str(r111["reply"])
@@ -223,33 +223,53 @@ func _call_gradio_queue_llm_async(host: String, fn_index: int, data_arr: Array, 
 		client.poll()
 		var st := client.get_status()
 		if st == HTTPClient.STATUS_BODY:
-			var chunk := client.read_response_body_chunk()
-			if not chunk.is_empty():
+			var got_any := false
+			for _drain_step in range(64):
+				client.poll()
+				if client.get_status() != HTTPClient.STATUS_BODY:
+					break
+				var chunk := client.read_response_body_chunk()
+				if chunk.is_empty():
+					break
 				buf.append_array(chunk)
+				got_any = true
+			if got_any:
 				var raw_txt := buf.get_string_from_utf8()
 				if raw_txt.contains("process_generating"):
-					var next_pct := mini(88, last_pct + 4)
+					var next_pct := mini(90, last_pct + 6)
 					if next_pct > last_pct:
 						last_pct = next_pct
-						thinking_progress.emit(last_pct, "در حال نگارش پاسخ و کد GDScript...")
+						thinking_progress.emit(last_pct, "در حال نگارش زنده پاسخ فارسی و کد GDScript...")
 				if raw_txt.contains("process_completed"):
-					var lines := raw_txt.split("\n")
-					for ln in lines:
-						var s := ln.strip_edges()
-						if s.begins_with("data:") and s.contains("process_completed"):
-							var jtxt := s.substr(5).strip_edges()
-							var msg = JSON.parse_string(jtxt)
-							if msg is Dictionary and msg.get("msg") == "process_completed":
-								client.close()
-								if not msg.get("success", false):
-									return {"ok": false}
-								return _parse_gradio_llm_output(msg.get("output", {}))
+					var parsed_done := _extract_completed_sse_event(raw_txt)
+					if not parsed_done.is_empty():
+						client.close()
+						if not parsed_done.get("success", false):
+							return {"ok": false}
+						return _parse_gradio_llm_output(parsed_done.get("output", {}))
 		elif st in [HTTPClient.STATUS_DISCONNECTED, HTTPClient.STATUS_CONNECTION_ERROR, HTTPClient.STATUS_TLS_HANDSHAKE_ERROR]:
+			if not buf.is_empty():
+				var final_done := _extract_completed_sse_event(buf.get_string_from_utf8())
+				if not final_done.is_empty() and final_done.get("success", false):
+					client.close()
+					return _parse_gradio_llm_output(final_done.get("output", {}))
 			break
 		await get_tree().process_frame
 
 	client.close()
 	return {"ok": false}
+
+
+func _extract_completed_sse_event(raw_txt: String) -> Dictionary:
+	var lines := raw_txt.split("\n")
+	for ln in lines:
+		var s := ln.strip_edges()
+		if s.begins_with("data:") and s.contains("process_completed"):
+			var jtxt := s.substr(5).strip_edges()
+			var msg = JSON.parse_string(jtxt)
+			if msg is Dictionary and msg.get("msg") == "process_completed":
+				return msg
+	return {}
 
 
 func _parse_gradio_llm_output(output_val: Variant) -> Dictionary:

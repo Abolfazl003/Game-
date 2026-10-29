@@ -43,6 +43,7 @@ func generate_from_prompt_async(
 		return {"ok": false, "error": "یک فرآیند ساخت سه‌بعدی در حال انجام است؛ لطفاً چند ثانیه صبر کنید."}
 	_busy = true
 
+	OS.low_processor_usage_mode = false
 	var clean_prompt := prompt_text.strip_edges()
 	if clean_prompt.is_empty():
 		_busy = false
@@ -101,6 +102,7 @@ func generate_from_image_async(
 		return {"ok": false, "error": "یک فرآیند ساخت سه‌بعدی در حال انجام است؛ لطفاً چند ثانیه صبر کنید."}
 	_busy = true
 
+	OS.low_processor_usage_mode = false
 	var abs_img := ProjectSettings.globalize_path(image_path) if image_path.begins_with("res://") or image_path.begins_with("user://") else image_path
 	var orig_img := Image.new()
 	if orig_img.load(abs_img) != OK:
