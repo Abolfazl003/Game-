@@ -146,6 +146,8 @@ func _apply_novaforge_persian_theme_and_fonts() -> void:
 	es.set_setting("interface/theme/corner_radius", 6)
 	es.set_setting("interface/theme/border_size", 1)
 	es.set_setting("interface/theme/draw_extra_borders", true)
+	if Engine.is_editor_hint():
+		Engine.max_fps = 30
 
 
 func _focus_novaforge_panels() -> void:

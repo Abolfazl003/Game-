@@ -52,6 +52,19 @@ func _ready() -> void:
 		)
 		add_child(_llm_brain)
 
+	var iscr = load("res://addons/novaforge_engine/ai_council/in_app_setup_installer.gd")
+	if iscr:
+		var inst: Node = iscr.new()
+		inst.name = "RuntimeInAppSetupInstaller"
+		inst.setup_state_changed.connect(func(st: Dictionary):
+			if _vram_bar and not bool(st.get("completed", false)):
+				_vram_bar.value = float(st.get("overall_pct", 0))
+		)
+		inst.setup_log_line.connect(func(bb: String):
+			_log("[color=#10b981][نصب داخل برنامه][/color] " + bb)
+		)
+		add_child(inst)
+
 	_build_ui()
 	var w := get_window()
 	if w and not w.files_dropped.is_connected(_on_runtime_files_dropped):

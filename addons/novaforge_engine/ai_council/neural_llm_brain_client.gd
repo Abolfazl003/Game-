@@ -69,6 +69,14 @@ func ask_brain_async(user_message: String, persona_override: String = "") -> Dic
 			answer_text = str(custom_res["reply"])
 			used_model = custom_model_name
 
+	# 1b. Built-in Auto-Installed Portable Local AI (`127.0.0.1:11435` Qwen2.5-Coder GGUF)
+	if answer_text.is_empty() and preferred_backend == "BUILTIN_LOCAL":
+		thinking_progress.emit(26, "ارسال پیام به موتور آفلاین نصب‌شده داخل برنامه (Qwen2.5-Coder Local)...")
+		var bi_res := await _call_openai_compatible_async("http://127.0.0.1:11435/v1/chat/completions", "", "qwen2.5-coder", full_sys, clean_msg, 22.0)
+		if bi_res.get("ok", false):
+			answer_text = str(bi_res["reply"])
+			used_model = "Qwen2.5-Coder (نصب‌شده داخل برنامه — کاملاً آفلاین)"
+
 	# 2. Local Ollama / LM Studio if selected (or probed)
 	if answer_text.is_empty() and preferred_backend == "OLLAMA_LOCAL":
 		thinking_progress.emit(28, "بررسی سرور لوکال Ollama / LM Studio روی سیستم شما...")
@@ -307,7 +315,13 @@ func _parse_gradio_llm_output(output_val: Variant) -> Dictionary:
 
 
 func _call_local_ollama_or_lmstudio_async(sys_prompt: String, user_msg: String) -> Dictionary:
-	# Try Ollama (:11434)
+	# 1) Try Built-in Auto-Installed NovaForge llama-server (:11435)
+	var builtin_llama := await _call_openai_compatible_async("http://127.0.0.1:11435/v1/chat/completions", "", "qwen2.5-coder", sys_prompt, user_msg, 18.0)
+	if builtin_llama.get("ok", false):
+		builtin_llama["model"] = "Qwen2.5-Coder (نصب‌شده داخل برنامه)"
+		return builtin_llama
+
+	# 2) Try Ollama (:11434)
 	var req := HTTPRequest.new()
 	req.timeout = 6.0
 	add_child(req)
@@ -350,7 +364,8 @@ func _call_openai_compatible_async(url: String, api_key: String, model_id: Strin
 			{"role": "system", "content": sys_prompt},
 			{"role": "user", "content": user_msg}
 		],
-		"temperature": 0.6
+		"temperature": 0.55,
+		"max_tokens": 360
 	})
 	var err := req.request(url, hdrs, HTTPClient.METHOD_POST, body)
 	if err != OK:

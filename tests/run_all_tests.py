@@ -358,6 +358,32 @@ def test_v31_live_ai_brains_and_continuous_polling() -> None:
     print("  -> PASS (v3.1 Live AI Brains + Continuous Non-Sleep Polling + Synchronized Editor/HUD UI verified)")
 
 
+def test_v32_zero_question_entry_and_in_app_installer() -> None:
+    print("[Test 10/10] Verifying v3.2 Zero-Question Direct Entry + Live In-App Installer & Downloader...")
+    launcher_cpp = (REPO_ROOT / "launcher" / "win32_gui_launcher.cpp").read_text(encoding="utf-8")
+    assert "ID_BTN_EDITOR" not in launcher_cpp, "Launcher must not stop on a mode-chooser button!"
+    assert "LaunchGodotDirectly(root, godotExe, g_playMode);" in launcher_cpp
+    assert "IBindStatusCallback" in launcher_cpp
+
+    run_sh = (REPO_ROOT / "run.sh").read_text(encoding="utf-8")
+    assert "gui_hub.py" not in run_sh and "--editor" in run_sh
+
+    inst_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "ai_council" / "in_app_setup_installer.gd").read_text(encoding="utf-8")
+    assert "func start_or_resume_auto_setup" in inst_gd
+    assert "func _download_url_to_file_async" in inst_gd
+    assert "--log-disable" in inst_gd
+    assert "ZIPReader.new()" in inst_gd
+    assert "Range: bytes=" in inst_gd
+
+    ws_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "editor" / "novaforge_main_workspace.gd").read_text(encoding="utf-8")
+    assert "_on_setup_state_updated" in ws_gd
+    assert "BUILTIN_LOCAL" in ws_gd
+
+    llm_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "ai_council" / "neural_llm_brain_client.gd").read_text(encoding="utf-8")
+    assert "127.0.0.1:11435/v1/chat/completions" in llm_gd
+    print("  -> PASS (v3.2 Zero-Question Direct Entry + Live In-App Downloader/Installer + Built-in Local AI verified)")
+
+
 if __name__ == "__main__":
     test_native_core_and_ffi()
     test_skill_and_tool_registry()
@@ -368,6 +394,7 @@ if __name__ == "__main__":
     test_real_glb_library_image_to_3d_and_autorig()
     test_v30_neural_360_cloud_client_and_windows_ux()
     test_v31_live_ai_brains_and_continuous_polling()
+    test_v32_zero_question_entry_and_in_app_installer()
     print("\n============================================================")
-    print("ALL NOVAFORGE AI GAME ENGINE v3.1 TESTS PASSED (9/9 GREEN)!")
+    print("ALL NOVAFORGE AI GAME ENGINE v3.2 TESTS PASSED (10/10 GREEN)!")
     print("============================================================")

@@ -19,6 +19,14 @@ var _status_banner: RichTextLabel
 var _npc_summary: RichTextLabel
 var _blender_file_dialog: FileDialog
 
+var _setup_headline_lbl: Label
+var _setup_detail_lbl: Label
+var _setup_overall_bar: ProgressBar
+var _setup_file_bar: ProgressBar
+var _setup_stage_lbls: Array[Label] = []
+var _setup_pause_btn: Button
+var _setup_model_opt: OptionButton
+
 
 func _ready() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -44,7 +52,7 @@ func _ready() -> void:
 	header_hb.add_theme_constant_override("separation", 10)
 
 	var title_lbl := Label.new()
-	title_lbl.text = "⚡ میزکار هوشمند نوافورج ۳.۱ — چت و کدنویسی با هوش مصنوعی واقعی (111B) + ساخت مش سه‌بعدی ۳۶۰ درجه و ریگ خودکار"
+	title_lbl.text = "⚡ میزکار هوشمند نوافورج ۳.۲ — ورود مستقیم + نصب و دانلود زنده داخل برنامه + هوش مصنوعی 111B و مش ۳۶۰ درجه"
 	title_lbl.add_theme_font_size_override("font_size", 15)
 	title_lbl.add_theme_color_override("font_color", Color(0.92, 0.97, 1.0))
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -56,6 +64,120 @@ func _ready() -> void:
 	header_hb.add_child(btn_goto_3d)
 	header_card.add_child(header_hb)
 	root_vb.add_child(header_card.get_parent())
+
+	# ── 1b. LIVE IN-APP AUTO-INSTALLER & DOWNLOADER CARD (ZERO QUESTIONS, VISIBLE RIGHT INSIDE APP!) ──
+	var setup_card := _styled_card(Color(0.06, 0.13, 0.18), Color(0.16, 0.84, 0.62))
+	setup_card.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var setup_top := HBoxContainer.new()
+	setup_top.add_theme_constant_override("separation", 8)
+	var setup_title := _sec_title("◆ پروسه نصب، دانلود و راه‌اندازی خودکار داخل برنامه (بدون سوال اضافه — اجرای زنده در پس‌زمینه)")
+	setup_title.add_theme_color_override("font_color", Color(0.35, 0.96, 0.72))
+	setup_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	setup_top.add_child(setup_title)
+
+	_setup_model_opt = OptionButton.new()
+	_setup_model_opt.add_item("مدل آفلاین پیش‌فرض: Qwen2.5-Coder 0.5B (۴۶۸ مگابایت)")
+	_setup_model_opt.add_item("مدل آفلاین حرفه‌ای: Qwen2.5-Coder 1.5B (۱.۰۶ گیگابایت)")
+	_setup_model_opt.item_selected.connect(func(idx: int):
+		var c := _get_ctrl()
+		if c and c.has_method("get_setup_installer"):
+			var inst: Node = c.call("get_setup_installer")
+			if inst:
+				inst.call("select_and_install_model", idx)
+	)
+	setup_top.add_child(_setup_model_opt)
+
+	_setup_pause_btn = _action_btn("■ توقف موقت دانلود", Color(0.24, 0.36, 0.48))
+	_setup_pause_btn.pressed.connect(func():
+		var c := _get_ctrl()
+		if c and c.has_method("get_setup_installer"):
+			var inst: Node = c.call("get_setup_installer")
+			if inst:
+				inst.call("toggle_pause_resume")
+	)
+	setup_top.add_child(_setup_pause_btn)
+	setup_card.add_child(setup_top)
+
+	# 4 Visual Stage Badges
+	var stg_row := HBoxContainer.new()
+	stg_row.add_theme_constant_override("separation", 8)
+	_setup_stage_lbls.clear()
+	var stg_names := [
+		"۱. هسته C++/Jolt و رابط فارسی",
+		"۲. اتصال هوش مصنوعی ابری 111B",
+		"۳. دانلود و نصب موتور llama-server",
+		"۴. دانلود و اجرای مدل Qwen2.5-Coder"
+	]
+	for sn in stg_names:
+		var pill := PanelContainer.new()
+		pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var psb := StyleBoxFlat.new()
+		psb.bg_color = Color(0.09, 0.16, 0.24)
+		psb.border_color = Color(0.22, 0.42, 0.58)
+		psb.set_border_width_all(1)
+		psb.set_corner_radius_all(5)
+		psb.content_margin_left = 8
+		psb.content_margin_right = 8
+		psb.content_margin_top = 4
+		psb.content_margin_bottom = 4
+		pill.add_theme_stylebox_override("panel", psb)
+		var sl := Label.new()
+		sl.text = "• " + sn
+		sl.add_theme_font_size_override("font_size", 11)
+		sl.add_theme_color_override("font_color", Color(0.75, 0.85, 0.96))
+		sl.clip_text = true
+		pill.add_child(sl)
+		stg_row.add_child(pill)
+		_setup_stage_lbls.append(sl)
+	setup_card.add_child(stg_row)
+
+	# Headline + Byte/Speed Details + Dual Progress Bars
+	var bars_hb := HBoxContainer.new()
+	bars_hb.add_theme_constant_override("separation", 10)
+
+	var ov_vb := VBoxContainer.new()
+	ov_vb.custom_minimum_size = Vector2(230, 0)
+	var ov_cap := Label.new()
+	ov_cap.text = "پیشرفت کل نصب داخل برنامه:"
+	ov_cap.add_theme_font_size_override("font_size", 11)
+	ov_cap.add_theme_color_override("font_color", Color(0.68, 0.84, 0.95))
+	ov_vb.add_child(ov_cap)
+	_setup_overall_bar = ProgressBar.new()
+	_setup_overall_bar.min_value = 0.0
+	_setup_overall_bar.max_value = 100.0
+	_setup_overall_bar.value = 5.0
+	_setup_overall_bar.custom_minimum_size = Vector2(220, 18)
+	ov_vb.add_child(_setup_overall_bar)
+	bars_hb.add_child(ov_vb)
+
+	var dl_vb := VBoxContainer.new()
+	dl_vb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_setup_headline_lbl = Label.new()
+	_setup_headline_lbl.text = "• در حال شروع خودکار نصب و دانلود اجزای هوش مصنوعی داخل برنامه..."
+	_setup_headline_lbl.add_theme_font_size_override("font_size", 12)
+	_setup_headline_lbl.add_theme_color_override("font_color", Color(0.92, 0.98, 1.0))
+	_setup_headline_lbl.clip_text = true
+	dl_vb.add_child(_setup_headline_lbl)
+
+	_setup_file_bar = ProgressBar.new()
+	_setup_file_bar.min_value = 0.0
+	_setup_file_bar.max_value = 100.0
+	_setup_file_bar.value = 0.0
+	_setup_file_bar.custom_minimum_size = Vector2(0, 18)
+	_setup_file_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dl_vb.add_child(_setup_file_bar)
+
+	_setup_detail_lbl = Label.new()
+	_setup_detail_lbl.text = "در حال بررسی فایل‌ها... (در حین دانلود، تمام بخش‌های برنامه و هوش مصنوعی ابری 111B کاملاً فعال و قابل استفاده‌اند)"
+	_setup_detail_lbl.add_theme_font_size_override("font_size", 11)
+	_setup_detail_lbl.add_theme_color_override("font_color", Color(0.45, 0.92, 0.72))
+	_setup_detail_lbl.clip_text = true
+	dl_vb.add_child(_setup_detail_lbl)
+
+	bars_hb.add_child(dl_vb)
+	setup_card.add_child(bars_hb)
+	root_vb.add_child(setup_card.get_parent())
 
 	# ── 2. LIVE INTERACTIVE AI BRAIN CHAT, GDSCRIPT CODER & 360° PROMPT BUILDER (TOP & VISIBLE!) ──
 	var ai_card := _styled_card(Color(0.08, 0.12, 0.22), Color(0.62, 0.42, 0.98))
@@ -75,6 +197,7 @@ func _ready() -> void:
 	_backend_opt = OptionButton.new()
 	_backend_opt.add_item("⚡ Command-A Reasoning 111B (ابری رایگان — بدون کلید)")
 	_backend_opt.add_item("✦ Cohere Aya Persian (فارسی فوق‌سریع — ابری رایگان)")
+	_backend_opt.add_item("◆ موتور آفلاین نصب‌شده داخل برنامه (Qwen2.5-Coder Local)")
 	_backend_opt.add_item("◆ لوکال Ollama / LM Studio (127.0.0.1:11434)")
 	_backend_opt.add_item("★ سرور اختصاصی OpenAI / Groq / Custom API")
 	_backend_opt.item_selected.connect(_on_backend_changed)
@@ -338,7 +461,7 @@ func _ready() -> void:
 
 
 func _on_backend_changed(idx: int) -> void:
-	_local_cfg_row.visible = (idx == 2 or idx == 3)
+	_local_cfg_row.visible = (idx == 3 or idx == 4)
 	var ctrl := _get_ctrl()
 	if ctrl == null or not ctrl.has_method("get_llm_brain"):
 		return
@@ -350,8 +473,10 @@ func _on_backend_changed(idx: int) -> void:
 	elif idx == 1:
 		brain.set("preferred_backend", "AYA_FAST")
 	elif idx == 2:
-		brain.set("preferred_backend", "OLLAMA_LOCAL")
+		brain.set("preferred_backend", "BUILTIN_LOCAL")
 	elif idx == 3:
+		brain.set("preferred_backend", "OLLAMA_LOCAL")
+	elif idx == 4:
 		brain.set("preferred_backend", "CUSTOM_OPENAI")
 
 
@@ -362,10 +487,10 @@ func _sync_brain_config() -> void:
 	var brain: Node = ctrl.call("get_llm_brain")
 	if brain == null:
 		return
-	if _backend_opt.selected == 2:
+	if _backend_opt.selected == 3:
 		brain.set("ollama_url", _ollama_url_edit.text.strip_edges())
 		brain.set("ollama_model", _ollama_model_edit.text.strip_edges())
-	elif _backend_opt.selected == 3:
+	elif _backend_opt.selected == 4:
 		brain.set("custom_openai_url", _ollama_url_edit.text.strip_edges())
 		brain.set("custom_model_name", _ollama_model_edit.text.strip_edges())
 		brain.set("custom_api_key", _api_key_edit.text.strip_edges())
@@ -531,6 +656,51 @@ func _bind_ctrl() -> void:
 			ctrl.connect("ai_progress_updated", _on_ai_progress)
 		if ctrl.has_signal("ai_chat_replied") and not ctrl.is_connected("ai_chat_replied", _on_ai_chat_replied):
 			ctrl.connect("ai_chat_replied", _on_ai_chat_replied)
+		if ctrl.has_signal("setup_state_updated") and not ctrl.is_connected("setup_state_updated", _on_setup_state_updated):
+			ctrl.connect("setup_state_updated", _on_setup_state_updated)
+		if ctrl.has_method("get_setup_installer"):
+			var inst: Node = ctrl.call("get_setup_installer")
+			if inst and inst.has_method("get_state"):
+				_on_setup_state_updated(inst.call("get_state"))
+
+
+func _on_setup_state_updated(st: Dictionary) -> void:
+	if _setup_overall_bar:
+		_setup_overall_bar.value = float(st.get("overall_pct", 0))
+	if _setup_file_bar:
+		_setup_file_bar.value = float(st.get("file_pct", 0))
+	if _setup_headline_lbl:
+		_setup_headline_lbl.text = str(st.get("headline", ""))
+	if _setup_detail_lbl:
+		_setup_detail_lbl.text = str(st.get("detail", ""))
+	if _setup_pause_btn:
+		if bool(st.get("completed", false)):
+			_setup_pause_btn.text = "✓ نصب کامل شد (بررسی مجدد)"
+		elif bool(st.get("paused", false)) or not bool(st.get("running", false)):
+			_setup_pause_btn.text = "▶ ادامه نصب و دانلود"
+		else:
+			_setup_pause_btn.text = "■ توقف موقت دانلود"
+
+	var base_names := [
+		"۱. هسته C++/Jolt و رابط فارسی",
+		"۲. اتصال هوش مصنوعی ابری 111B",
+		"۳. دانلود و نصب موتور llama-server",
+		"۴. دانلود و اجرای مدل Qwen2.5-Coder"
+	]
+	var cur_stage := int(st.get("stage", 0))
+	for i in range(mini(_setup_stage_lbls.size(), 4)):
+		var done_key := "stage_%d_done" % (i + 1)
+		var is_done := bool(st.get(done_key, false))
+		var lbl := _setup_stage_lbls[i]
+		if is_done:
+			lbl.text = "✓ " + base_names[i]
+			lbl.add_theme_color_override("font_color", Color(0.28, 0.96, 0.62))
+		elif cur_stage == (i + 1):
+			lbl.text = "⬇ " + base_names[i]
+			lbl.add_theme_color_override("font_color", Color(0.35, 0.85, 1.0))
+		else:
+			lbl.text = "• " + base_names[i]
+			lbl.add_theme_color_override("font_color", Color(0.68, 0.78, 0.90))
 
 
 func _on_state_updated(st: Dictionary) -> void:

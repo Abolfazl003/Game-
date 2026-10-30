@@ -8,6 +8,8 @@ var _model_tree: Tree
 var _hw_summary_label: Label
 var _quick_input: LineEdit
 var _live_reply_lbl: RichTextLabel
+var _builtin_row: TreeItem = null
+var _dl_bar: ProgressBar = null
 
 
 func _ready() -> void:
@@ -18,10 +20,17 @@ func _ready() -> void:
 	top_bar.add_theme_constant_override("separation", 6)
 
 	_hw_summary_label = Label.new()
-	_hw_summary_label.text = "⚡ مرکز مغزهای هوش مصنوعی (ابری رایگان + لوکال Colibrì / Ollama) — روی هر مدل کلیک کنید تا فعال و تست شود!"
+	_hw_summary_label.text = "◆ نصب و دانلود خودکار داخل برنامه فعال است — روی هر مدل کلیک کنید تا فعال و تست شود!"
 	_hw_summary_label.clip_text = true
 	_hw_summary_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_bar.add_child(_hw_summary_label)
+
+	_dl_bar = ProgressBar.new()
+	_dl_bar.min_value = 0.0
+	_dl_bar.max_value = 100.0
+	_dl_bar.value = 0.0
+	_dl_bar.custom_minimum_size = Vector2(140, 18)
+	top_bar.add_child(_dl_bar)
 
 	var btn_ollama := Button.new()
 	btn_ollama.text = "✦ بررسی Ollama لوکال"
@@ -98,20 +107,24 @@ func _ready() -> void:
 
 func _populate_models() -> void:
 	_model_tree.clear()
+	_builtin_row = null
 	var root := _model_tree.create_item()
 	var rows := [
+		["Qwen2.5-Coder (نصب داخل برنامه)", "موتور آفلاین کدنویس و بازی‌ساز (Colibrì GGUF)", "127.0.0.1:11435 (نصب خودکار)", "⬇ در حال دانلود و نصب خودکار..."],
 		["Command-A-Reasoning-111B", "کارگردان ارشد و کدنویس GDScript/C++", "ابری رایگان (بدون کلید)", "✓ آنلاین — کلیک برای تست زنده"],
 		["Cohere-Aya-Persian-Fast", "دستیار فارسی فوق‌سریع و دیالوگ NPC", "ابری رایگان (۱ ثانیه)", "✓ آنلاین — کلیک برای تست زنده"],
 		["Tencent-Hunyuan3D-2", "ساخت مش سه‌بعدی ۳۶۰ درجه واقعی (.GLB)", "ابری رایگان + دوربری عصبی", "✓ آنلاین — کلیک برای ساخت مش"],
-		["Colibrì / Ollama Local", "اجرای آفلاین مدل‌های لوکال سیستم شما", "127.0.0.1:11434 (RAM/VRAM)", "▶ کلیک برای بررسی و اتصال"],
-		["Scene-Audit & QA Judge", "داور بررسی صحنه و رفع باگ اسکریپت", "ترکیبی (ابری + داخلی)", "✓ آنلاین — کلیک برای تحلیل صحنه"],
+		["Colibrì / Ollama Local", "اجرای آفلاین مدل‌های سیستم شما", "127.0.0.1:11434 (RAM/VRAM)", "▶ کلیک برای بررسی و اتصال"],
 	]
-	for r in rows:
+	for i in range(rows.size()):
+		var r: Array = rows[i]
 		var item := _model_tree.create_item(root)
 		item.set_text(0, r[0])
 		item.set_text(1, r[1])
 		item.set_text(2, r[2])
 		item.set_text(3, r[3])
+		if i == 0:
+			_builtin_row = item
 
 
 func _on_tree_item_clicked() -> void:
@@ -133,7 +146,12 @@ func _on_tree_item_clicked() -> void:
 	if ctrl and ctrl.has_method("get_llm_brain"):
 		var b: Node = ctrl.call("get_llm_brain")
 		if b:
-			b.set("preferred_backend", "AYA_FAST" if mid.contains("Aya") else "AUTO_CLOUD")
+			if mid.contains("نصب داخل برنامه"):
+				b.set("preferred_backend", "BUILTIN_LOCAL")
+			elif mid.contains("Aya"):
+				b.set("preferred_backend", "AYA_FAST")
+			else:
+				b.set("preferred_backend", "AUTO_CLOUD")
 	_run_quick_test(mid + " — " + role)
 
 
@@ -175,8 +193,35 @@ func _get_ctrl() -> Node:
 
 func _bind_signals() -> void:
 	var ctrl := _get_ctrl()
-	if ctrl and ctrl.has_signal("ai_chat_replied") and not ctrl.is_connected("ai_chat_replied", _on_global_reply):
-		ctrl.connect("ai_chat_replied", _on_global_reply)
+	if ctrl:
+		if ctrl.has_signal("ai_chat_replied") and not ctrl.is_connected("ai_chat_replied", _on_global_reply):
+			ctrl.connect("ai_chat_replied", _on_global_reply)
+		if ctrl.has_signal("setup_state_updated") and not ctrl.is_connected("setup_state_updated", _on_setup_state_updated):
+			ctrl.connect("setup_state_updated", _on_setup_state_updated)
+		if ctrl.has_method("get_setup_installer"):
+			var inst: Node = ctrl.call("get_setup_installer")
+			if inst and inst.has_method("get_state"):
+				_on_setup_state_updated(inst.call("get_state"))
+
+
+func _on_setup_state_updated(st: Dictionary) -> void:
+	var ov := int(st.get("overall_pct", 0))
+	if _dl_bar:
+		_dl_bar.value = float(ov)
+	if _hw_summary_label:
+		_hw_summary_label.text = str(st.get("headline", ""))
+	if _builtin_row:
+		if bool(st.get("local_ready", false)):
+			_builtin_row.set_text(3, "✓ نصب‌شده و فعال (کلیک برای تست آفلاین)")
+		elif bool(st.get("paused", false)):
+			_builtin_row.set_text(3, "■ متوقف‌شده (%d%%)" % ov)
+		else:
+			var d_mb := float(st.get("downloaded_mb", 0.0))
+			var t_mb := float(st.get("total_mb", 0.0))
+			if t_mb > 0.5:
+				_builtin_row.set_text(3, "⬇ دانلود زنده: %.0f / %.0f MB (%d%%)" % [d_mb, t_mb, int(st.get("file_pct", 0))])
+			else:
+				_builtin_row.set_text(3, "• در حال راه‌اندازی (%d%%)..." % ov)
 
 
 func _on_global_reply(res: Dictionary) -> void:

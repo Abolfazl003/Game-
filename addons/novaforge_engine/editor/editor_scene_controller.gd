@@ -9,6 +9,7 @@ signal log_emitted(bbcode_line: String)
 signal state_updated(state: Dictionary)
 signal ai_progress_updated(percent: int, status_text: String)
 signal ai_chat_replied(reply_dict: Dictionary)
+signal setup_state_updated(setup_state: Dictionary)
 
 var quality_tier: String = "AAA_UNREAL"
 var camera_mode: String = "TPS_SOULS"
@@ -31,6 +32,7 @@ var _cutscene_sub_label: Label = null
 var _cutscene_running: bool = false
 var _neural_client: Node = null
 var _llm_brain: Node = null
+var _setup_installer: Node = null
 var last_generated_script_path: String = ""
 
 
@@ -54,6 +56,18 @@ func _ready() -> void:
 			emit_log("[color=#a855f7][مغز هوش مصنوعی %d%%][/color] %s" % [pct, msg])
 		)
 		add_child(_llm_brain)
+
+	var iscr = load("res://addons/novaforge_engine/ai_council/in_app_setup_installer.gd")
+	if iscr:
+		_setup_installer = iscr.new()
+		_setup_installer.name = "ControllerInAppSetupInstaller"
+		_setup_installer.setup_state_changed.connect(func(st: Dictionary):
+			setup_state_updated.emit(st)
+		)
+		_setup_installer.setup_log_line.connect(func(line_bb: String):
+			emit_log("[b][color=#10b981][نصب و دانلود خودکار][/color][/b] " + line_bb)
+		)
+		add_child(_setup_installer)
 
 	call_deferred("_initial_setup")
 
@@ -786,6 +800,10 @@ func run_library_world_layout(prompt_txt: String) -> void:
 
 func get_llm_brain() -> Node:
 	return _llm_brain
+
+
+func get_setup_installer() -> Node:
+	return _setup_installer
 
 
 func ask_ai_council_async(user_msg: String, force_build_3d: bool = false, persona: String = "") -> Dictionary:
