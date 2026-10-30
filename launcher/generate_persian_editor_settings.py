@@ -32,6 +32,7 @@ def write_editor_settings(target_file: Path, font_regular: str = "", font_bold: 
         "interface/theme/corner_radius = 6",
         "interface/theme/border_size = 1",
         "interface/theme/draw_extra_borders = true",
+        "interface/editor/single_window_mode = false",
         "interface/editor/update_continuously = true",
         "interface/editor/behavior/show_internal_errors_in_toast_notifications = 0",
         "",

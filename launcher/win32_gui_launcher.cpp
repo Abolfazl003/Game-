@@ -105,6 +105,7 @@ static void EnsurePersianPortableSettings(const std::wstring& root) {
         "interface/theme/corner_radius = 6\n"
         "interface/theme/border_size = 1\n"
         "interface/theme/draw_extra_borders = true\n"
+        "interface/editor/single_window_mode = false\n"
         "interface/editor/update_continuously = true\n"
         "interface/editor/behavior/show_internal_errors_in_toast_notifications = 0\n";
     WriteUtf8File(settingsFile, tres);

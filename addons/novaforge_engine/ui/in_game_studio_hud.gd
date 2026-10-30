@@ -67,8 +67,10 @@ func _ready() -> void:
 
 	_build_ui()
 	var w := get_window()
-	if w and not w.files_dropped.is_connected(_on_runtime_files_dropped):
-		w.files_dropped.connect(_on_runtime_files_dropped)
+	if w:
+		w.unresizable = false
+		if not w.files_dropped.is_connected(_on_runtime_files_dropped):
+			w.files_dropped.connect(_on_runtime_files_dropped)
 
 
 func _unhandled_input(event: InputEvent) -> void:

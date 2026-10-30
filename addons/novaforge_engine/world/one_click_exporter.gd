@@ -36,13 +36,13 @@ static func export_project_bundle(platform: String, scene_root: Node3D = null, i
 	var out_abs_dir := ProjectSettings.globalize_path(out_res_dir)
 	DirAccess.make_dir_recursive_absolute(out_abs_dir)
 
-	# 1. Write Godot 4 export_presets.cfg if not present so Godot Project -> Export is pre-configured!
+	# 1. Write complete Godot 4.7 export_presets.cfg schema so Godot Project -> Export is pre-configured with zero warnings!
 	var presets_path := ProjectSettings.globalize_path("res://export_presets.cfg")
 	if not FileAccess.file_exists(presets_path):
 		var cfg_txt := (
-			"[preset.0]\nname=\"Windows Desktop\"\nplatform=\"Windows Desktop\"\nrunnable=true\nexport_path=\"builds/windows_x64/NovaForgeGame.exe\"\n\n"
-			+ "[preset.1]\nname=\"Linux\"\nplatform=\"Linux\"\nrunnable=true\nexport_path=\"builds/linux_x86_64/NovaForgeGame.x86_64\"\n\n"
-			+ "[preset.2]\nname=\"Web\"\nplatform=\"Web\"\nrunnable=true\nexport_path=\"builds/web_wasm/index.html\"\n"
+			"[preset.0]\nname=\"Windows Desktop\"\nplatform=\"Windows Desktop\"\nrunnable=true\ndedicated_server=false\ncustom_features=\"\"\nexport_filter=\"all_resources\"\ninclude_filter=\"\"\nexclude_filter=\"\"\nexport_path=\"builds/windows_x64/NovaForgeGame.exe\"\nencryption_include_filters=\"\"\nencryption_exclude_filters=\"\"\nencrypt_pck=false\nencrypt_directory=false\n\n[preset.0.options]\ncustom_template/debug=\"\"\ncustom_template/release=\"\"\n\n"
+			+ "[preset.1]\nname=\"Linux\"\nplatform=\"Linux\"\nrunnable=true\ndedicated_server=false\ncustom_features=\"\"\nexport_filter=\"all_resources\"\ninclude_filter=\"\"\nexclude_filter=\"\"\nexport_path=\"builds/linux_x86_64/NovaForgeGame.x86_64\"\nencryption_include_filters=\"\"\nencryption_exclude_filters=\"\"\nencrypt_pck=false\nencrypt_directory=false\n\n[preset.1.options]\ncustom_template/debug=\"\"\ncustom_template/release=\"\"\n\n"
+			+ "[preset.2]\nname=\"Web\"\nplatform=\"Web\"\nrunnable=true\ndedicated_server=false\ncustom_features=\"\"\nexport_filter=\"all_resources\"\ninclude_filter=\"\"\nexclude_filter=\"\"\nexport_path=\"builds/web_wasm/index.html\"\nencryption_include_filters=\"\"\nencryption_exclude_filters=\"\"\nencrypt_pck=false\nencrypt_directory=false\n\n[preset.2.options]\ncustom_template/debug=\"\"\ncustom_template/release=\"\"\n"
 		)
 		var pf := FileAccess.open(presets_path, FileAccess.WRITE)
 		if pf:

@@ -52,18 +52,21 @@ func _ready() -> void:
 	_neural_client.concept_image_ready.connect(_on_neural_concept_ready)
 	add_child(_neural_client)
 
-	var main_hb := HBoxContainer.new()
-	main_hb.add_theme_constant_override("separation", 14)
+	var main_hb := HFlowContainer.new()
+	main_hb.add_theme_constant_override("h_separation", 12)
+	main_hb.add_theme_constant_override("v_separation", 10)
 	main_hb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	add_child(main_hb)
 
 	# ── COLUMN 1: NATIVE WINDOWS IMAGE PICKER + CLIPBOARD PASTE + PREVIEWS ──
 	var left_vb := VBoxContainer.new()
-	left_vb.custom_minimum_size = Vector2(285, 0)
+	left_vb.custom_minimum_size = Vector2(230, 0)
+	left_vb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left_vb.add_theme_constant_override("separation", 5)
 
 	var lbl_t1 := Label.new()
 	lbl_t1.text = "◆ ۱. ورودی عکس (فایل ویندوز / کلیپ‌بورد / Drag & Drop)"
+	lbl_t1.clip_text = true
 	lbl_t1.add_theme_color_override("font_color", Color(0.38, 0.86, 1.0))
 	left_vb.add_child(lbl_t1)
 
@@ -107,11 +110,13 @@ func _ready() -> void:
 
 	# ── COLUMN 2: TRUE 360° NEURAL AI 3D MESH RECONSTRUCTION (`Hunyuan3D-2`) ──
 	var mid_vb := VBoxContainer.new()
+	mid_vb.custom_minimum_size = Vector2(230, 0)
 	mid_vb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	mid_vb.add_theme_constant_override("separation", 6)
 
 	var lbl_t2 := Label.new()
 	lbl_t2.text = "⚡ ۲. ساخت مش سه‌بعدی ۳۶۰ درجه با هوش مصنوعی واقعی (Hunyuan3D-2)"
+	lbl_t2.clip_text = true
 	lbl_t2.add_theme_color_override("font_color", Color(0.38, 0.86, 1.0))
 	mid_vb.add_child(lbl_t2)
 
@@ -175,11 +180,13 @@ func _ready() -> void:
 
 	# ── COLUMN 3: AUTO-RIGGER FOR ANY MESH (`.GLB/.OBJ`) + LIVE ANIMATIONS ──
 	var right_vb := VBoxContainer.new()
+	right_vb.custom_minimum_size = Vector2(230, 0)
 	right_vb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right_vb.add_theme_constant_override("separation", 6)
 
 	var lbl_t3 := Label.new()
 	lbl_t3.text = "✦ ۳. ریگ‌گذاری خودکار هر مدل (.GLB / .OBJ) و کنترل WASD"
+	lbl_t3.clip_text = true
 	lbl_t3.add_theme_color_override("font_color", Color(0.38, 0.86, 1.0))
 	right_vb.add_child(lbl_t3)
 
@@ -586,6 +593,7 @@ func _make_preview_box(parent: HBoxContainer, caption: String) -> TextureRect:
 func _styled_btn(txt: String, bg: Color) -> Button:
 	var b := Button.new()
 	b.text = txt
+	b.clip_text = true
 	b.custom_minimum_size = Vector2(0, 31)
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = bg

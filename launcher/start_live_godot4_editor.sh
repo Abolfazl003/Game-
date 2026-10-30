@@ -37,15 +37,19 @@ cp "$ROOT_DIR/launcher/web_hub_index.html" "$WEB_ROOT/index.html"
 # Write Persian ('fa') + Custom Midnight-Cyan NovaForge EditorSettings before launching Godot 4.7.2
 python3 "$ROOT_DIR/launcher/generate_persian_editor_settings.py"
 
-# Write borderless maximized Openbox config so Godot 4 fills 100% of the screen
+# Write Openbox config: main Godot Editor maximized, while floating module subwindows stay movable & mouse-resizable!
 mkdir -p /tmp/novaforge_ob
 cat > /tmp/novaforge_ob/rc.xml << 'OBEOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <openbox_config xmlns="http://openbox.org/3.4/rc">
   <applications>
-    <application class="*">
-      <decor>no</decor>
+    <application type="normal">
+      <decor>yes</decor>
       <maximized>true</maximized>
+    </application>
+    <application title="*شناور*">
+      <decor>yes</decor>
+      <maximized>false</maximized>
     </application>
   </applications>
 </openbox_config>

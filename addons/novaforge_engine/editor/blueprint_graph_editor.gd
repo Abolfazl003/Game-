@@ -31,9 +31,10 @@ func _ready() -> void:
 	ai_bar.add_child(btn_ai_bp)
 	add_child(ai_bar)
 
-	# Node Toolbar + Compiler Row
-	var bar := HBoxContainer.new()
-	bar.add_theme_constant_override("separation", 5)
+	# Node Toolbar + Compiler Row (Responsive HFlowContainer — wraps cleanly when resized narrow!)
+	var bar := HFlowContainer.new()
+	bar.add_theme_constant_override("h_separation", 5)
+	bar.add_theme_constant_override("v_separation", 4)
 
 	var btn_ev := Button.new()
 	btn_ev.text = "+ رویداد (Event)"

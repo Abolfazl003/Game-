@@ -151,8 +151,7 @@ func _apply_novaforge_persian_theme_and_fonts() -> void:
 
 
 func _focus_novaforge_panels() -> void:
-	if _console_panel:
-		make_bottom_panel_item_visible(_console_panel)
+	hide_bottom_panel()
 	if Engine.is_editor_hint():
 		EditorInterface.set_main_screen_editor("⚡ میزکار نوافورج")
 

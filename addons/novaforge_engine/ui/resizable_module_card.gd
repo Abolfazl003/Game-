@@ -101,7 +101,7 @@ func setup(id_str: String, title_str: String, accent: Color = Color(0.24, 0.78, 
 	btn_larger.pressed.connect(func(): adjust_height(65.0))
 	hhb.add_child(btn_larger)
 
-	_btn_float = _mini_btn("❐ شناور", "جدا کردن ماژول در پنجره مستقل قابل تغییر سایز با ماوس")
+	_btn_float = _mini_btn("✦ شناور", "جدا کردن ماژول در پنجره مستقل قابل تغییر سایز با ماوس")
 	_btn_float.pressed.connect(toggle_floating_window)
 	hhb.add_child(_btn_float)
 
@@ -152,7 +152,7 @@ func setup(id_str: String, title_str: String, accent: Color = Color(0.24, 0.78, 
 	grip_hb.add_child(grip_center)
 
 	var corner_lbl := Label.new()
-	corner_lbl.text = "◢"
+	corner_lbl.text = "◆"
 	corner_lbl.add_theme_font_size_override("font_size", 10)
 	corner_lbl.add_theme_color_override("font_color", accent)
 	corner_lbl.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -283,7 +283,7 @@ func toggle_floating_window() -> void:
 	top_bar.add_child(info_lbl)
 
 	var btn_dock := Button.new()
-	btn_dock.text = "↩ بازگرداندن ماژول به جای خود در میزکار"
+	btn_dock.text = "« بازگرداندن ماژول به جای خود در میزکار"
 	btn_dock.pressed.connect(dock_back_from_floating)
 	top_bar.add_child(btn_dock)
 	win_vb.add_child(top_bar)
@@ -297,12 +297,37 @@ func toggle_floating_window() -> void:
 	_body_holder.remove_child(_content_box)
 	win_scroll.add_child(_content_box)
 
+	var win_grip_bar := HBoxContainer.new()
+	var win_hint := Label.new()
+	win_hint.text = "═ لبه‌های پنجره یا گوشه سمت راست پایین را با ماوس بکشید ═"
+	win_hint.add_theme_font_size_override("font_size", 10)
+	win_hint.add_theme_color_override("font_color", Color(0.45, 0.72, 0.95))
+	win_hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	win_grip_bar.add_child(win_hint)
+
+	var win_corner := Label.new()
+	win_corner.text = " ◆ تغییر سایز پنجره "
+	win_corner.add_theme_font_size_override("font_size", 11)
+	win_corner.add_theme_color_override("font_color", Color(0.35, 0.90, 1.0))
+	win_corner.mouse_filter = Control.MOUSE_FILTER_STOP
+	win_corner.mouse_default_cursor_shape = Control.CURSOR_FDIAGSIZE
+	win_corner.gui_input.connect(func(ev: InputEvent):
+		if ev is InputEventMouseMotion and (ev.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0 and _floating_win != null:
+			var ns := Vector2i(
+				maxi(360, _floating_win.size.x + int(ev.relative.x)),
+				maxi(220, _floating_win.size.y + int(ev.relative.y))
+			)
+			_floating_win.size = ns
+	)
+	win_grip_bar.add_child(win_corner)
+	win_vb.add_child(win_grip_bar)
+
 	_floating_dock_btn = Button.new()
-	_floating_dock_btn.text = "❐ این ماژول در پنجره شناور باز است — کلیک برای بازگرداندن به اینجا"
+	_floating_dock_btn.text = "✦ این ماژول در پنجره شناور باز است — کلیک برای بازگرداندن به اینجا"
 	_floating_dock_btn.pressed.connect(dock_back_from_floating)
 	_body_holder.add_child(_floating_dock_btn)
 	_resize_bar.visible = false
-	_btn_float.text = "↩ اتصال"
+	_btn_float.text = "« اتصال"
 
 	add_child(_floating_win)
 	_floating_win.popup_centered(Vector2i(760, 520))
@@ -322,7 +347,7 @@ func dock_back_from_floating() -> void:
 	_floating_win.queue_free()
 	_floating_win = null
 	_resize_bar.visible = not _collapsed
-	_btn_float.text = "❐ شناور"
+	_btn_float.text = "✦ شناور"
 	floated_changed.emit(false)
 
 

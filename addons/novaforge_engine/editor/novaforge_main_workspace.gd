@@ -143,7 +143,7 @@ func _build_top_studio_header() -> void:
 	bar_panel.add_child(hb)
 
 	var title := Label.new()
-	title.text = "⚡ استودیو کامل نوافورج ۴.۰ — ۱۲ ماژول حرفه‌ای بازی‌سازی (لبه‌های ستون‌ها و پایین هر ماژول با ماوس کوچک/بزرگ می‌شوند + دکمه ❐ شناور)"
+	title.text = "⚡ استودیو کامل نوافورج ۴.۰ — ۱۲ ماژول حرفه‌ای بازی‌سازی (لبه‌های ستون‌ها و پایین هر ماژول با ماوس کوچک/بزرگ می‌شوند + دکمه ✦ شناور)"
 	title.add_theme_font_size_override("font_size", 13)
 	title.add_theme_color_override("font_color", Color(0.90, 0.97, 1.0))
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -162,11 +162,11 @@ func _build_top_studio_header() -> void:
 	b_3d.pressed.connect(_goto_3d_screen)
 	hb.add_child(b_3d)
 
-	var b_exp_all := _action_btn("⊞ باز کردن همه", Color(0.20, 0.30, 0.46))
+	var b_exp_all := _action_btn("+ باز کردن همه", Color(0.20, 0.30, 0.46))
 	b_exp_all.pressed.connect(func(): _set_all_cards_collapsed(false))
 	hb.add_child(b_exp_all)
 
-	var b_col_all := _action_btn("▤ جمع کردن همه", Color(0.20, 0.30, 0.46))
+	var b_col_all := _action_btn("- جمع کردن همه", Color(0.20, 0.30, 0.46))
 	b_col_all.pressed.connect(func(): _set_all_cards_collapsed(true))
 	hb.add_child(b_col_all)
 
@@ -214,9 +214,10 @@ func _build_quick_jump_module_strip() -> void:
 		var mid: String = jd[0]
 		var b := Button.new()
 		b.text = jd[1]
-		b.tooltip_text = "کلیک چپ: پرش مستقیم و باز کردن این ماژول | دکمه ❐ روی ماژول: پنجره شناور قابل تغییر سایز"
+		b.clip_text = true
+		b.tooltip_text = "کلیک چپ: پرش مستقیم و باز کردن این ماژول | دکمه ✦ شناور روی ماژول: پنجره شناور قابل تغییر سایز"
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.custom_minimum_size = Vector2(0, 24)
+		b.custom_minimum_size = Vector2(90, 24)
 		b.add_theme_font_size_override("font_size", 11)
 		var col: Color = jd[2]
 		var psb := StyleBoxFlat.new()
@@ -234,32 +235,34 @@ func _build_quick_jump_module_strip() -> void:
 
 
 func _build_resizable_three_pane_body() -> void:
-	# Outer HSplit: Left Column  <-->  (Center + Right)
+	# Outer HSplit: Column A  <-->  (Center + Column C)
+	# Note: Godot SplitContainer.split_offset is a DELTA added to child 0's minimum size!
 	_outer_hsplit = HSplitContainer.new()
 	_outer_hsplit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_outer_hsplit.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_outer_hsplit.split_offset = 345
+	_outer_hsplit.split_offset = 175
 	_style_split(_outer_hsplit)
 	add_child(_outer_hsplit)
 
-	# ── LEFT COLUMN (Modules 5, 6, 9, 11, 12) ──
-	_left_scroll = _make_column_scroll(250)
+	# ── COLUMN A (Modules 5, 6, 9, 11, 12 — ~370px default, draggable down to 195px) ──
+	_left_scroll = _make_column_scroll(195)
 	_outer_hsplit.add_child(_left_scroll)
 	var left_vb := _left_scroll.get_child(0) as VBoxContainer
 
-	# Inner HSplit: Center Pane  <-->  Right Column
+	# Inner HSplit: Center Pane  <-->  Column C
 	_inner_hsplit = HSplitContainer.new()
 	_inner_hsplit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_inner_hsplit.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_inner_hsplit.split_offset = 540
+	_inner_hsplit.split_offset = 305
 	_style_split(_inner_hsplit)
 	_outer_hsplit.add_child(_inner_hsplit)
 
-	# ── CENTER PANE: VSplit (Top Live 3D Viewport  <-->  Bottom Modules 1, 4, 7) ──
+	# ── CENTER PANE: VSplit (Top Live 3D Viewport  <-->  Bottom Modules 1, 4, 7 — ~500px default) ──
 	_center_vsplit = VSplitContainer.new()
 	_center_vsplit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_center_vsplit.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_center_vsplit.split_offset = 275
+	_center_vsplit.custom_minimum_size = Vector2(195, 180)
+	_center_vsplit.split_offset = 115
 	_style_split(_center_vsplit)
 	_inner_hsplit.add_child(_center_vsplit)
 
@@ -268,12 +271,12 @@ func _build_resizable_three_pane_body() -> void:
 	center_top_wrap.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_center_vsplit.add_child(center_top_wrap)
 
-	_center_scroll = _make_column_scroll(320)
+	_center_scroll = _make_column_scroll(195)
 	_center_vsplit.add_child(_center_scroll)
 	var center_bot_vb := _center_scroll.get_child(0) as VBoxContainer
 
-	# ── RIGHT COLUMN (Modules 2, 8, 10) ──
-	_right_scroll = _make_column_scroll(300)
+	# ── COLUMN C (Modules 2, 8, 10 — ~550px default, draggable down to 195px) ──
+	_right_scroll = _make_column_scroll(195)
 	_inner_hsplit.add_child(_right_scroll)
 	var right_vb := _right_scroll.get_child(0) as VBoxContainer
 
@@ -812,6 +815,7 @@ func _build_mod6_video_mocap_and_cutscene(parent_vb: VBoxContainer) -> void:
 	var body := _make_card(parent_vb, _left_scroll, "m6_mocap", "۶. موشن‌کپچر از ویدیو (Foot-IK) و کارگردان کات‌سین زنده (Bezier / NLA)", Color(0.76, 0.40, 0.96))
 
 	var b_vid := _action_btn("▶ انتخاب فایل ویدیو (.mp4 / .mov / .webm) برای استخراج موشن", Color(0.46, 0.22, 0.68))
+	b_vid.clip_text = true
 	b_vid.pressed.connect(func():
 		if OS.get_name() in ["Windows", "macOS"]:
 			_video_file_dialog.popup()
@@ -866,6 +870,7 @@ func _build_mod9_voronoi_and_chemistry(parent_vb: VBoxContainer) -> void:
 	var body := _make_card(parent_vb, _left_scroll, "m9_voronoi", "۹. تخریب فیزیکی Voronoi 3D (Jolt) و شیمی عناصر محیط", Color(0.94, 0.36, 0.38))
 
 	var b_shatter := _action_btn("★ ضربه شمشیر: متلاشی کردن ۱۶تکه Voronoi / بازسازی صندوق", Color(0.68, 0.22, 0.24))
+	b_shatter.clip_text = true
 	b_shatter.pressed.connect(func():
 		var c := _get_ctrl()
 		if c:
@@ -963,7 +968,7 @@ func _build_mod12_exporter_and_audio(parent_vb: VBoxContainer) -> void:
 	var mus_hb := HBoxContainer.new()
 	mus_hb.add_theme_constant_override("separation", 4)
 	var b_calm := Button.new()
-	b_calm.text = "♪ تم محیطی آرام"
+	b_calm.text = "▶ تم محیطی آرام"
 	b_calm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b_calm.pressed.connect(func():
 		var c := _get_ctrl()
@@ -972,7 +977,7 @@ func _build_mod12_exporter_and_audio(parent_vb: VBoxContainer) -> void:
 	mus_hb.add_child(b_calm)
 
 	var b_boss := Button.new()
-	b_boss.text = "♪ تم نبرد Boss"
+	b_boss.text = "▶ تم نبرد Boss"
 	b_boss.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b_boss.pressed.connect(func():
 		var c := _get_ctrl()
@@ -1001,6 +1006,7 @@ func _build_mod12_exporter_and_audio(parent_vb: VBoxContainer) -> void:
 	body.add_child(_export_ai_chk)
 
 	var b_exp := _action_btn("⚡ ساخت بسته خروجی بازی + اسنپ‌شات .GLB صحنه", Color(0.32, 0.26, 0.68))
+	b_exp.clip_text = true
 	b_exp.pressed.connect(_on_export_project_clicked)
 	body.add_child(b_exp)
 
@@ -1025,7 +1031,7 @@ func _build_footer_and_dialogs() -> void:
 	_status_banner.bbcode_enabled = true
 	_status_banner.fit_content = true
 	_status_banner.scroll_active = false
-	_status_banner.text = "[color=#38bdf8]✓ استودیو نوافورج ۴.۰ آماده است — هر ستون و هر ماژول با ماوس کوچک/بزرگ یا شناور (❐) می‌شود.[/color]"
+	_status_banner.text = "[color=#38bdf8]✓ استودیو نوافورج ۴.۰ آماده است — هر ستون و هر ماژول با ماوس کوچک/بزرگ یا شناور (✦ شناور) می‌شود.[/color]"
 	foot.add_child(_status_banner)
 	add_child(foot)
 
@@ -1080,11 +1086,11 @@ func _set_all_cards_collapsed(c: bool) -> void:
 
 func _reset_split_layout() -> void:
 	if _outer_hsplit:
-		_outer_hsplit.split_offset = 345
+		_outer_hsplit.split_offset = 175
 	if _inner_hsplit:
-		_inner_hsplit.split_offset = 540
+		_inner_hsplit.split_offset = 305
 	if _center_vsplit:
-		_center_vsplit.split_offset = 275
+		_center_vsplit.split_offset = 115
 	_set_all_cards_collapsed(false)
 
 

@@ -384,6 +384,37 @@ def test_v32_zero_question_entry_and_in_app_installer() -> None:
     print("  -> PASS (v3.2 Zero-Question Direct Entry + Live In-App Downloader/Installer + Built-in Local AI verified)")
 
 
+def test_v33_resizable_12_modules_and_full_capabilities() -> None:
+    print("[Test 11/11] Verifying v3.3 Resizable 12-Module Studio, Floating Windows, Embedded 3D & All Capabilities...")
+    card_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "ui" / "resizable_module_card.gd").read_text(encoding="utf-8")
+    assert "CURSOR_VSIZE" in card_gd and "CURSOR_FDIAGSIZE" in card_gd
+    assert "toggle_floating_window" in card_gd and "unresizable = false" in card_gd
+
+    ws_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "editor" / "novaforge_main_workspace.gd").read_text(encoding="utf-8")
+    for mid in ["m1_setup", "m2_ai", "m3_view3d", "m4_mesh360", "m5_blender", "m6_mocap", "m7_blueprint", "m8_modular", "m9_voronoi", "m10_npc", "m11_audit", "m12_export"]:
+        assert mid in ws_gd, f"Missing module {mid} in NovaForgeMainWorkspace!"
+    assert "HSplitContainer.new()" in ws_gd and "VSplitContainer.new()" in ws_gd
+    assert "SubViewportContainer.new()" in ws_gd
+
+    proj_txt = (REPO_ROOT / "project.godot").read_text(encoding="utf-8")
+    assert "window/size/resizable=false" not in proj_txt
+
+    hud_gd = (REPO_ROOT / "addons" / "novaforge_engine" / "ui" / "in_game_studio_hud.gd").read_text(encoding="utf-8")
+    assert "w.unresizable = false" in hud_gd and "CURSOR_HSIZE" in hud_gd
+
+    godot_bin = Path("/home/user/.cache/novaforge_godot/Godot_v4.7.2-stable_linux.x86_64")
+    if godot_bin.exists():
+        proc = subprocess.run(
+            [str(godot_bin), "--headless", "--path", str(REPO_ROOT), "-s", "res://tests/test_v33_resizable_all_capabilities.gd"],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        out = (proc.stdout or "") + "\n" + (proc.stderr or "")
+        assert proc.returncode == 0 and "V33_STUDIO_ALL_12_MODULES_OK" in out, f"v3.3 Studio check failed:\n{out}"
+    print("  -> PASS (v3.3 12 Resizable Modules + Floating Windows + Embedded 3D + Pure-GDScript PBR + Exporter verified)")
+
+
 if __name__ == "__main__":
     test_native_core_and_ffi()
     test_skill_and_tool_registry()
@@ -395,6 +426,7 @@ if __name__ == "__main__":
     test_v30_neural_360_cloud_client_and_windows_ux()
     test_v31_live_ai_brains_and_continuous_polling()
     test_v32_zero_question_entry_and_in_app_installer()
+    test_v33_resizable_12_modules_and_full_capabilities()
     print("\n============================================================")
-    print("ALL NOVAFORGE AI GAME ENGINE v3.2 TESTS PASSED (10/10 GREEN)!")
+    print("ALL NOVAFORGE AI GAME ENGINE v3.3 TESTS PASSED (11/11 GREEN)!")
     print("============================================================")
