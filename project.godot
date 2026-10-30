@@ -30,7 +30,9 @@ NovaTimeMachine="*res://addons/novaforge_engine/world/project_time_machine.gd"
 
 window/size/viewport_width=1440
 window/size/viewport_height=840
+window/size/resizable=true
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 window/stretch/aspect="expand"
 
 [editor_plugins]

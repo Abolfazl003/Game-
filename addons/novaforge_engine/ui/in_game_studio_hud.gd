@@ -85,6 +85,17 @@ func _toggle_studio_panels() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if _panels_visible else Input.MOUSE_MODE_CAPTURED
 
 
+func _sync_hud_resize_bars(grip: Control, is_right: bool) -> void:
+	if grip == null:
+		return
+	var target := _right_panel if is_right else _left_panel
+	if target == null:
+		return
+	var gx := target.position.x - 4.0 if is_right else (target.position.x + target.size.x - 4.0)
+	grip.position = Vector2(gx, target.position.y)
+	grip.size = Vector2(9.0, target.size.y)
+
+
 func _build_ui() -> void:
 	var root_ctrl := Control.new()
 	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -218,9 +229,32 @@ func _build_ui() -> void:
 	var dl_dir := OS.get_system_dir(OS.SYSTEM_DIR_DOWNLOADS)
 	if not dl_dir.is_empty() and DirAccess.dir_exists_absolute(dl_dir):
 		runtime_mesh_dlg.current_dir = dl_dir
-	runtime_mesh_dlg.filters = PackedStringArray(["*.glb, *.gltf, *.obj ; مدل‌های سه‌بعدی"])
+	runtime_mesh_dlg.filters = PackedStringArray(["*.blend, *.glb, *.gltf, *.fbx, *.obj, *.dae, *.usd, *.usdz, *.abc, *.ply, *.stl ; همه ۱۳ فرمت بلندر و سه‌بعدی"])
 	runtime_mesh_dlg.file_selected.connect(_autorig_external_model_path)
 	add_child(runtime_mesh_dlg)
+
+	# Mouse-drag horizontal resize handle on inner edge of Right Panel
+	var r_resize := Control.new()
+	r_resize.anchor_left = 0.0
+	r_resize.anchor_right = 0.0
+	r_resize.anchor_top = 0.0
+	r_resize.anchor_bottom = 1.0
+	r_resize.offset_left = -6
+	r_resize.offset_right = 5
+	r_resize.mouse_default_cursor_shape = Control.CURSOR_HSIZE
+	r_resize.tooltip_text = "کشیدن با ماوس: کوچک و بزرگ کردن عرض پنل راست"
+	r_resize.gui_input.connect(func(ev: InputEvent):
+		if ev is InputEventMouseMotion and (ev.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
+			var vp_w := get_viewport().get_visible_rect().size.x
+			var new_left_off := clampf(_right_panel.offset_left + ev.relative.x, -vp_w * 0.62, -230.0)
+			_right_panel.offset_left = new_left_off
+	)
+	root_ctrl.add_child(r_resize)
+	_right_panel.resized.connect(func():
+		r_resize.position = Vector2(_right_panel.position.x - 4.0, _right_panel.position.y)
+		r_resize.size = Vector2(9.0, _right_panel.size.y)
+	)
+	call_deferred("_sync_hud_resize_bars", r_resize, true)
 
 	var b_pick_photo := _btn("◆ انتخاب عکس از ویندوز ⬅ مش ۳۶۰ درجه + ریگ", Color(0.10, 0.48, 0.80))
 	b_pick_photo.pressed.connect(func():
@@ -282,6 +316,19 @@ func _build_ui() -> void:
 	_left_panel.offset_bottom = -98
 	_left_panel.add_theme_stylebox_override("panel", _box_style(Color(0.08, 0.11, 0.18, 0.90), Color(0.24, 0.68, 0.62), 10))
 	root_ctrl.add_child(_left_panel)
+
+	# Mouse-drag horizontal resize handle on inner edge of Left Panel
+	var l_resize := Control.new()
+	l_resize.mouse_default_cursor_shape = Control.CURSOR_HSIZE
+	l_resize.tooltip_text = "کشیدن با ماوس: کوچک و بزرگ کردن عرض پنل چپ"
+	l_resize.gui_input.connect(func(ev: InputEvent):
+		if ev is InputEventMouseMotion and (ev.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
+			var vp_w := get_viewport().get_visible_rect().size.x
+			_left_panel.offset_right = clampf(_left_panel.offset_right + ev.relative.x, 225.0, vp_w * 0.60)
+			l_resize.position = Vector2(_left_panel.position.x + _left_panel.size.x - 4.0, _left_panel.position.y)
+	)
+	root_ctrl.add_child(l_resize)
+	call_deferred("_sync_hud_resize_bars", l_resize, false)
 
 	var l_scroll := ScrollContainer.new()
 	l_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

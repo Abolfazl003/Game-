@@ -7,13 +7,21 @@ var _elem_status: Label
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(215, 290)
+	custom_minimum_size = Vector2(180, 180)
 	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 
 	var root_vbox := VBoxContainer.new()
 	root_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	root_vbox.add_theme_constant_override("separation", 8)
 	add_child(root_vbox)
+
+	var b_ws := Button.new()
+	b_ws.text = "⚡ استودیو ۱۲ ماژوله نوافورج"
+	b_ws.pressed.connect(func():
+		if Engine.is_editor_hint():
+			EditorInterface.set_main_screen_editor("⚡ میزکار نوافورج")
+	)
+	root_vbox.add_child(b_ws)
 
 	var c1 := _make_card(root_vbox)
 	var t1 := Label.new()

@@ -27,7 +27,15 @@ var _selected_persona: String = "کارگردان ارشد بازی‌سازی (
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(215, 310)
+	custom_minimum_size = Vector2(180, 180)
+	var b_ws := Button.new()
+	b_ws.text = "⚡ باز کردن استودیو ۱۲ ماژوله نوافورج"
+	b_ws.custom_minimum_size = Vector2(0, 28)
+	b_ws.pressed.connect(func():
+		if Engine.is_editor_hint():
+			EditorInterface.set_main_screen_editor("⚡ میزکار نوافورج")
+	)
+	add_child(b_ws)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	add_theme_constant_override("separation", 4)
 
